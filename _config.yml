@@ -6,4 +6,4 @@ markdown: rdiscount
 rdiscount:
   extensions: [smart]
 permalink: pretty
-baseurl: monitoring-platform
+baseurl: /monitoring-platform
