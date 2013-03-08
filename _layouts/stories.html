@@ -1,0 +1,88 @@
+---
+layout: default
+class: stories
+category: wax
+---
+<img class='about-background' src='../img/about.png'/>
+<div id='all-stories'>
+    <div class='limiter'>
+        <div id='first' class='story-panel'>
+            <div id='first-text' class='story-text'>
+                <h2>About the project</h2>
+                <p>This site is a platform for managing, visualizing, and sharing data about oil spills and the oil industry across Nigeria. Managed by the National Oil Spill Detection and Response Agency (NOSDRA), this platform enables government agencies, oil companies, and civil society groups to share and collaborate around oil spill data.</p>
+                <br>
+                <p>Explore the costs and benefits associated with oil production in the Niger Delta, or find countless other stories in the data with our <a href="../maps">map browser</a>.</p>
+            </div>
+        </div>
+        <div id='second' class='story-panel'>
+            <div id='second-text' class='story-text'>
+                <h2>Monthly Spill Summary</h2>
+                <p>On average, two spills per day are reported across the Delta. Each month, spill counts and barrels lost are calculated to understand what is happening. The map to the left shows the current monthly spill locations, and the two charts below show the latest month spill count and barrels lost by LGA. To explore more monthly reports, access the <a href="https://docs.google.com/spreadsheet/ccc?key=0AoiGgH1LJtE0dEM3SS1aQVUtcHY3R0d3LXRPVmNoVnc#gid=13">Monthly Report page</a>.</p>
+            </div>
+            <div id='second-map' class='story'></div>
+            <div class="second-story-chart1"><img src="https://docs.google.com/a/developmentseed.org/spreadsheet/oimg?key=0AoiGgH1LJtE0dEM3SS1aQVUtcHY3R0d3LXRPVmNoVnc&oid=8&zx=98g7ldt1lbuj" height="280" width="420" /></div>
+            <div class="second-story-chart2"><img src="https://docs.google.com/a/developmentseed.org/spreadsheet/oimg?key=0AoiGgH1LJtE0dEM3SS1aQVUtcHY3R0d3LXRPVmNoVnc&oid=7&zx=u8qxcin1roax" height="280" width="420" /></div>
+        </div>
+        <div id='third' class='story-panel'>
+            <div id='third-text' class='story-text'>
+                <h2>Looking forward - Bringing Communities, Government and Oil companies together</h2>
+                <p>This platform enables government agencies, oil companies, and civil society groups to share and collaborate around oil spill data.</p>
+            </div>
+            <div id='third-map' class='story'></div>
+        </div>
+        <div id='photo-attribution' class='small-text'>Background photo by <a href='http://www.flickr.com/photos/terry_wha/1170646235/' target='_blank'>Terry Whalebone</a> under <a href='http://creativecommons.org/licenses/by/2.0/deed.en' target='_blank'>CC BY 2.0</a></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+new MB.map('first-map', {
+    base: 'nigeriaoil.map-5ustxk97',
+    id: 'nigeriaoil.nigeria-nosdra-red',
+    center: {
+        lat: 5.0470,
+        lon: 6.9222,
+        zoom: 7
+    },
+    zoomrange: [5, 12],
+    features: [
+    'zoombox',
+    'zoompan',
+    'attribuition',
+    'movetips',
+    ]
+});
+
+new MB.map('second-map', {
+    base: 'nigeriaoil.map-5ustxk97',
+    id: 'nigeriaoil.nigeria-monthly-spills-sept',
+    center: {
+        lat: 5.047,
+        lon: 6.812,
+        zoom: 7
+    },
+    zoomrange: [5, 12],
+    features: [
+    'zoombox',
+    'zoompan',
+    'attribuition',
+    'movetips',
+    ]
+});
+
+new MB.map('third-map', {
+    base: 'nigeriaoil.map-5ustxk97',
+    id: 'nigeriaoil.shell_spills',
+    center: {
+        lat: 5.3,
+        lon: 6.3,
+        zoom: 8
+    },
+    zoomrange: [8, 12],
+    features: [
+    'zoombox',
+    'zoompan',
+    'attribuition',
+    'movetips',
+    ]
+});
+</script>

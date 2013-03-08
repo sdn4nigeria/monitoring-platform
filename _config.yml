@@ -1,0 +1,10 @@
+auto: true
+server: true
+exclude:
+  - README.md
+  - design-source
+markdown: rdiscount
+rdiscount:
+  extensions: [smart]
+permalink: pretty
+baseurl: /nigeria-oil-mapping

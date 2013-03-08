@@ -1,0 +1,79 @@
+<div id='open-page'>
+  <div class='limiter'>
+    <div class='nav-wrapper'>
+        <div class='navigation' data-scrollspy="scrollspy">
+            <ul>
+                {% for category in page.categories %}
+                <li><a class='{% if forloop.first %}active{% endif %}' href='#{{ category | downcase | replace: ' ', '-' }}'>{{ category }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div> <!-- /.nav-wrapper -->
+    
+    <div class='open-wrapper clearfix'>
+        <div class='content'>
+            {% for category in page.categories %}
+            <h2 id='{{ category | downcase | replace: ' ', '-' }}'>{{ category }}</h2>
+        
+                {% for dataset in site.categories.maps %}
+                {% if dataset.categories contains category %}
+        
+                <div class='collection clearfix' id='{{ dataset.title | downcase | replace: ' ', '-' }}'>
+                    <h4 class='title'>{{dataset.title}}</h4>
+                    <div class='col details'>
+                        {{ dataset.content | markdownify }}
+                    </div>
+                    <div class='map-preview {{ dataset.title | downcase | replace: ' ', '-' }}'>
+                        <img src="{{ dataset.thumbnail }}">
+                    </div>
+
+                </div>
+
+                <div class='open-drawer-content' data-profile='{{ dataset.title | downcase | replace: ' ', '-' }}'>
+                    <div class='largemap' data-map='{{dataset.embed}}'></div>
+                    <div class='col downloads clearfix'>
+                        {% for download in dataset.downloads %}
+                        <a href='{% if download.link contains "http://" %}{{ download.link }}{% else if page.url = /open %}..{{ download.link }}{% else %}../..{{ download.link }}{% endif %}' class='download download-{{download.type}} clearfix'>
+                            <span class='button black'>Download {{download.type | capitalize}}</span>
+                        </a>
+                        {% endfor %}
+                    </div>
+                    <div class='open-embed-code clearfix'>
+                        <span class='embed-label'>Embed:</span>
+                        <textarea class='embed-code' rows='1' wrap='off' readonly><iframe src="{{dataset.embed}}" frameborder="0" width="500" height="400"></iframe></textarea>
+                    </div>
+                    <div class='open-api-code clearfix'>
+                        <span class='embed-label'>API:</span>
+                        <textarea class='embed-code' rows='1' wrap='off' readonly>{{dataset.api}}</textarea>
+                        <a href='#' class='api-button clearfix'>API Instructions</a>
+                    </div>
+                </div> <!-- /.open-drawer-content -->                
+        
+                {% endif %}
+                {% endfor %}
+        
+            {% endfor %}
+        
+        </div> <!-- /.content -->
+    </div> <!-- /.open-wrapper -->
+  </div>
+</div> <!-- /#open-page -->
+
+<div class='api-modal' style='display:none;'>
+    <div class='api-content'>
+        <h3>MapBox API</h3>
+        <p>All maps are powered by MapBox Hosting and can be accessed through simple RESTful API calls returning JSON documents.</p>
+        <p>You can access the <a href='http://mapbox.com/hosting/api/' target='_blank'>full API documentation</a>, but to get you started, here are a couple of simple examples:</p>
+        <div class='api-examples'>
+            <p class='api-ex-labels'>Show all maps available under Nigeria Oil Data:<br>
+            <code>http://api.tiles.mapbox.com/v3/nigeriaoil/maps.json</code></p>
+            <p class='api-ex-labels'>Show all data layers available under Nigeria Oil Data:<br>
+            <code>http://api.tiles.mapbox.com/v3/nigeriaoil/tilesets.json</code></p>
+            <p class='api-ex-labels'>Get a thumbnail for a map:<br>
+            <code>http://api.tiles.mapbox.com/v3/nigeriaoil.nigeria_pop/thumb.png</code></p>
+            <p class='api-ex-labels'>Grab the embeddable html for a map:<br>
+            <code>http://api.tiles.mapbox.com/v3/nigeriaoil.nigeria_pop.html</code></p>
+        </div>
+        <a href='#' class='icon api-close'>Close</a>
+    </div>
+</div> <!-- /.api-modal -->

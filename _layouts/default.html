@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+{% assign base = site.baseurl %}
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Nigeria Oil Data</title>
+  <meta name='viewport' content='width=980'>
+  <link rel="stylesheet" href="{{base}}/all.css" type="text/css" />
+  <link rel='stylesheet' href='{{base}}/ipad.css' type='text/css' media='only screen and (device-width: 768px)' />
+  <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700|Share:400,700' rel='stylesheet' type='text/css'>
+  <link rel='shortcut icon' href='{{base}}/img/favicon.ico' type='image/x-icon' />
+  <script src="{{base}}/js/libs/spin.min.js" type="text/javascript"></script>
+  <script src="{{base}}/js/libs/jquery.min.js" type="text/javascript"></script>
+  <script src="{{base}}/js/libs/jquery.viewport.mini.js" type="text/javascript"></script>
+  <script src='{{base}}/js/libs/jquery-ui-1.8.18.custom.min.js' type='text/javascript'></script>
+  <script src='{{base}}/js/libs/jquery.ui.touch-punch.min.js' type='text/javascript'></script>
+  <script src='http://api.tiles.mapbox.com/mapbox.js/v0.6.8-dev/mapbox.js'></script>
+  <script src="{{base}}/js/libs/mmg.js"></script>
+  <script src="{{base}}/js/libs/underscore.min.js"></script>
+  <script src="{{base}}/js/libs/markers.min.js" type="text/javascript"></script>
+  <script src='{{base}}/js/google_docs.js'></script>
+  <script src="{{base}}/js/site.js" type="text/javascript"></script>
+  <script src="{{base}}/js/open.js" type="text/javascript"></script>
+  <script src="{{base}}/js/libs/dropdown.js" type="text/javascript"></script>
+{% if page.category == 'wax' %}  
+  <script src="{{base}}/js/libs/wax.mm.min.js" type="text/javascript"></script>
+  <script src='{{base}}/js/libs/modestmaps.min.js' type="text/javascript"></script>
+  <script src='{{base}}/js/libs/easey.js'></script>
+  <script src="{{base}}/js/libs/wax.ext.js" type="text/javascript"></script>
+{% endif %}
+</head>
+ 
+<body class="no-touch{% if page.class %} {{page.class}}{% endif %}">
+<div id="masthead">
+  <div class="limiter-wide">
+    <div class="title">
+      <h2><a href="{{base}}/">Nigerian Public Oil Spill Monitoring Platform</a></h2>
+    </div>
+    <div id="nav">
+      <a class='data-nav {% if page.url contains 'open' %}active{% endif %}' href="{{base}}/open/data">data</a>
+      <a class='maps-nav {% if page.url == '/maps' %}active{% endif %}' href="{{base}}/maps">maps</a>
+      <a class='stories-nav {% if page.url == '/about' %}active{% endif %}' href="{{base}}/about">about</a>
+    </div>
+  </div>
+</div>
+
+{{content}}
+<!-- Commenting out the footer until given permission from Nigerian government to use their logo
+<div id="footer">
+  <div class="limiter">
+	  <a class="frn" href="#">Federal Republic of Nigeria</a>
+	  <a class="revwatch" href="http://www.revenuewatch.org/">Revenue Watch</a>
+	  <a class="sdn" href="http://www.stakeholderdemocracy.org/">Stakeholder Democracy Network</a>
+	  <a class="devseed" href="http://developmentseed.org/">Development Seed</a>
+	</div>
+</div>
+-->
+
+</body>
+</html>

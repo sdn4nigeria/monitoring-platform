@@ -1,0 +1,72 @@
+---
+layout: default
+class: mapbrowser
+category: wax
+---
+<div id="map"></div>
+
+<div class=''>
+    <div id="intro-text" class='about-text'>
+        <div id='map-about'>
+                 <h2>More Maps</h2>
+                 <p>Explore other created maps for additional oil spill data context. Browse through data sets from various sources, and explore cross-sections of the oil spill database. All maps can be shared and used outside of this site by using the Embed and API codes.</p> 
+        </div>
+        <div class='datalist'>
+            <h3>Current Layers</h3>
+            <div id='onlayers'>
+                <ul id='sortable'>
+                </ul>
+            </div>
+            <h3>Available Layers</h3>
+            <div id='offlayers'>
+                <ul id='layerlist'>
+
+                    {% for dataset in site.categories.maps %}
+
+                    <li>
+                        <div class='layer-container'>
+                            <a class='layer-link' id='{{dataset.layer}}' href='#'>{{dataset.title}}</a>
+                        </div>
+                    </li>
+
+                    {% endfor %}
+
+                </ul>
+            </div>
+        </div>
+        <div class='codes clearfix'>
+             <div class='data-embed-code'>
+                 <span class='code-label'>Embed:</span>
+                 <textarea class='embed-code' readonly='' wrap='off' rows='1'><iframe src="http://a.tiles.mapbox.com/v3/nigeriaoil.map-okptsd9e/mm/zoompan,tooltips,legend,bwdetect.html#7/8.352999999999994/11.981000000000003" frameborder="0" width="500" height="400"></iframe></textarea>
+             </div>
+             <div class='data-api-code'>
+                 <span class='code-label'>API:</span>
+                 <textarea class='api-code' readonly='' wrap='off' rows='1'>http://api.tiles.mapbox.com/v3/nigeriaoil.map-okptsd9e.jsonp</textarea>
+             </div>
+         </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+
+  new MB.map('map', {
+    base: 'nigeriaoil.map-5ustxk97',
+    id: '',
+    center: {
+      lat: 4.921,
+      lon: 6.726,
+      zoom: 8
+      },
+    zoomrange: [6, 12],
+    features: [
+      'zoombox',
+      'zoompan',
+      'zoomwheel',
+      'attribuition',
+      'tooltips',
+      'legend',
+      'share'
+    ]
+  });
+</script>

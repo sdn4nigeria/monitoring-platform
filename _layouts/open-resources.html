@@ -1,0 +1,65 @@
+---
+layout: open
+---
+<div id='resources-page'>
+
+    <div class='data-wrapper clearfix'>
+      <div class='limiter'>
+    <!-- <div class='nav-wrapper'>
+        <div class='navigation fixed' data-scrollspy="scrollspy">
+            <ul>
+            {% for category in page.categories %}
+                <li><a class='{% if forloop.first %}active{% endif %}' href='#{{ category | downcase | replace: ' ', '-' }}'>{{ category }}</a></li>
+            {% endfor %}
+            </ul>
+        </div>
+    </div> -->
+        <div class='content'>
+
+            {{ content }}
+
+        </div> <!-- /.content -->
+      </div>
+    </div> <!-- /.open-wrapper -->
+
+</div> <!-- /#data-page -->
+
+<script type="text/javascript">
+var navTop = $('.navigation')
+                        .offset().top - parseFloat($('.navigation')
+                        .css('marginTop')
+                        .replace(/auto/, 0));
+    
+        $(window).scroll(function (e) {
+            if (isTouchDevice()) {
+                var topHeight = $(this).scrollTop();
+                $('.navigation').css('top', topHeight);
+            }
+            if ($(window).width() > 920) {
+                var y = $(this).scrollTop();
+                if (y >= navTop) {
+                    $('.navigation').addClass('fixed');
+                } else {
+                    $('.navigation').removeClass('fixed');
+                }
+            }
+        });
+        
+// Highlight appropriate nav item
+        $(window).scroll(function (e) {
+            if($(this).scrollTop() != 0) {
+                var inview = $('.content h2:in-viewport:first').attr('id') ||
+                                $('.content h2:above-the-top:last').attr('id');
+    
+                var link = $('.navigation a[href="#' + inview + '"]');
+    
+                if (link.length && !link.is('.active')) {
+                    $('.navigation a').removeClass('active');
+                    link.addClass('active');
+                }
+            } else {
+                $('.navigation a').removeClass('active');
+                $('.navigation a:first').addClass('active');
+            }
+        });
+</script>
