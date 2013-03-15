@@ -1,6 +1,6 @@
 # Nigeria Public Oil Monitoring Platform
 
-Mapping platform for oil spill monitoring in Nigeria. Available at <>
+Mapping platform for oil spill monitoring in Nigeria. Available at <http://nigeria-oil-mapping.github.com/monitoring-platform/>
 
 Google Doc Spreadsheet: 
 <https://docs.google.com/spreadsheet/ccc?key=0AoiGgH1LJtE0dEM3SS1aQVUtcHY3R0d3LXRPVmNoVnc&usp=sharing>
