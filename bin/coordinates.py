@@ -206,11 +206,11 @@ for row in outputRow:
      csvwriter.writerow(row)
 out.close()
 
-mapdataFieldnames = ['spillid', 'companyname', 'incidentdate', 'datespillstopped', 'initialcontainmentmeasures', 'estimatedquantity', 'causeofspill', 'sitelocationname', 'latitude', 'longitude', 'estimatedspillarea', 'typeoffacility', 'datejiv', 'spillareahabitat', 'impact', 'descriptionofimpact', 'image', 'datecleanup', 'datecleanupcompleted', 'methodsofcleanup', 'dateofpostcleanupinspection', 'dateofpostimpactassessment', 'furtherremediation', 'datecertificate', 'thirdparty', 'month', 'year', 'monthNum', 'lga']
+mapdataFieldnames = ['spillid','companyname','incidentdate','datespillstopped','initialcontainmentmeasures','estimatedquantity','causeofspill','sitelocationname','latitude','longitude','estimatedspillarea','thirdparty','month','year','monthNum','lga']
 
-out = open('nosdra_map_data.csv', 'wb')
+out = open('nosdra_map_data_test.csv', 'wb')
 csvwriter = csv.DictWriter(out, delimiter=',', fieldnames=mapdataFieldnames, quoting=csv.QUOTE_NONNUMERIC)
-csvwriter.writerow(dict((fn,fn) for fn in fieldnames))
+csvwriter.writerow(dict((fn,fn) for fn in mapdataFieldnames))
 for row in outputRow:
     del row['timestamp']
     del row['gpslatdeg']
@@ -219,5 +219,18 @@ for row in outputRow:
     del row['gpslongdeg']
     del row['gpslongmin']
     del row['gpslongsec']
+    del row['typeoffacility']
+    del row['datejiv']
+    del row['spillareahabitat']
+    del row['impact']
+    del row['descriptionofimpact']
+    del row['image']
+    del row['datecleanup']
+    del row['datecleanupcompleted']
+    del row['methodsofcleanup']
+    del row['dateofpostcleanupinspection']
+    del row['dateofpostimpactassessment']
+    del row['furtherremediation']
+    del row['datecertificate']
     csvwriter.writerow(row)
 out.close()
