@@ -14,16 +14,31 @@ class: frontpage
             <div id='tooltip'></div>
         </div>
         <div id='base-select'>
-          <ul class='bottomlayer'> 
-            <li><a class='first' id='nigeriaoil.map-g3s2rdj8' href='#'>Sat</a></li>
-            <li><a class ='active last'id='nigeriaoil.map-5ustxk97' href='#'>Reg</a></li>
+          <ul class='bottomlayer'>
+            <li><a class='active first' id='nigeriaoil.map-g3s2rdj8' href='#'>Sat</a></li>
+            <li><a class='last'         id='nigeriaoil.map-5ustxk97' href='#'>Reg</a></li>
+          </ul>
+        </div>
+        <div id='context-layers'>
+          <div title='Filter by year'> Layers</div>
+          <ul class='bottomlayer'>
+            <li><a href='#' id='lgas'>LGAs</a></li>
+            <li><a href='#' id='wetlands'>Wetland Areas</a></li>
+            <li><a href='#' id='settlements'>Settlement Areas</a></li>
           </ul>
         </div>
         <div id='oil-legend'>
-            <div style ='height: 20px; margin-top: 0px'><h4 style='font-size: 11px; margin: 0;'>Company Spills</h4></div>
-              <div class='point blue legend'></div>
-            <div style ='height: 20px; margin-top: 30px; border-top: 1px solid #ccc'><h4 style='font-size: 11px; margin: 0;'>Third party spills</h4></div>
-              <div class='point legend'></div>
+          <div style='height: 20px; margin-top: 0px'>
+	        <h4 style='font-size: 11px; margin: 0;'>Company Spills</h4>
+	      </div>
+          <div class='point blue legend'></div>
+          <div style ='height: 20px; margin-top: 30px; border-top: 1px solid #ccc'>
+	        <h4 style='font-size: 11px; margin: 0;'>Third party spills</h4>
+	      </div>
+          <div class='point legend'></div>
+          <div id='spill-count' style='margin-top: 30px; border-top: 1px solid #ccc'>
+            <h4 style='font-size: 11px; margin: 0;'>Number of Spills: <span id='spill-number' class='count'></span></h4>
+          </div>
         </div>
         <div id='timelinks'>
           <div class='stage'>
@@ -48,21 +63,6 @@ class: frontpage
                   </li>
                   <li class='publisher-name'>&nbsp;</li>
                 </ul>
-                <ul id='dropdown-context' class='dropdown clearfix'>
-                  <li>
-                   <a href='#' data-toggle='dropdown' class='icon dropdown-toggle' title='Filter by year'> Context</a>
-                    <span class='arrow'>&nbsp;</span>
-                    <ul id='context-menu' class='dropdown-menu'>
-                      <li><a id='lgas'>LGAs</a></li>
-                      <li><a id='wetlands'>Wetland Areas</a></li>
-                      <li><a id='settlements'>Settlement Areas</a></li>
-                    </ul>
-                  </li>
-
-                </ul>
-                <div id='spill-count' class='dropdown clearfix'>
-                  <p>Number of Spills: <span id='spill-number' class='count'></span></p>
-                </div> 
                 <div id='options'></div>
               </div>
             </div>
@@ -107,5 +107,5 @@ class: frontpage
     <%=cleanup %>
     <%=mediation %>
     <%=image %>
-    </div> 
+    </div>
 </script>
