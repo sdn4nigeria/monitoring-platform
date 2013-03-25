@@ -1,6 +1,14 @@
 ---
 ---
- var browser =   $.browser.version;
+var mapLayers = {
+    satellite:   "nigeriaoil.map-g3s2rdj8",
+    flat:        "nigeriaoil.map-5ustxk97",
+    lga:         "nigeriaoil.nigeria-lga",
+    wetlands:    "nigeriaoil.NGWetlands",
+    settlements: "nigeriaoil.NGSettlement"
+};
+
+var browser =   $.browser.version;
 
 // via https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Array/indexOf
 if (!Array.prototype.indexOf) {
@@ -136,14 +144,6 @@ function updateEmbedApi() {
     $('textarea.embed-code').text(embedUrl);
     $('textarea.api-code').text(apiUrl);
 }
-
-var mapLayers = {
-    satellite:   "nigeriaoil.map-g3s2rdj8",
-    flat:        "nigeriaoil.map-5ustxk97",
-    lga:         "nigeriaoil.nigeria-lga",
-    wetlands:    "nigeriaoil.NGWetlands",
-    settlements: "nigeriaoil.NGSettlement"
-};
 
 function frontpageSetup() {
     var base = mapLayers.satellite; // 0
