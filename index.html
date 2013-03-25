@@ -5,72 +5,72 @@ class: frontpage
 <div id='load'></div>
 <div id='map'></div>
 <div class='intro'>
-    <div class=''>
-        <div id='intro-text' class='about-text'>
-            <h2>Explore oil spill data since <span class='bignum'>2007</span></h2>
-            <p>Nigerian Public Oil Spill Monitoring Platform is a multi-stakeholder platform that tracks and visualizes oil spill data across the Niger Delta. An average of <span class='bignum'>two spills a day</span> happen across the Delta, explore the data now.</p>
-            <br/>
-            <!--p>View <a href='{{site.baseurl}}/about'>stories</a> found in the data, and then find your own stories with our <a href='{{site.baseurl}}/maps'>map browser</a></p-->
-            <div id='tooltip'></div>
-        </div>
-        <div id='base-select'>
-          <ul class='bottomlayer'>
-            <li><a class='active first' id='nigeriaoil.map-g3s2rdj8' href='#'>Sat</a></li>
-            <li><a class='last'         id='nigeriaoil.map-5ustxk97' href='#'>Reg</a></li>
-          </ul>
-        </div>
-        <div id='context-layers'>
-          <div title='Filter by year'> Layers</div>
-          <ul class='bottomlayer'>
-            <li><a href='#' id='lgas'>LGAs</a></li>
-            <li><a href='#' id='wetlands'>Wetland Areas</a></li>
-            <li><a href='#' id='settlements'>Settlement Areas</a></li>
-          </ul>
-        </div>
-        <div id='oil-legend'>
-          <div style='height: 20px; margin-top: 0px'>
-	        <h4 style='font-size: 11px; margin: 0;'>Company Spills</h4>
-	      </div>
-          <div class='point blue legend'></div>
-          <div style ='height: 20px; margin-top: 30px; border-top: 1px solid #ccc'>
-	        <h4 style='font-size: 11px; margin: 0;'>Third party spills</h4>
-	      </div>
-          <div class='point legend'></div>
-          <div id='spill-count' style='margin-top: 30px; border-top: 1px solid #ccc'>
-            <h4 style='font-size: 11px; margin: 0;'>Number of Spills: <span id='spill-number' class='count'></span></h4>
-          </div>
-        </div>
-        <div id='timelinks'>
-          <div class='stage'>
-            <div class='filter'>
-              <div class='map-limiter'>
-                <ul  id='dropdown-companies'class='dropdown clearfix'>
-                  <li>
-                   <a href='#' data-toggle='dropdown' class='icon dropdown-toggle' title='Filter by company'>Companies: <span id='company-count' class='count'></span></a>
-                    <span class='arrow'>&nbsp;</span>
-                    <ul id='company-menu' class='dropdown-menu'>
-                    </ul>
-                  </li>
-                  <li class='publisher-name'>&nbsp;</li>
-                </ul>
-
-                <ul id='dropdown-years' class='dropdown clearfix'>
-                  <li>
-                   <a href='#' data-toggle='dropdown' class='icon dropdown-toggle' title='Filter by year'> Years: <span id='year-count' class='count'></span></a>
-                    <span class='arrow'>&nbsp;</span>
-                    <ul id='year-menu' class='dropdown-menu'>
-                    </ul>
-                  </li>
-                  <li class='publisher-name'>&nbsp;</li>
-                </ul>
-                <div id='options'></div>
-              </div>
-            </div>
-          </div>
-            
-            <!-- <p id='options-explain' class='small-text'>The values shown for spill count and oil spilled January 2012 were calculated using the sample NOSDRA oil spill databases. The spill count and Oil Spilled values should not be interpreted as signifying the total number of oil spills or total oil spilled</p> -->
-        </div>
+  <div class=''>
+    <div id='intro-text' class='about-text'>
+      <h2>Explore oil spill data since <span class='bignum'>2007</span></h2>
+      <p>Nigerian Public Oil Spill Monitoring Platform is a multi-stakeholder platform that tracks and visualizes oil spill data across the Niger Delta. An average of <span class='bignum'>two spills a day</span> happen across the Delta, explore the data now.</p>
+      <br/>
+      <!--p>View <a href='{{site.baseurl}}/about'>stories</a> found in the data, and then find your own stories with our <a href='{{site.baseurl}}/maps'>map browser</a></p-->
+      <div id='tooltip'></div>
     </div>
+    <div id='base-select'>
+      <ul class='bottomlayer'>
+        <li><a class='active first' id='nigeriaoil.map-g3s2rdj8' href='#'>Sat</a></li>
+        <li><a class='last'         id='nigeriaoil.map-5ustxk97' href='#'>Reg</a></li>
+      </ul>
+    </div>
+    <div id='context-layers'>
+      <div title='Filter by year'> Layers</div>
+      <ul class='bottomlayer'>
+        <li><a href='#' id='lgas'>LGAs</a></li>
+        <li><a href='#' id='wetlands'>Wetland Areas</a></li>
+        <li><a href='#' id='settlements'>Settlement Areas</a></li>
+      </ul>
+    </div>
+    <div id='oil-legend'>
+      <div style='height: 20px; margin-top: 0px'>
+	    <h4 style='font-size: 11px; margin: 0;'>Company Spills</h4>
+	  </div>
+      <div class='point blue legend'></div>
+      <div style ='height: 20px; margin-top: 30px; border-top: 1px solid #ccc'>
+	    <h4 style='font-size: 11px; margin: 0;'>Third party spills</h4>
+	  </div>
+      <div class='point legend'></div>
+      <div id='spill-count' style='margin-top: 30px; border-top: 1px solid #ccc'>
+        <h4 style='font-size: 11px; margin: 0;'>Number of Spills: <span id='spill-number' class='count'></span></h4>
+      </div>
+    </div>
+    <div id='timelinks'>
+      <div class='stage'>
+        <div class='filter'>
+          <div class='map-limiter'>
+            <ul  id='dropdown-companies'class='dropdown clearfix'>
+              <li>
+                <a href='#' data-toggle='dropdown' class='icon dropdown-toggle' title='Filter by company'>Companies: <span id='company-count' class='count'></span></a>
+                <span class='arrow'>&nbsp;</span>
+                <ul id='company-menu' class='dropdown-menu'>
+                </ul>
+              </li>
+              <li class='publisher-name'>&nbsp;</li>
+            </ul>
+            
+            <ul id='dropdown-years' class='dropdown clearfix'>
+              <li>
+                <a href='#' data-toggle='dropdown' class='icon dropdown-toggle' title='Filter by year'> Year: <span id='year-count' class='count'></span></a>
+                <span class='arrow'>&nbsp;</span>
+                <ul id='year-menu' class='dropdown-menu'>
+                </ul>
+              </li>
+              <li class='publisher-name'>&nbsp;</li>
+            </ul>
+            <div id='options'></div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- <p id='options-explain' class='small-text'>The values shown for spill count and oil spilled January 2012 were calculated using the sample NOSDRA oil spill databases. The spill count and Oil Spilled values should not be interpreted as signifying the total number of oil spills or total oil spilled</p> -->
+    </div>
+  </div>
 </div>
 
 <!--div class='limiter clearfix'><div class='graphs'></div></div-->
@@ -78,26 +78,26 @@ class: frontpage
   <div class='limiter clearfix'>
     <div class='submit-story col col-2'>
       <div class='padding'>
-          <a class='action button' href='http://developmentseed.org/nigeria-citizen-map/'>Citizen Report</a>
+        <a class='action button' href='http://developmentseed.org/nigeria-citizen-map/'>Citizen Report</a>
         <p>Access map with citizen-reported spill information.
         </p>
       </div>
     </div>
     <div class='download-data col col-2'>
       <div class='padding'>
-          <a class='action button' href='open/data'>Get the Data</a>
+        <a class='action button' href='open/data'>Get the Data</a>
         <p>Access and download all the available data. All maps are powered by <a href='http://mapbox.com'>Mapbox</a>. Read about how you can host and retrieve maps using the <a href='http://mapbox.com/hosting/api'>Mapbox API</a>.</p>
       </div>
     </div>
   </div>
 </div>
-  <script type="text/javascript">  
-        $(document).ready(function () {  
-            $('.dropdown-toggle').dropdown();  
-        });  
-   </script>  
+<script type="text/javascript">
+  $(document).ready(function () {
+    $('.dropdown-toggle').dropdown();
+  });
+</script>
 <script type='text/template' id='popupNosdra'>
-<div class='marker-popups'> 
+  <div class='marker-popups'>
     <%=location  %>
     <%=spill %>
     <%=date %>
@@ -107,5 +107,5 @@ class: frontpage
     <%=cleanup %>
     <%=mediation %>
     <%=image %>
-    </div>
+  </div>
 </script>
