@@ -137,12 +137,20 @@ function updateEmbedApi() {
     $('textarea.api-code').text(apiUrl);
 }
 
+var mapLayers = {
+    satellite:   "nigeriaoil.map-g3s2rdj8",
+    flat:        "nigeriaoil.map-5ustxk97",
+    lga:         "nigeriaoil.nigeria-lga",
+    wetlands:    "nigeriaoil.NGWetlands",
+    settlements: "nigeriaoil.NGSettlement"
+};
+
 function frontpageSetup() {
-    var base = "nigeriaoil.map-5ustxk97"; // 0
+    var base = mapLayers.satellite; // 0
     var layerIDs = [
-        "nigeriaoil.nigeria-lga", // 1 state - LGA
-        "nigeriaoil.NGWetlands", // 2 state - wetlands
-        "nigeriaoil.NGSettlement" // 3 county - settlements
+        mapLayers.lga, // 1 state - LGA
+        mapLayers.wetlands, // 2 state - wetlands
+        mapLayers.settlements // 3 county - settlements
     ];
     var allLayers = [
         base,
@@ -177,10 +185,10 @@ function frontpageSetup() {
         
         displayCurrent();//initial load
     
-        $('#context-menu li a').click(function(e) {
+        $('#context-layers li a').click(function(e) {
             e.preventDefault();
-            $('#context-menu li a').removeClass("switch-active");
-            $(this).addClass("switch-active");
+            $('#context-layers li a').removeClass("active");
+            $(this).addClass("active");
             m.ui.legend.remove();
             if ($(this).attr("id") === "lgas") {
                 currentLayer = 1;
@@ -349,7 +357,7 @@ function frontpageSetup() {
                         /* This if statement determines the zoom limits 
                            based on which base map is shown, since the satellite
                            map is fuzzy when zoomed in too far  */ 
-                        if (this.id == 'nigeriaoil.map-g3s2rdj8') {
+                        if (this.id == mapLayers.satellite) {
                             m.setZoomRange(4, 12);
                         }
                         else {
@@ -420,7 +428,7 @@ function frontpageSetup() {
                 setupInterface();
                 updateDisplay();
             });
-        })('0AoiGgH1LJtE0dEM3SS1aQVUtcHY3R0d3LXRPVmNoVnc', 2);
+        })('0AoiGgH1LJtE0dEM3SS1aQVUtcHY3R0d3LXRPVmNoVnc', 2);// Google docs id
     });
 }
 
