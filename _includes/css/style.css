@@ -232,21 +232,10 @@ sup {
   }
 #spill-count {
   text-indent: 0;
-  padding: 0 8px 0px 12px;
   width: 60px;
   width: auto!important;
   min-width: 60px;
   display: block;
-  background: #555;
-  position: relative;
-  height: 34px; line-height: 34px;
-  -moz-box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-    /*border: 1px solid #333;*/
-  margin-left: 5px;
-  float: left;
-  -moz-border-radius: 4px;
-  border-radius: 4px;
 }
 #spill-count p {
   color: #Fefefe;
@@ -667,9 +656,8 @@ sup {
 #oil-legend {
   position: absolute;
   right: 10px;
-  top: 134px;
+  top: 234px;
   width: 62px;
-  height: 98px;
   padding: 5px;
   color: #fff;
   background: #555;
@@ -681,6 +669,33 @@ sup {
 }
 #oil-legend .point {
   cursor: default;
+}
+#context-layers {
+  position: absolute;
+  right: 10px;
+  top: 134px;
+  color: #fff;
+  background: #555;
+  background: rgba(80, 80, 80, .85);
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+#context-layers > div { padding-left: 5px; }
+#context-layers ul li a {
+  display: block;
+  padding: 2px 5px;
+  color: #fff;
+  background: #999;
+  background: rgba(150, 150, 150, .8);
+  font-weight: 700;
+}
+#context-layers ul li a:hover {
+ background: #999;
+}
+#context-layers ul li a.active {
+  background: #6C6C6C;
+  box-shadow: 0px 0px 11px -2px #444;
 }
 .legend {
   width: 26px;

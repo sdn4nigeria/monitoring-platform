@@ -177,10 +177,10 @@ function frontpageSetup() {
         
         displayCurrent();//initial load
     
-        $('#context-menu li a').click(function(e) {
+        $('#context-layers li a').click(function(e) {
             e.preventDefault();
-            $('#context-menu li a').removeClass("switch-active");
-            $(this).addClass("switch-active");
+            $('#context-layers li a').removeClass("active");
+            $(this).addClass("active");
             m.ui.legend.remove();
             if ($(this).attr("id") === "lgas") {
                 currentLayer = 1;
@@ -420,7 +420,7 @@ function frontpageSetup() {
                 setupInterface();
                 updateDisplay();
             });
-        })('0AoiGgH1LJtE0dEM3SS1aQVUtcHY3R0d3LXRPVmNoVnc', 2);
+        })('0AoiGgH1LJtE0dEM3SS1aQVUtcHY3R0d3LXRPVmNoVnc', 2);// Google docs id
     });
 }
 
