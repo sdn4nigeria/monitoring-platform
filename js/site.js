@@ -1,6 +1,17 @@
 ---
 ---
- var browser =   $.browser.version;
+var mapLayers = {
+    satellite:   "nigeriaoil.map-g3s2rdj8",
+    flat:        "nigeriaoil.map-5ustxk97",
+    lga:         "nigeriaoil.nigeria-lga",
+    wetlands:    "nigeriaoil.NGWetlands",
+    settlements: "nigeriaoil.NGSettlement"
+};
+
+var googleDocsIdentifier = window.location.hash.match(/#?([a-zA-Z0-9]+)/);
+if (googleDocsIdentifier) googleDocsIdentifier = googleDocsIdentifier[1];
+
+var browser =   $.browser.version;
 
 // via https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Array/indexOf
 if (!Array.prototype.indexOf) {
@@ -57,9 +68,9 @@ MB.api = function (l) {
 MB.map = function (el, l) {
     wax.tilejson(MB.api(l), function (t) {
         var h = [
-        new MM.DragHandler(),
-        new MM.DoubleClickHandler(),
-        new MM.TouchHandler()];
+            new MM.DragHandler(),
+            new MM.DoubleClickHandler(),
+            new MM.TouchHandler()];
         if ($.inArray('zoomwheel', l.features) >= 0) h.push(new MM.MouseWheelHandler());
 
         MB.maps[el] = new MM.Map(el, new wax.mm.connector(t), null, h);
@@ -105,8 +116,8 @@ MB.refresh = function (m, l) {
     });
     if (l.center) {
         var lat = l.center.lat || MB.maps[m].getCenter().lat,
-            lon = l.center.lon || MB.maps[m].getCenter().lon,
-            zoom = l.center.zoom || MB.maps[m].getZoom();
+        lon = l.center.lon || MB.maps[m].getCenter().lon,
+        zoom = l.center.zoom || MB.maps[m].getZoom();
 
         if (l.center.ease > 0) {
             MB.maps[m].easey = easey().map(MB.maps[m]).to(MB.maps[m].locationCoordinate({
@@ -125,7 +136,7 @@ MB.refresh = function (m, l) {
 
 function commaSeparateNumber(val){
     while (/(\d+)(\d{3})/.test(val.toString())){
-      val = val.toString().replace(/(\d+)(\d{3})/, '$1'+','+'$2');
+        val = val.toString().replace(/(\d+)(\d{3})/, '$1'+','+'$2');
     }
     return val;
 }
@@ -138,11 +149,11 @@ function updateEmbedApi() {
 }
 
 function frontpageSetup() {
-    var base = "nigeriaoil.map-5ustxk97"; // 0
+    var base = mapLayers.satellite; // 0
     var layerIDs = [
-        "nigeriaoil.nigeria-lga", // 1 state - LGA
-        "nigeriaoil.NGWetlands", // 2 state - wetlands
-        "nigeriaoil.NGSettlement" // 3 county - settlements
+        mapLayers.lga,        // 1 state - LGA
+        mapLayers.wetlands,   // 2 state - wetlands
+        mapLayers.settlements // 3 county - settlements
     ];
     var allLayers = [
         base,
@@ -153,8 +164,7 @@ function frontpageSetup() {
     mapbox.auto("map", allLayers, function(m) {
         m.setZoomRange(4, 21);
         m.smooth(true);
-
-     
+        
         m.interaction.auto();
         m.ui.hash;
         m.ui.zoomer.add();
@@ -165,7 +175,7 @@ function frontpageSetup() {
         m.getLayerAt(3).composite(false); // descriptions go here
         
         var currentLayer = 6; //state-medicaid
-    
+        
         var displayCurrent = function(){
             for (var i = 1; i < allLayers.length; i++) {
                 m.disableLayerAt(i);
@@ -176,24 +186,32 @@ function frontpageSetup() {
         };
         
         displayCurrent();//initial load
-    
+        
         $('#context-layers li a').click(function(e) {
             e.preventDefault();
             $('#context-layers li a').removeClass("active");
-            $(this).addClass("active");
             m.ui.legend.remove();
-            if ($(this).attr("id") === "lgas") {
-                currentLayer = 1;
-                displayCurrent();
-            } else if ($(this).attr("id") === "wetlands") {
-                currentLayer = 2;
-                displayCurrent();
-            } else if ($(this).attr("id") === "settlements") {
-                currentLayer = 3;
-                displayCurrent();
+            switch ($(this).attr("id")) {
+            case "lgas":
+                if (currentLayer != 1) currentLayer = 1;
+                else                   currentLayer = 0;
+                break;
+            case "wetlands":
+                if (currentLayer != 2) currentLayer = 2;
+                else                   currentLayer = 0;
+                break;
+            case "settlements":
+                if (currentLayer != 3) currentLayer = 3;
+                else                   currentLayer = 0;
+                break;
+            default:
+                // Ignore clicks on other elements
+                return;
             }
+            if (true || currentLayer != 0) $(this).addClass("active");
+            displayCurrent();
         });
-
+        
         function loading(state) {
             var opts = {
                 lines: 15,
@@ -206,22 +224,22 @@ function frontpageSetup() {
                 top: 'auto',
                 left: 'auto'
             };
-    
+            
             var target = $('#load');
             if (!this.spinner) this.spinner = new Spinner();
             if (!this.active) this.active = false;
-        
+            
             switch(state) {
-                case 'start':
+            case 'start':
                 if(!this.active) {
                     this.spinner = Spinner(opts).spin();
                     target
-                    .append(this.spinner.el)
-                    .addClass('active');
+                        .append(this.spinner.el)
+                        .addClass('active');
                     this.active = true;
                 }
                 break;
-                case 'stop':
+            case 'stop':
                 if (this.spinner) {
                     target.removeClass('active');
                     this.spinner.stop();
@@ -237,14 +255,14 @@ function frontpageSetup() {
         var totallist = [];
         var totalcontent = '';
         
-        (function loadMap(key, number) {
-            loading('start'); 
+        if (googleDocsIdentifier) (function loadMap(key, number) {
+            loading('start');
             mmg_google_docs(key, number, function(features) {
-            
+                
                 var companies = {};
                 var years = {};
                 var months = {};
-        
+                
                 _(features).each(function(f) {
                     years[f.properties.year] = true;
                     months[f.properties.month] = true;
@@ -253,17 +271,17 @@ function frontpageSetup() {
                     totalbarrels[f.properties.month] = f.properties.sitelocationname;
                     return f;
                 });
-
+                
                 var yearsAvailable = _(years).keys().sort(function(a,b){return a - b})
                 var monthsAvailable = _(months).chain().keys().sortBy(function(v){
-                        return ["jan","feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"].indexOf(v.toLowerCase());
-                    });
+                    return ["jan","feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"].indexOf(v.toLowerCase());
+                });
                 var active = {
-                    company: _(companies).keys(), 
-                    year: [yearsAvailable[yearsAvailable.length -1]], 
-                    month: [monthsAvailable._wrapped[0]], 
+                    company: _(companies).keys(),
+                    year: [yearsAvailable[yearsAvailable.length -1]],
+                    month: [monthsAvailable._wrapped[0]],
                 };
-                    var ml = mapbox.markers.layer().factory(function(x) {
+                var ml = mapbox.markers.layer().factory(function(x) {
                     var popupNosdra = _.template(document.getElementById('popupNosdra').innerHTML);
                     var events = x.properties.estimatedquantity;
                     var y, z;
@@ -276,7 +294,7 @@ function frontpageSetup() {
                     }
                     d.zIndex = 999999;
                     d.pointerEvents = 'all';
-        
+                    
                     if (events >= 0 && events < 10) {
                         y = 14;
                         z = 406;
@@ -292,29 +310,29 @@ function frontpageSetup() {
                     } else if (events > 500) {
                         y = 54;
                         z = 260;
-                    } 
+                    }
                     // The point on the map
                     $(d).css("height", y + "px");
                     $(d).css("width", y + "px");
                     $(d).css("background-position",  -z + 'px ' + (y - 103) + 'px');
                     $(d).css("margin-left", -(y / 2) + 'px');
                     $(d).css("margin-top",-(y / 2) + 'px');
-                  
-                     //Account for 0 barrels lost
+                    
+                    //Account for 0 barrels lost
                     var quantity = x.properties.estimatedquantity;
                     if(x.properties.estimatedquantity == 0){
                         quantity = "Less than 1 ";
                     }
-
+                    
                     $(d).click(function() {
-                         var point = {lat: (x.geometry.coordinates[1] - .03), lon: (x.geometry.coordinates[0] - .2)};
-                         var zoom = 10;
-                         easey().map(m)
-                               .to(m.locationCoordinate(point)
-                               .zoomTo(zoom))
-                               .run(500);
+                        var point = {lat: (x.geometry.coordinates[1] - .03), lon: (x.geometry.coordinates[0] - .2)};
+                        var zoom = 10;
+                        easey().map(m)
+                            .to(m.locationCoordinate(point)
+                                .zoomTo(zoom))
+                            .run(500);
                     });
-        
+                    
                     // A points popup
                     var contentNosdra = document.createElement('div');
                     contentNosdra.className = 'popupNosdra clearfix';
@@ -333,7 +351,7 @@ function frontpageSetup() {
                     d.appendChild(contentNosdra);
                     $(d).hover(function () {
                         var tooltip = $('.about-text');
-                        tooltip.empty(); 
+                        tooltip.empty();
                         var contentNosdra = $(this).find('.popupNosdra').html();
                         tooltip.html(contentNosdra);
                     });
@@ -346,26 +364,26 @@ function frontpageSetup() {
                             $('ul.bottomlayer li a').removeClass('active');
                             $(this).addClass('active');
                         }
-                        /* This if statement determines the zoom limits 
+                        /* This if statement determines the zoom limits
                            based on which base map is shown, since the satellite
-                           map is fuzzy when zoomed in too far  */ 
-                        if (this.id == 'nigeriaoil.map-g3s2rdj8') {
+                           map is fuzzy when zoomed in too far  */
+                        if (this.id == mapLayers.satellite) {
                             m.setZoomRange(4, 12);
                         }
                         else {
                             m.setZoomRange(4, 21);
                         }
                     });
-    
-                    return d;     
+                    
+                    return d;
                 }).features(features);
-    
+                
                 function updateDisplay() {
-
                     _(active).each(function (v, k) {
-                        if (k == months) return;
-                        $('#' + k + '-count').text(v.length);
-                    })
+                        if (k == "month") return;
+                        if (k == "year") $('#' + k + '-count').text(v[0]);
+                        else $('#' + k + '-count').text(v.length);
+                    });
                     var count = 0;
                     ml.filter(function(f) {
                         var test = active.company.indexOf(f.properties.companyname) !== -1 &&
@@ -376,7 +394,7 @@ function frontpageSetup() {
                     });
                     $('#spill-number').text(commaSeparateNumber(count));
                 }
-
+                
                 function setupInterface() {
                     var clickHandle = function(type) {
                         return function(ev) {
@@ -393,14 +411,27 @@ function frontpageSetup() {
                             return false;
                         };
                     };
-                 
+                    // Variant that allows only one element selected
+                    var clickHandleUnique = function(type) {
+                        return function(ev) {
+                            var elem = $(ev.currentTarget);
+                            var v = elem.attr('id');
+                            elem.closest("ul").find("a").removeClass("switch-active");
+                            elem.addClass('switch-active');
+                            active[type] = [v];
+                            var i = active[type].indexOf(v);
+                            updateDisplay();
+                            return false;
+                        };
+                    };
+                    
                     $('#options a').remove();
-                        _(monthsAvailable._wrapped).chain().sortBy(function(v){
+                    _(monthsAvailable._wrapped).chain().sortBy(function(v){
                         var activeClass = (active.month.indexOf(v) == -1 ? '' : ' switch-active');
                         $('#options').append('<a href="#" class="time-switch clearfix' + activeClass + '" id="'+v+'">'+v+'</a>');
                     });
                     $('#options a').click(clickHandle('month'));
-                        _(companies).chain().keys().each(function(v) {
+                    _(companies).chain().keys().each(function(v) {
                         $('#company-menu').append('<li><a href="#" class="time-switch clearfix switch-active" id="'+v+'">'+v+'</a>');
                     });
                     $('#company-menu a').click(clickHandle('company'));
@@ -409,24 +440,25 @@ function frontpageSetup() {
                         var activeClass = (active.year.indexOf(v) == -1 ? '' : ' switch-active');
                         $('#year-menu').append('<li><a href="#" class="time-switch clearfix' + activeClass + '" id="'+v+'">'+v+'</a>');
                     });
-                    $('#year-menu a').click(clickHandle('year'));
+                    $('#year-menu a').click(clickHandleUnique('year'));
                 }
-        
+                
                 loading('stop');
                 if (!features) return; // throw error?
-    
+                
                 m.addLayer(ml);
                 mapbox.markers.interaction(ml);
                 setupInterface();
                 updateDisplay();
             });
-        })('0AoiGgH1LJtE0dEM3SS1aQVUtcHY3R0d3LXRPVmNoVnc', 2);// Google docs id
+        })(googleDocsIdentifier, 2);
+        else alert("The spill data display requires a dataset ID");
     });
 }
 
 $(function () {
     if ($('body').hasClass('frontpage')) frontpageSetup();
-
+    
     // Draggable data list
     $('#sortable').sortable({
         axis: 'y',
@@ -439,7 +471,7 @@ $(function () {
         }
     });
     $('#sortable').disableSelection();
-
+    
     // Update layer order
     function updateLayers() {
         layer = '';
@@ -449,12 +481,12 @@ $(function () {
                     layer = 'nigeriaoil.' + this.id;
                 } else {
                     layer = ['nigeriaoil.' + this.id,
-                    layer].join(',');
+                             layer].join(',');
                 }
             }
         });
     }
-
+    
     // Data layerswitcher
     $('.datalist a.layer-link').click(function (e) {
         e.preventDefault();
@@ -471,14 +503,14 @@ $(function () {
         buildRequest(el, layer);
         updateEmbedApi();
     });
-
+    
     // Primary Navigation
     $('#nav a').click(function (e) {
         //e.preventDefault();
         $('#nav a').removeClass('active');
         $(this).addClass('active');
     });
-
+    
     var buildRequest = function (el, l) {
         var options = {}
         options.base = el.attr('data-basemap') || '';
@@ -490,10 +522,8 @@ $(function () {
         options.center.ease = el.attr('data-ease') || 0;
         MB.refresh('map', options);
     }
-
+    
     if (isTouchDevice()) {
         $('body').removeClass('no-touch');
     }
 });
-
-
