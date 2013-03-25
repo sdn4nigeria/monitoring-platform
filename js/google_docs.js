@@ -2,18 +2,18 @@ function mmg_google_docs(id, num, callback) {
     if (typeof reqwest === 'undefined') {
         throw 'CSV: reqwest required for mmg_csv_url';
     }
-
+    
     function response(x) {
         var features = [],
-            latfield = '',
-            lonfield = '';
+        latfield = '',
+        lonfield = '';
         if (!x || !x.feed) return features;
-
+        
         for (var f in x.feed.entry[0]) {
             if (f.match(/\$Lat/i)) latfield = f;
             if (f.match(/\$Lon/i)) lonfield = f;
         }
-
+        
         for (var i = 0; i < x.feed.entry.length; i++) {
             var entry = x.feed.entry[i];
             var feature = {
@@ -32,12 +32,15 @@ function mmg_google_docs(id, num, callback) {
             }
             if (feature.geometry.coordinates.length == 2) features.push(feature);
         }
-
+        
         return callback(features);
-           }
-
+    }
+    
     var url = 'https://spreadsheets.google.com/feeds/list/' + id + '/' + num +
         '/public/values?alt=json-in-script&callback=callback';
+    // TODO: here we could load an alternative URL that caches the data
+    //if (window.location.hash === "#quick") url = "http://demo.sentido-labs.com/monitoring-platform/values.json";
+    //else alert(window.location.hash);
     
     reqwest({
         url: url,
