@@ -1,6 +1,14 @@
 ---
 ---
- var browser =   $.browser.version;
+var mapLayers = {
+    satellite:   "nigeriaoil.map-g3s2rdj8",
+    flat:        "nigeriaoil.map-5ustxk97",
+    lga:         "nigeriaoil.nigeria-lga",
+    wetlands:    "nigeriaoil.NGWetlands",
+    settlements: "nigeriaoil.NGSettlement"
+};
+
+var browser =   $.browser.version;
 
 // via https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Array/indexOf
 if (!Array.prototype.indexOf) {
@@ -138,11 +146,11 @@ function updateEmbedApi() {
 }
 
 function frontpageSetup() {
-    var base = "nigeriaoil.map-5ustxk97"; // 0
+    var base = mapLayers.satellite; // 0
     var layerIDs = [
-        "nigeriaoil.nigeria-lga", // 1 state - LGA
-        "nigeriaoil.NGWetlands", // 2 state - wetlands
-        "nigeriaoil.NGSettlement" // 3 county - settlements
+        mapLayers.lga, // 1 state - LGA
+        mapLayers.wetlands, // 2 state - wetlands
+        mapLayers.settlements // 3 county - settlements
     ];
     var allLayers = [
         base,
@@ -349,7 +357,7 @@ function frontpageSetup() {
                         /* This if statement determines the zoom limits 
                            based on which base map is shown, since the satellite
                            map is fuzzy when zoomed in too far  */ 
-                        if (this.id == 'nigeriaoil.map-g3s2rdj8') {
+                        if (this.id == mapLayers.satellite) {
                             m.setZoomRange(4, 12);
                         }
                         else {
