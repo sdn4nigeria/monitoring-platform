@@ -208,7 +208,7 @@ function frontpageSetup() {
                 // Ignore clicks on other elements
                 return;
             }
-            if (true || currentLayer != 0) $(this).addClass("active");
+            if (currentLayer != 0) $(this).addClass("active");
             displayCurrent();
         });
         
@@ -381,7 +381,11 @@ function frontpageSetup() {
                 function updateDisplay() {
                     _(active).each(function (v, k) {
                         if (k == "month") return;
-                        if (k == "year") $('#' + k + '-count').text(v[0]);
+                        if (k == "year" || k == "company") {
+                            var label = v[0];
+                            if (v.length > 1) label = "All";
+                            $('#' + k + '-count').text(label);
+                        }
                         else $('#' + k + '-count').text(v.length);
                     });
                     var count = 0;
@@ -416,10 +420,21 @@ function frontpageSetup() {
                         return function(ev) {
                             var elem = $(ev.currentTarget);
                             var v = elem.attr('id');
-                            elem.closest("ul").find("a").removeClass("switch-active");
-                            elem.addClass('switch-active');
-                            active[type] = [v];
-                            var i = active[type].indexOf(v);
+                            var allElements = elem.closest("ul").find("a");
+                            if (/^all-/.test(v)) {
+                                allElements.addClass("switch-active");
+                                var all = [];
+                                allElements.each(function (i) {
+                                    var id = $(this).attr('id');
+                                    if (!/^all-/.test(id)) all.push(id);
+                                });
+                                active[type] = all;
+                            }
+                            else {
+                                allElements.removeClass("switch-active");
+                                elem.addClass('switch-active');
+                                active[type] = [v];
+                            }
                             updateDisplay();
                             return false;
                         };
@@ -431,10 +446,12 @@ function frontpageSetup() {
                         $('#options').append('<a href="#" class="time-switch clearfix' + activeClass + '" id="'+v+'">'+v+'</a>');
                     });
                     $('#options a').click(clickHandle('month'));
+                    
+                    $('#company-menu').append('<li><a href="#" class="time-switch clearfix switch-active" id="all-companies">All companies</a>');
                     _(companies).chain().keys().each(function(v) {
                         $('#company-menu').append('<li><a href="#" class="time-switch clearfix switch-active" id="'+v+'">'+v+'</a>');
                     });
-                    $('#company-menu a').click(clickHandle('company'));
+                    $('#company-menu a').click(clickHandleUnique('company'));
                     
                     _(yearsAvailable).each(function(v) {
                         var activeClass = (active.year.indexOf(v) == -1 ? '' : ' switch-active');

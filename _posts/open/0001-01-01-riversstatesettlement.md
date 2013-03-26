@@ -2,6 +2,7 @@
 title: Rivers State Settlements
 categories:
     - maps
+    - data
     - Socio-economic
 layer: rivers-state-settlements
 thumbnail: http://api.tiles.mapbox.com/v3/nigeriaoil.map-5ustxk97,nigeriaoil.rivers-state-settlements/7/66/61.png

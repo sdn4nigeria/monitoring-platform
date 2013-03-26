@@ -283,7 +283,7 @@ sup {
 #options {
     position:absolute;
     left: 60px;
-    top:512px;
+    top:455px;
     margin: 0 auto;
     float: center;
     width: 91%;
@@ -293,11 +293,9 @@ sup {
   border-right: 1px solid #999;
   cursor: pointer;
   float:left;
-  width: 7.8%;
-  height:25px;
   display:block;
   font-weight:bold;
-  padding: 6px 0;
+  padding: 6px 10px;
   background: #8E8E8E;
   color: #fff;
   text-align:center;
@@ -431,9 +429,9 @@ sup {
   font-size: 12px;
   display: block;
   float: right;
-  width: 100px;
+  min-width: 100px;
   margin:8px 0 0 8px;
-  padding:8px 0px;
+  padding:8px 8px;
   text-align: center;
   background:#f6f6f6;
   border-radius: 3px;

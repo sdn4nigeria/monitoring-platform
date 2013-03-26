@@ -21,7 +21,7 @@ class: frontpage
     </div>
     <div id='context-layers'>
       <div title='Filter by year'> Layers</div>
-      <ul class='bottomlayer'>
+      <ul>
         <li><a href='#' id='lgas'>LGAs</a></li>
         <li><a href='#' id='wetlands'>Wetland Areas</a></li>
         <li><a href='#' id='settlements'>Settlement Areas</a></li>
@@ -46,7 +46,7 @@ class: frontpage
           <div class='map-limiter'>
             <ul  id='dropdown-companies'class='dropdown clearfix'>
               <li>
-                <a href='#' data-toggle='dropdown' class='icon dropdown-toggle' title='Filter by company'>Companies: <span id='company-count' class='count'></span></a>
+                <a href='#' data-toggle='dropdown' class='icon dropdown-toggle' title='Filter by company'>Company: <span id='company-count' class='count'></span></a>
                 <span class='arrow'>&nbsp;</span>
                 <ul id='company-menu' class='dropdown-menu'>
                 </ul>
@@ -54,16 +54,17 @@ class: frontpage
               <li class='publisher-name'>&nbsp;</li>
             </ul>
             
-            <ul id='dropdown-years' class='dropdown clearfix'>
-              <li>
-                <a href='#' data-toggle='dropdown' class='icon dropdown-toggle' title='Filter by year'> Year: <span id='year-count' class='count'></span></a>
-                <span class='arrow'>&nbsp;</span>
-                <ul id='year-menu' class='dropdown-menu'>
-                </ul>
-              </li>
-              <li class='publisher-name'>&nbsp;</li>
-            </ul>
-            <div id='options'></div>
+            <div id='options'>
+              <ul id='dropdown-years' class='clearfix'>
+                <li>
+                  <a href='#' data-toggle='dropdown' class='icon dropdown-toggle' title='Filter by year'> Year: <span id='year-count' class='count'></span></a>
+                  <span class='arrow'>&nbsp;</span>
+                  <ul id='year-menu'>
+                  </ul>
+                </li>
+                <li class='publisher-name'>&nbsp;</li>
+              </ul>
+            </div>
           </div>
         </div>
       </div>
