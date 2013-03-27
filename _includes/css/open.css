@@ -8,6 +8,8 @@
 #open-about {
     position:relative;
     margin-bottom:20px;
+    z-index:1;
+    font-weight:bold;
 }
 #subnav {
     position: absolute;
@@ -237,6 +239,10 @@ textarea.embed-code, textarea.api-code {
     color:#8a8a8a;
     cursor: text;
 }
+.collection h4 {
+    font-size: 18px;
+    font-weight: normal;
+}
 .downloads {
     margin-bottom:1em;
 }
@@ -244,11 +250,7 @@ textarea.embed-code, textarea.api-code {
     float: left;
 }
 a.download {
-    float:left;
-    -moz-border-radius: 4px;
-    -webkit-border-radius: 4px;
-    border-radius: 4px;
-    padding: 5px 6px;
+    font-weight: bold;
 }
 a.download:visited,
 a.download:hover {
@@ -269,14 +271,10 @@ a.download:hover {
     text-decoration: underline;
 }
 .map-preview {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    right: 0;
     width: 30%;
     max-width: 175px;
-    overflow: hidden;
-    margin: 15px 15px 15px 0;
+    margin: 0 15px 15px 0;
+    float: left;
 }
 .map-preview img {
     width: 100%;

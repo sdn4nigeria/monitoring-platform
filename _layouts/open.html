@@ -2,28 +2,31 @@
 layout: default
 class: opendata
 ---
-<img class='about-background'src>
+<img class='about-background'>
 <div class='header limiter'>
-    <div id='open-about'class='about-text'>
-        <h2>This data portal features datasets from NOSDRA and other key stakeholders </h2>
-        <p>Where possible, datasets and maps on this page have been released under <a href='http://creativecommons.org/licenses/by-sa/2.0/'>Creative Commons Attribution-ShareAlike 2.0 Generic (CC BY-SA 2.0) for use and embed</a>.</p>
-    </div>
+  <div id='open-about' class='about-text'>
+    <a href="{{site.baseurl}}/maps/"><img src="{{site.baseurl}}/img/map-browser-preview.png"/>
+    <p>Visit the map browser to explore the data shown on this page using multiple map layer overlays.</p>
+    </a>
+    <!-- h2>This data portal features datasets from NOSDRA and other key stakeholders </h2>
+    <p>Where possible, datasets and maps on this page have been released under <a href='http://creativecommons.org/licenses/by-sa/2.0/'>Creative Commons Attribution-ShareAlike 2.0 Generic (CC BY-SA 2.0) for use and embed</a>.</p -->
+  </div>
 </div>
 <div id="subnav">
-    <div class="limiter">
-        <div class='with-border'>
-            <span class='nav-explain' class='{% if page.url == "/open/data" or page.url == "/open" %}active{% endif %}'>Access single map layers. Use the <a href='{{site.baseurl}}/maps'>map browser</a> to create a multi-layered map.<br/>Download data showing oil spills and impact on the environment</span>
-            <a class='nav-short {% if page.url == "/open/data" or page.url == "/open" %}active{% endif %}' href="{{site.baseurl}}/open/data">Static Maps &amp; Data</a>
-        </div>
-        <!-- div class='with-border'>
-            <span class='nav-explain'>Access single map layers. Use the <a href='{{site.baseurl}}/maps'>map browser</a> to create a multi-layered map.</span>
-            <a class='nav-short {% if page.url == "/open/maps" %}active{% endif %}' href="{{site.baseurl}}/open/maps">Maps</a>
-        </div -->
-        <div>
-            <span class='nav-explain'>View original reports and data sources with notes and comments</span>
-            <a class='nav-short {% if page.url == "/open/resources" %}active{% endif %}' href="{{site.baseurl}}/open/resources">Resources</a>
-        </div>
+  <div class="limiter">
+    <div class='with-border'>
+      <span class='nav-explain' class='{% if page.url == "/open/data" or page.url == "/open" %}active{% endif %}'>Access single map layers. Use the <a href='{{site.baseurl}}/maps'>map browser</a> to create a multi-layered map.<br/>Download data showing oil spills and impact on the environment</span>
+      <a class='nav-short {% if page.url == "/open/data" or page.url == "/open" %}active{% endif %}' href="{{site.baseurl}}/open/data">Static Maps &amp; Data</a>
     </div>
+    <!-- div class='with-border'>
+         <span class='nav-explain'>Access single map layers. Use the <a href='{{site.baseurl}}/maps'>map browser</a> to create a multi-layered map.</span>
+         <a class='nav-short {% if page.url == "/open/maps" %}active{% endif %}' href="{{site.baseurl}}/open/maps">Maps</a>
+    </div -->
+    <div>
+      <span class='nav-explain'>View original reports and data sources with notes and comments</span>
+      <a class='nav-short {% if page.url == "/open/resources" %}active{% endif %}' href="{{site.baseurl}}/open/resources">Resources</a>
+    </div>
+  </div>
 </div>
 
 {{ content }}
