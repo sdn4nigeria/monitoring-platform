@@ -1,0 +1,113 @@
+<div id='data-page'>
+  <div class='data-wrapper clearfix'>
+    <div class='limiter'>
+      <div class='nav-wrapper'>
+        <div class='navigation' data-scrollspy="scrollspy">
+          <ul>
+            {% for category in page.categories %}
+            <li><a class='{% if forloop.first %}active{% endif %}' href='#{{ category | downcase | replace: ' ', '-' }}'>{{ category }}</a></li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+      <div class='content'>
+        {% for category in page.categories %}
+        <h2 id='{{ category | downcase | replace: ' ', '-' }}'>{{ category }}</h2>
+        
+        {% for dataset in site.categories[category] %}
+        {% if dataset.categories contains "maps" or dataset.categories contains "data" %}
+        
+        <div class='collection clearfix' id='{{ dataset.title | downcase | replace: ' ', '-' }}'>
+          <h4 class='title' title='{{dataset.id}}'>{{dataset.title}}</h4>
+          <div class='col details'>
+            {{ dataset.content | markdownify }}
+          </div>
+          {% if dataset.categories contains "maps" %}
+          <div class='map-preview {{ dataset.title | downcase | replace: ' ', '-' }}'>
+            <img src="{{ dataset.thumbnail }}">
+          </div>
+          {% endif %}
+
+          {% if dataset.categories contains "data" %}
+          <div class='col downloads {{ dataset.title | downcase | replace: ' ', '-' }}'>
+            {% for download in dataset.downloads %}
+            <a href='{% if download.link contains "http://" %}{{ download.link }}{% else %}../..{{ download.link }}{% endif %}' class='download download-{{download.type}} clearfix'>
+              <span class='button black'>Download {{download.type}}</span>
+            </a>
+            {% endfor %}
+          </div>
+          {% endif %}
+          
+        </div>
+
+        {% if dataset.categories contains "maps" %}
+        <div class='open-drawer-content' data-profile='{{ dataset.title | downcase | replace: ' ', '-' }}'>
+          <div class='largemap' data-map='{{dataset.embed}}'></div>
+          <div class='col downloads clearfix'>
+            {% for download in dataset.downloads %}
+            <a href='{% if download.link contains "http://" %}{{ download.link }}{% else if page.url = /open %}..{{ download.link }}{% else %}../..{{ download.link }}{% endif %}' class='download download-{{download.type}} clearfix'>
+              <span class='button black'>Download {{download.type | capitalize}}</span>
+            </a>
+            {% endfor %}
+          </div>
+          <div class='open-embed-code clearfix'>
+            <span class='embed-label'>Embed:</span>
+            <textarea class='embed-code' rows='1' wrap='off' readonly><iframe src="{{dataset.embed}}" frameborder="0" width="500" height="400"></iframe></textarea>
+          </div>
+          <div class='open-api-code clearfix'>
+            <span class='embed-label'>API:</span>
+            <textarea class='embed-code' rows='1' wrap='off' readonly>{{dataset.api}}</textarea>
+            <a href='#' class='api-button clearfix'>API Instructions</a>
+          </div>
+        </div> <!-- /.open-drawer-content -->                
+        {% endif %}
+        
+        {% endif %}
+        {% endfor %}
+        
+        {% endfor %}
+        
+      </div> <!-- /.content -->
+    </div>
+  </div> <!-- /.open-wrapper -->
+</div> <!-- /#data-page -->
+
+<script type="text/javascript">
+var navTop = $('.navigation')
+    .offset().top - parseFloat($('.navigation')
+    .css('marginTop')
+    .replace(/auto/, 0));
+
+    $(window).scroll(function (e) {
+        if (isTouchDevice()) {
+            var topHeight = $(this).scrollTop();
+            $('.navigation').css('top', topHeight);
+        }
+        if ($(window).width() > 920) {
+            var y = $(this).scrollTop();
+            if (y >= navTop) {
+                $('.navigation').addClass('fixed');
+            } else {
+                $('.navigation').removeClass('fixed');
+            }
+        }
+    });
+        
+// Highlight appropriate nav item
+    $(window).scroll(function (e) {
+        if($(this).scrollTop() != 0) {
+            var inview = $('.content h2:in-viewport:first').attr('id') ||
+                            $('.content h2:above-the-top:last').attr('id');
+
+            var link = $('.navigation a[href="#' + inview + '"]');
+
+            if (link.length && !link.is('.active')) {
+                $('.navigation a').removeClass('active');
+                link.addClass('active');
+            }
+        } else {
+            $('.navigation a').removeClass('active');
+            $('.navigation a:first').addClass('active');
+        }
+    });
+</script>
