@@ -8,8 +8,7 @@ var mapLayers = {
     settlements: "nigeriaoil.NGSettlement"
 };
 
-var googleDocsIdentifier = window.location.hash.match(/#?([a-zA-Z0-9]+)/);
-if (googleDocsIdentifier) googleDocsIdentifier = googleDocsIdentifier[1];
+var googleDocsIdentifier = window.location.hash.substring(1);
 
 var browser =   $.browser.version;
 
@@ -476,6 +475,12 @@ function frontpageSetup() {
 
 $(function () {
     if ($('body').hasClass('frontpage')) frontpageSetup();
+    else {
+        $(window).load(function () {
+            var layersParameter = window.location.hash.substring(1);
+            if (layersParameter) setLayerCheckboxes(layersParameter);
+        });
+    }
     
     // Draggable data list
     $('#sortable').sortable({
@@ -493,7 +498,7 @@ $(function () {
     // Update layer order
     function updateLayers() {
         layer = '';
-        $('#sortable li a').each(function (i) {
+        $('#sortable li .layer-link').each(function (i) {
             if ($(this).hasClass('active') && this.id != '') {
                 if (layer == '') {
                     layer = 'nigeriaoil.' + this.id;
@@ -504,21 +509,33 @@ $(function () {
             }
         });
     }
+    function setLayerCheckboxes(ids) {
+        // ids is a string with all the layer identifiers separated by commas
+        // if the value is not a string, but evaluates to false the result
+        // is the same as if it was an empty string, that is, clear all layers
+        ids = (ids?ids:'').split(",");
+        $('#sortable li .layer-link').each(function (j) {
+            el = $(this);
+            for (var i = 0; i < ids.length; ++i) {
+                if (ids[i] === this.id) {
+                    el = $(this);
+                    el.click();
+                    break;
+                }
+            }
+        });
+    }
     
     // Data layerswitcher
-    $('.datalist a.layer-link').click(function (e) {
-        e.preventDefault();
-        if ($(this).hasClass('active')) {
-            $(this).removeClass('active');
-            $(this).parent().parent().prependTo('#layerlist');
-        } else {
+    $('.datalist .layer-link').change(function (e) {
+        if ($(this).is(':checked')) {
             el = $(this);
             $(this).addClass('active');
-            $(this).parent().parent().prependTo('#sortable');
+        } else {
+            $(this).removeClass('active');
         }
-        $('#offlayers').css('top', $('#onlayers').height() + 30);
         updateLayers();
-        buildRequest(el, layer);
+        if (el) buildRequest(el, layer);
         updateEmbedApi();
     });
     

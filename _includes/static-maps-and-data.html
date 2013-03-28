@@ -20,13 +20,14 @@
         <div class='collection clearfix' id='{{ dataset.title | downcase | replace: ' ', '-' }}'>
           <h4 class='title' title='{{dataset.id}}'>{{dataset.title}}</h4>
           {% if dataset.categories contains "maps" %}
-          <a href='{% if dataset.embed contains "http://" %}{{ dataset.embed }}{% else %}../..{{ dataset.embed }}{% endif %}' class='download download-{{download.type}}'><img class='map-preview' src="{{ dataset.thumbnail }}"></a>
+          <!-- This links to the full-screen map: a href='{% if dataset.embed contains "http://" %}{{ dataset.embed }}{% else %}../..{{ dataset.embed }}{% endif %}' class='download download-{{download.type}}'><img class='map-preview' src="{{ dataset.thumbnail }}"></a -->
+          <a href='{{site.baseurl}}/maps#{{dataset.layer}}' class='download download-{{download.type}}'><img class='map-preview' src="{{ dataset.thumbnail }}"></a>
           {% endif %}
           {{ dataset.content | markdownify }}
           
           <div class='downloads'>
             {% if dataset.categories contains "maps" %}
-            <a href='{% if dataset.embed contains "http://" %}{{ dataset.embed }}{% else %}../..{{ dataset.embed }}{% endif %}' class='download download-{{download.type}}'>View this map</a>
+            <a href='{{site.baseurl}}/maps#{{dataset.layer}}' class='download download-{{download.type}}'>View this map</a>
             {% endif %}
             {% if dataset.categories contains "data" %}
             {% for download in dataset.downloads %}

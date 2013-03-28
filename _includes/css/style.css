@@ -169,7 +169,7 @@ ul.dropdown li span.arrow {
     position: absolute;
     visibility: hidden;
     left: 10px;
-    top: 54px;
+    top: 55px;
 }
 ul.dropdown li.open span.arrow {
     visibility: inherit;
