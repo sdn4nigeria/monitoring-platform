@@ -435,6 +435,7 @@ function frontpageSetup() {
                                 elem.addClass('switch-active');
                                 active[type] = [v];
                             }
+                            elem.closest(".dropdown").click();
                             updateDisplay();
                             return false;
                         };

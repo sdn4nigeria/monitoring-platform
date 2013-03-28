@@ -20,14 +20,15 @@ class: frontpage
       </ul>
     </div>
     <div id='context-layers'>
-      <div title='Filter by year'> Layers</div>
+      <b title='Filter by year'>Layers:</b>
       <ul>
         <li><a href='#' id='lgas'>LGAs</a></li>
-        <li><a href='#' id='wetlands'>Wetland Areas</a></li>
-        <li><a href='#' id='settlements'>Settlement Areas</a></li>
+        <li><a href='#' id='wetlands'>Wetlands</a></li>
+        <li><a href='#' id='settlements'>Settlements</a></li>
       </ul>
     </div>
     <div id='oil-legend'>
+      <b>Key:</b>
       <div style='height: 20px; margin-top: 0px'>
 	    <h4 style='font-size: 11px; margin: 0;'>Company Spills</h4>
 	  </div>
@@ -36,35 +37,37 @@ class: frontpage
 	    <h4 style='font-size: 11px; margin: 0;'>Third party spills</h4>
 	  </div>
       <div class='point legend'></div>
-      <div id='spill-count' style='margin-top: 30px; border-top: 1px solid #ccc'>
+      <!-- div id='spill-count' style='margin-top: 30px; border-top: 1px solid #ccc'>
         <h4 style='font-size: 11px; margin: 0;'>Number of Spills: <span id='spill-number' class='count'></span></h4>
-      </div>
+      </div -->
     </div>
     <div id='timelinks'>
       <div class='stage'>
         <div class='filter'>
           <div class='map-limiter'>
-            <ul  id='dropdown-companies'class='dropdown clearfix'>
-              <li>
-                <a href='#' data-toggle='dropdown' class='icon dropdown-toggle' title='Filter by company'>Company: <span id='company-count' class='count'></span></a>
+            <ul id='dropdown-companies' class='dropdown'>
+              <li>Select company:
+                <a href='#' data-toggle='dropdown' class='icon dropdown-toggle' title='Filter by company'><span id='company-count' class='count'></span></a>
                 <span class='arrow'>&nbsp;</span>
                 <ul id='company-menu' class='dropdown-menu'>
                 </ul>
               </li>
-              <li class='publisher-name'>&nbsp;</li>
             </ul>
             
-            <div id='options'>
-              <ul id='dropdown-years' class='clearfix'>
-                <li>
-                  <a href='#' data-toggle='dropdown' class='icon dropdown-toggle' title='Filter by year'> Year: <span id='year-count' class='count'></span></a>
-                  <span class='arrow'>&nbsp;</span>
-                  <ul id='year-menu'>
-                  </ul>
-                </li>
-                <li class='publisher-name'>&nbsp;</li>
-              </ul>
+            <ul id='dropdown-years' class='dropdown'>
+              <li>Select year:
+                <a href='#' data-toggle='dropdown' class='icon dropdown-toggle' title='Filter by year'><span id='year-count' class='count'></span></a>
+                <span class='arrow'>&nbsp;</span>
+                <ul id='year-menu' class='dropdown-menu'>
+                </ul>
+              </li>
+            </ul>
+            
+            <div>
+              Select months:
+              <div id='options'> </div>
             </div>
+            <b>Showing a total of <span id='spill-number' class='count'>--</span> spills. Hover over each spill for more information.</b>
           </div>
         </div>
       </div>
@@ -77,7 +80,8 @@ class: frontpage
 <!--div class='limiter clearfix'><div class='graphs'></div></div-->
 <div id='contribute'>
   <div class='limiter clearfix'>
-    <div class='submit-story col col-2'>
+    <!-- [Disclaimer and company acronyms here - rory to add] -->
+    <!-- div class='submit-story col col-2'>
       <div class='padding'>
         <a class='action button' href='http://developmentseed.org/nigeria-citizen-map/'>Citizen Report</a>
         <p>Access map with citizen-reported spill information.
@@ -89,7 +93,7 @@ class: frontpage
         <a class='action button' href='open/data'>Get the Data</a>
         <p>Access and download all the available data. All maps are powered by <a href='http://mapbox.com'>Mapbox</a>. Read about how you can host and retrieve maps using the <a href='http://mapbox.com/hosting/api'>Mapbox API</a>.</p>
       </div>
-    </div>
+    </div -->
   </div>
 </div>
 <script type="text/javascript">

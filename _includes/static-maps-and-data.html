@@ -19,24 +19,22 @@
         
         <div class='collection clearfix' id='{{ dataset.title | downcase | replace: ' ', '-' }}'>
           <h4 class='title' title='{{dataset.id}}'>{{dataset.title}}</h4>
-          <div class='col details'>
-            {{ dataset.content | markdownify }}
-          </div>
           {% if dataset.categories contains "maps" %}
-          <div class='map-preview {{ dataset.title | downcase | replace: ' ', '-' }}'>
-            <img src="{{ dataset.thumbnail }}">
-          </div>
+          <a href='{% if dataset.embed contains "http://" %}{{ dataset.embed }}{% else %}../..{{ dataset.embed }}{% endif %}' class='download download-{{download.type}}'><img class='map-preview' src="{{ dataset.thumbnail }}"></a>
           {% endif %}
-
-          {% if dataset.categories contains "data" %}
-          <div class='col downloads {{ dataset.title | downcase | replace: ' ', '-' }}'>
+          {{ dataset.content | markdownify }}
+          
+          <div class='downloads'>
+            {% if dataset.categories contains "maps" %}
+            <a href='{% if dataset.embed contains "http://" %}{{ dataset.embed }}{% else %}../..{{ dataset.embed }}{% endif %}' class='download download-{{download.type}}'>View this map</a>
+            {% endif %}
+            {% if dataset.categories contains "data" %}
             {% for download in dataset.downloads %}
-            <a href='{% if download.link contains "http://" %}{{ download.link }}{% else %}../..{{ download.link }}{% endif %}' class='download download-{{download.type}} clearfix'>
-              <span class='button black'>Download {{download.type}}</span>
-            </a>
+            {% if forloop.index0 > 0 or dataset.categories contains "maps" %} | {% endif %}
+            <a href='{% if download.link contains "http://" %}{{ download.link }}{% else %}../..{{ download.link }}{% endif %}' class='download download-{{download.type}}'>Download {{download.type}}</a>
             {% endfor %}
+            {% endif %}
           </div>
-          {% endif %}
           
         </div>
 
