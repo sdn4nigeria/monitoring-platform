@@ -8,8 +8,7 @@ var mapLayers = {
     settlements: "nigeriaoil.NGSettlement"
 };
 
-var googleDocsIdentifier = window.location.hash.match(/#?([a-zA-Z0-9]+)/);
-if (googleDocsIdentifier) googleDocsIdentifier = googleDocsIdentifier[1];
+var googleDocsIdentifier = window.location.hash.substring(1);
 
 var browser =   $.browser.version;
 
@@ -208,7 +207,7 @@ function frontpageSetup() {
                 // Ignore clicks on other elements
                 return;
             }
-            if (true || currentLayer != 0) $(this).addClass("active");
+            if (currentLayer != 0) $(this).addClass("active");
             displayCurrent();
         });
         
@@ -381,7 +380,11 @@ function frontpageSetup() {
                 function updateDisplay() {
                     _(active).each(function (v, k) {
                         if (k == "month") return;
-                        if (k == "year") $('#' + k + '-count').text(v[0]);
+                        if (k == "year" || k == "company") {
+                            var label = v[0];
+                            if (v.length > 1) label = "All";
+                            $('#' + k + '-count').text(label);
+                        }
                         else $('#' + k + '-count').text(v.length);
                     });
                     var count = 0;
@@ -416,10 +419,22 @@ function frontpageSetup() {
                         return function(ev) {
                             var elem = $(ev.currentTarget);
                             var v = elem.attr('id');
-                            elem.closest("ul").find("a").removeClass("switch-active");
-                            elem.addClass('switch-active');
-                            active[type] = [v];
-                            var i = active[type].indexOf(v);
+                            var allElements = elem.closest("ul").find("a");
+                            if (/^all-/.test(v)) {
+                                allElements.addClass("switch-active");
+                                var all = [];
+                                allElements.each(function (i) {
+                                    var id = $(this).attr('id');
+                                    if (!/^all-/.test(id)) all.push(id);
+                                });
+                                active[type] = all;
+                            }
+                            else {
+                                allElements.removeClass("switch-active");
+                                elem.addClass('switch-active');
+                                active[type] = [v];
+                            }
+                            elem.closest(".dropdown").click();
                             updateDisplay();
                             return false;
                         };
@@ -431,10 +446,12 @@ function frontpageSetup() {
                         $('#options').append('<a href="#" class="time-switch clearfix' + activeClass + '" id="'+v+'">'+v+'</a>');
                     });
                     $('#options a').click(clickHandle('month'));
+                    
+                    $('#company-menu').append('<li><a href="#" class="time-switch clearfix switch-active" id="all-companies">All companies</a>');
                     _(companies).chain().keys().each(function(v) {
                         $('#company-menu').append('<li><a href="#" class="time-switch clearfix switch-active" id="'+v+'">'+v+'</a>');
                     });
-                    $('#company-menu a').click(clickHandle('company'));
+                    $('#company-menu a').click(clickHandleUnique('company'));
                     
                     _(yearsAvailable).each(function(v) {
                         var activeClass = (active.year.indexOf(v) == -1 ? '' : ' switch-active');
@@ -458,6 +475,12 @@ function frontpageSetup() {
 
 $(function () {
     if ($('body').hasClass('frontpage')) frontpageSetup();
+    else {
+        $(window).load(function () {
+            var layersParameter = window.location.hash.substring(1);
+            if (layersParameter) setLayerCheckboxes(layersParameter);
+        });
+    }
     
     // Draggable data list
     $('#sortable').sortable({
@@ -475,7 +498,7 @@ $(function () {
     // Update layer order
     function updateLayers() {
         layer = '';
-        $('#sortable li a').each(function (i) {
+        $('#sortable li .layer-link').each(function (i) {
             if ($(this).hasClass('active') && this.id != '') {
                 if (layer == '') {
                     layer = 'nigeriaoil.' + this.id;
@@ -486,21 +509,33 @@ $(function () {
             }
         });
     }
+    function setLayerCheckboxes(ids) {
+        // ids is a string with all the layer identifiers separated by commas
+        // if the value is not a string, but evaluates to false the result
+        // is the same as if it was an empty string, that is, clear all layers
+        ids = (ids?ids:'').split(",");
+        $('#sortable li .layer-link').each(function (j) {
+            el = $(this);
+            for (var i = 0; i < ids.length; ++i) {
+                if (ids[i] === this.id) {
+                    el = $(this);
+                    el.click();
+                    break;
+                }
+            }
+        });
+    }
     
     // Data layerswitcher
-    $('.datalist a.layer-link').click(function (e) {
-        e.preventDefault();
-        if ($(this).hasClass('active')) {
-            $(this).removeClass('active');
-            $(this).parent().parent().prependTo('#layerlist');
-        } else {
+    $('.datalist .layer-link').change(function (e) {
+        if ($(this).is(':checked')) {
             el = $(this);
             $(this).addClass('active');
-            $(this).parent().parent().prependTo('#sortable');
+        } else {
+            $(this).removeClass('active');
         }
-        $('#offlayers').css('top', $('#onlayers').height() + 30);
         updateLayers();
-        buildRequest(el, layer);
+        if (el) buildRequest(el, layer);
         updateEmbedApi();
     });
     
