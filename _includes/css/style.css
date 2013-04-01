@@ -297,7 +297,7 @@ ul.dropdown-menu li a.switch-active:hover {
     float:left;
     display:block;
     font-weight:bold;
-    padding: 6px 10px;
+    padding: 5px 5px;
     min-height: 22px;
     /* Use this to have month buttons aligned in narrow screens:
        min-width: 28px; */
