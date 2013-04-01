@@ -341,10 +341,10 @@ function frontpageSetup() {
                         date: '</br><b>Company Name: </b>' + x.properties.companyname + '</br><b>Date: </b>' + x.properties.incidentdate + '</br><b>Date spill stopped: </b>' + x.properties.datespillstopped,
                         contaiment: '</br><b>Initial containment measures: </b>' + x.properties.initialcontainmentmeasures + '</br><b>Cause of spill: </b>' + x.properties.causeofspill + '</br><b>Estimated spill area: </b>' + x.properties.estimatedspillarea,
                         facility: '</br><b>Type of facility: </b>' + x.properties.typeoffacility + '</br><b>Datejiv: </b>' + x.properties.datejiv + '</br><b>Spill area habitat: </b>' + x.properties.spillareahabitat,
-                        impact: '</br><b>Impact: </b>' + x.properties.impact + '</br><b>Description of impact: </b>' + x.properties.descriptionofimpact,
-                        cleanup: '</br><b>Date clean up: </b>' + x.properties.datecleanup + '</br><b>Date clean up completed: </b>' + x.properties.datecleanupcompleted + '</br><b>Method used: </b>' + x.properties.methodsofcleanup + '</br><b>Date of post clean up inspection: </b>' + x.properties.dateofpostcleanupinspection + '</br><b>Date of post impact assessment: </b>' +  x.properties.dateofpostimpactassessment,
-                        mediation: '</br><b>Furter mediation: </b>' + x.properties.furtherremediation + '</br><b>Date of certificate: </b>' + x.properties.datecertificate,
-                        image: '<img src=' + x.properties.image + '></img>'
+                       // impact: '</br><b>Impact: </b>' + x.properties.impact + '</br><b>Description of impact: </b>' + x.properties.descriptionofimpact,
+                       // cleanup: '</br><b>Date clean up: </b>' + x.properties.datecleanup + '</br><b>Date clean up completed: </b>' + x.properties.datecleanupcompleted + '</br><b>Method used: </b>' + x.properties.methodsofcleanup + '</br><b>Date of post clean up inspection: </b>' + x.properties.dateofpostcleanupinspection + '</br><b>Date of post impact assessment: </b>' +  x.properties.dateofpostimpactassessment,
+                        //mediation: '</br><b>Furter mediation: </b>' + x.properties.furtherremediation + '</br><b>Date of certificate: </b>' + x.properties.datecertificate,
+                       // image: '<img src=' + x.properties.image + '></img>'
                     });
                     
                     d.appendChild(contentNosdra);
