@@ -452,9 +452,10 @@ ul.dropdown-menu li a.switch-active:hover {
 }
 #nav a {
     font-weight:700;
-    font-size: 12px;
+    font-size: 13px;
     min-width: 100px;
-    padding:6px 6px;
+    padding:8px 8px;
+    margin-top:10px;
     text-align: center;
     background:#f6f6f6;
     -moz-transition: background-color 0.5s linear;
