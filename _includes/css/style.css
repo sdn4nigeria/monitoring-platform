@@ -12,7 +12,7 @@ body.
 body,
 textarea,
 input {
-    font: 14px/21px 'Open Sans',Helvetica,freesans,clean,sans-serif;
+    font: 13px/21px 'Open Sans',Helvetica,freesans,clean,sans-serif;
 }
 pre,
 code { font:normal 12px/20px monospace; }
