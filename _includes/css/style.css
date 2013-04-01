@@ -456,7 +456,7 @@ display: table-data;
     font-size: 13px;
     min-width: 100px;
     padding:8px 8px;
-    margin-top:10px;
+
     text-align: center;
     background:#f6f6f6;
     -moz-transition: background-color 0.5s linear;
@@ -467,6 +467,12 @@ display: table-data;
     -moz-border-radius: 5px 5px 5px 5px;
 
 }
+
+.main-nav{
+    margin-top:10px;   
+   
+}
+
 #nav a:hover, #nav a.active {
     color:#fff;
     background-color: #414141;
