@@ -169,7 +169,7 @@ ul.dropdown li span.arrow {
     position: absolute;
     visibility: hidden;
     left: 10px;
-    top: 55px;
+    top: 47px;
 }
 ul.dropdown li.open span.arrow {
     visibility: inherit;
@@ -289,6 +289,7 @@ ul.dropdown-menu li a.switch-active:hover {
     margin: 0 auto;
     float: center;
     width: 91%;*/
+    height:24px;
 }
 #options a {
     border-left: 1px solid #999;
