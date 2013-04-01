@@ -197,14 +197,14 @@ ul.dropdown li a.dropdown-toggle:active {
     _width: 160px;
     zoom: 1;
     z-index: 1000;
-    -moz-border-radius: 4px;
+    -moz-border-radius: 0px;
     border-radius: 0px;
     box-shadow: #000 0 0 6px;
 }
 .dropdown-menu .count {
     color: #fff;
     font-size: 18px;
-    border-radius: 3px;
+    border-radius: 0px;
 }
 ul ul.dropdown-menu li {
     display: block;
