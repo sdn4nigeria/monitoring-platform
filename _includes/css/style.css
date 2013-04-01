@@ -115,9 +115,6 @@ sup {
 .filter {
     height: 40px;
     padding-top: 10px;
-   position:absolute;
-    bottom:0;
-    right:0;
 }
 ul.layers li a,
 .filter a {
