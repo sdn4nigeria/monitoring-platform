@@ -459,10 +459,14 @@ ul.dropdown-menu li a.switch-active:hover {
     padding:8px 8px;
     text-align: center;
     background:#f6f6f6;
-    -moz-transition: background-color 0.1s linear;
-    -o-transition: background-color 0.1s linear;
-    -webkit-transition: background-color 0.1s linear;
-    transition: background-color 0.1s linear;
+    -moz-transition: background-color 0.5s linear;
+    -o-transition: background-color 0.5s linear;
+    -webkit-transition: background-color 0.5s linear;
+    transition: background-color 0.5s linear;
+    margin-left:5px;
+    margin-right:5px;
+   border-radius: 5px 5px 0 0;
+    -moz-border-radius: 5px 5px 0 0;
 }
 #nav a:hover, #nav a.active {
     color:#fff;
