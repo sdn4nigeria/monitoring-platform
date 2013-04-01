@@ -451,6 +451,7 @@ ul.dropdown-menu li a.switch-active:hover {
     display: table-row;
 }
 #nav a {
+display: table-data;
     font-weight:700;
     font-size: 13px;
     min-width: 100px;
