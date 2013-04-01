@@ -145,7 +145,7 @@ ul.dropdown li a.dropdown-toggle {
     display: block;
     background: #555;
     position: relative;
-    height: 34px; line-height: 34px;
+    height: 30px; line-height: 30px;
     -moz-box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
     /*border: 1px solid #333;*/
