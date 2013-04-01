@@ -38,17 +38,17 @@ h6 a:hover {
     color: #333;
 }
 h1 {
-    font-size: 25px;
+    font-size: 30px;
     line-height: 28px;
     margin: 0;
 }
 h2 {
-    font-size: 15px;
+    font-size: 20px;
     line-height: 22px;
 }
 h3 {
     margin: 0 0 10px;
-    font-size: 13px;
+    font-size: 15px;
     line-height: 20px;
 }
 small {
