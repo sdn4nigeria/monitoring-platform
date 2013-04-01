@@ -145,7 +145,7 @@ ul.dropdown li a.dropdown-toggle {
     display: block;
     background: #555;
     position: relative;
-    height: 30px; line-height: 30px;
+    height: 24px; line-height: 24px;
     -moz-box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
     /*border: 1px solid #333;*/
@@ -298,7 +298,7 @@ ul.dropdown-menu li a.switch-active:hover {
     display:block;
     font-weight:bold;
     padding: 6px 5px;
-    min-height: 22px;
+    min-height: 18px;
     /* Use this to have month buttons aligned in narrow screens:
        min-width: 28px; */
     background: #8E8E8E;
