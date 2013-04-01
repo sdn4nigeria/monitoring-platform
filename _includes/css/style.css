@@ -407,6 +407,7 @@ ul.dropdown-menu li a.switch-active:hover {
 .about-text p {
     font-size: 14px;
     line-height: 24px;
+    margin-bottom:10px;
 }
 .small-text{
     position:absolute;
