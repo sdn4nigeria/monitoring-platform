@@ -154,8 +154,8 @@ ul.dropdown li a.dropdown-toggle {
 ul.dropdown li a.dropdown-toggle {
     background-position: 0 0;
     z-index: 10000;
-    -moz-border-radius: 0 0 4px 4px;
-    border-radius: 0 0 4px 4px;
+    /*-moz-border-radius: 0 0 4px 4px;
+    border-radius: 0 0 4px 4px;*/
 }
 ul.dropdown li.open a.dropdown-toggle {
     border-color: #96979C;
@@ -297,7 +297,7 @@ ul.dropdown-menu li a.switch-active:hover {
     float:left;
     display:block;
     font-weight:bold;
-    padding: 5px 5px;
+    padding: 6px 5px;
     min-height: 22px;
     /* Use this to have month buttons aligned in narrow screens:
        min-width: 28px; */
