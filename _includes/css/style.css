@@ -176,7 +176,7 @@ ul.dropdown li.open span.arrow {
 }
 .dropdown-menu a {
     display: block;
-    padding: 5px 10px;
+    padding: 5px 5px;
     color:  #666;
 }
 ul.dropdown li a#all:active,
