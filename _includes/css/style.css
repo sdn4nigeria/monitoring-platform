@@ -388,9 +388,6 @@ ul.dropdown-menu li a.switch-active:hover {
     vertical-align: bottom;
     margin-bottom: 4px;
     margin-right: 6px;
-        position:absolute;
-    bottom:0;
-    right:0;
 }
 .about-text {
     position:absolute;
