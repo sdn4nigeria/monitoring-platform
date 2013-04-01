@@ -405,10 +405,21 @@ ul.dropdown-menu li a.switch-active:hover {
 }
 
 .about-text p {
-    font-size: 14px;
+    font-size: 13px;
     line-height: 24px;
     margin-bottom:10px;
 }
+
+.about-text a {
+    text-decoration: underline;
+}
+.about-text a:hover {
+    text-decoration: none;
+}
+.about-text a:visited {
+    text-decoration: underline;
+}
+
 .small-text{
     position:absolute;
     display:block;
