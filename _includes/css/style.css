@@ -115,7 +115,7 @@ sup {
 .filter {
     height: 40px;
     padding-top: 10px;
-position:relative;
+position:absolute;
     bottom:300px;
     right:0;
 }
