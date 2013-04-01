@@ -111,13 +111,12 @@ sup {
 .stage {
     background: #f0f0f0;
     padding-bottom: 15px;
-       position:absolute;
-    bottom:200;
-    right:0;
+
 }
 .filter {
     height: 40px;
     padding-top: 10px;
+    border:1px solid black;
 
 }
 ul.layers li a,
