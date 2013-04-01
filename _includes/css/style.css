@@ -38,17 +38,17 @@ h6 a:hover {
     color: #333;
 }
 h1 {
-    font-size: 28px;
+    font-size: 25px;
     line-height: 28px;
     margin: 0;
 }
 h2 {
-    font-size: 18px;
+    font-size: 15px;
     line-height: 22px;
 }
 h3 {
     margin: 0 0 10px;
-    font-size: 14px;
+    font-size: 13px;
     line-height: 20px;
 }
 small {
@@ -111,10 +111,14 @@ sup {
 .stage {
     background: #f0f0f0;
     padding-bottom: 15px;
+    position: relative;
 }
 .filter {
     height: 40px;
     padding-top: 10px;
+   position:absolute;
+    bottom:0;
+    right:0;
 }
 ul.layers li a,
 .filter a {
