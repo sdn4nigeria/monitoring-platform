@@ -12,25 +12,16 @@ category: wax
                  <p>Explore other created maps for additional oil spill data context. Browse through data sets from various sources, and explore cross-sections of the oil spill database. All maps can be shared and used outside of this site by using the Embed and API codes.</p> 
         </div>
         <div class='datalist'>
-            <h3>Current Layers</h3>
             <div id='onlayers'>
                 <ul id='sortable'>
-                </ul>
-            </div>
-            <h3>Available Layers</h3>
-            <div id='offlayers'>
-                <ul id='layerlist'>
-
                     {% for dataset in site.categories.maps %}
 
                     <li>
-                        <div class='layer-container'>
-                            <a class='layer-link' id='{{dataset.layer}}' href='#'>{{dataset.title}}</a>
-                        </div>
+                      <input class='layer-link' id='{{dataset.layer}}' type="checkbox"/>
+                      <label class='layer-container' for='{{dataset.layer}}'>{{dataset.title}}</label>
                     </li>
 
                     {% endfor %}
-
                 </ul>
             </div>
         </div>
