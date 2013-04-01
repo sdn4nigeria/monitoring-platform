@@ -117,7 +117,7 @@ sup {
     height: 40px;
     padding-top: 10px;
 position:absolute;
-    bottom:-200;
+    bottom:300px;
     right:0;
 }
 ul.layers li a,
