@@ -449,9 +449,9 @@ ul.dropdown-menu li a.switch-active:hover {
     right: 0;
     top: 8px;
     display: table-row;
+    margin-top:10px;
 }
 #nav a {
-display: table-data;
     font-weight:700;
     font-size: 13px;
     min-width: 100px;
@@ -466,11 +466,6 @@ display: table-data;
    border-radius: 5px 5px 5px 5px;
     -moz-border-radius: 5px 5px 5px 5px;
 
-}
-
-.main-nav{
-    margin-top:10px;   
-   
 }
 
 #nav a:hover, #nav a.active {
