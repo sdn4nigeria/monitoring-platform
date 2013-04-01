@@ -111,7 +111,7 @@ sup {
 .stage {
     background: #f0f0f0;
     padding-bottom: 15px;
-
+position:relative;
 }
 .filter {
     height: 40px;
