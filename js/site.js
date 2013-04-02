@@ -256,7 +256,9 @@ function frontpageSetup() {
         
         if (googleDocsIdentifier) (function loadMap(key, number) {
             loading('start');
-            mmg_google_docs(key, number, function(features) {
+            var mmg_f = mmg_json;
+            if (44 == key.length) mmg_f = mmg_google_docs;
+            mmg_f(key, number, function(features) {
                 
                 var companies = {};
                 var years = {};
@@ -332,19 +334,20 @@ function frontpageSetup() {
                             .run(500);
                     });
                     
+                    function property(name) { return x.properties[name] || ""; };
                     // A points popup
                     var contentNosdra = document.createElement('div');
                     contentNosdra.className = 'popupNosdra clearfix';
                     contentNosdra.innerHTML = popupNosdra({
-                        location: '<h3 class="int-location">' + x.properties.sitelocationname + '</h3><b>LGA:</b> ' + x.properties.lga +'</br>',
-                        spill: '<h3 class="int-spillamount">' +  quantity  + '</h4><h4 class="int-spillamount"> barrels spilled due to ' + x.properties.causeofspill  + '</h4>',
-                        date: '</br><b>Company Name: </b>' + x.properties.companyname + '</br><b>Date: </b>' + x.properties.incidentdate + '</br><b>Date spill stopped: </b>' + x.properties.datespillstopped,
-                        contaiment: '</br><b>Initial containment measures: </b>' + x.properties.initialcontainmentmeasures + '</br><b>Cause of spill: </b>' + x.properties.causeofspill + '</br><b>Estimated spill area: </b>' + x.properties.estimatedspillarea,
-                        facility: '</br><b>Type of facility: </b>' + x.properties.typeoffacility + '</br><b>Datejiv: </b>' + x.properties.datejiv + '</br><b>Spill area habitat: </b>' + x.properties.spillareahabitat,
-                        impact: '</br><b>Impact: </b>' + x.properties.impact + '</br><b>Description of impact: </b>' + x.properties.descriptionofimpact,
-                        cleanup: '</br><b>Date clean up: </b>' + x.properties.datecleanup + '</br><b>Date clean up completed: </b>' + x.properties.datecleanupcompleted + '</br><b>Method used: </b>' + x.properties.methodsofcleanup + '</br><b>Date of post clean up inspection: </b>' + x.properties.dateofpostcleanupinspection + '</br><b>Date of post impact assessment: </b>' +  x.properties.dateofpostimpactassessment,
-                        mediation: '</br><b>Furter mediation: </b>' + x.properties.furtherremediation + '</br><b>Date of certificate: </b>' + x.properties.datecertificate,
-                        image: '<img src=' + x.properties.image + '></img>'
+                        location: '<h3 class="int-location">' + property('sitelocationname') + '</h3><b>LGA:</b> ' + property('lga') +'</br>',
+                        spill: '<h3 class="int-spillamount">' +  quantity  + '</h4><h4 class="int-spillamount"> barrels spilled due to ' + property('causeofspill') + '</h4>',
+                        date: '</br><b>Company Name: </b>' + property('companyname') + '</br><b>Date: </b>' + property('incidentdate') + '</br><b>Date spill stopped: </b>' + property('datespillstopped'),
+                        contaiment: '</br><b>Initial containment measures: </b>' + property('initialcontainmentmeasures') + '</br><b>Cause of spill: </b>' + property('causeofspill') + '</br><b>Estimated spill area: </b>' + property('estimatedspillarea'),
+                        facility: '</br><b>Type of facility: </b>' + property('typeoffacility') + '</br><b>Datejiv: </b>' + property('datejiv') + '</br><b>Spill area habitat: </b>' + property('spillareahabitat'),
+                        impact: '</br><b>Impact: </b>' + property('impact') + '</br><b>Description of impact: </b>' + property('descriptionofimpact'),
+                        cleanup: '</br><b>Date clean up: </b>' + property('datecleanup') + '</br><b>Date clean up completed: </b>' + property('datecleanupcompleted') + '</br><b>Method used: </b>' + property('methodsofcleanup') + '</br><b>Date of post clean up inspection: </b>' + property('dateofpostcleanupinspection') + '</br><b>Date of post impact assessment: </b>' +  property('dateofpostimpactassessment'),
+                        mediation: '</br><b>Furter mediation: </b>' + property('furtherremediation') + '</br><b>Date of certificate: </b>' + property('datecertificate'),
+                        image: '<img src=' + property('image') + '></img>'
                     });
                     
                     d.appendChild(contentNosdra);
