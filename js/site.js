@@ -344,7 +344,7 @@ function frontpageSetup() {
                         impact: '</br><b>Impact: </b>' + x.properties.impact + '</br><b>Description of impact: </b>' + x.properties.descriptionofimpact,
                         cleanup: '</br><b>Date clean up: </b>' + x.properties.datecleanup + '</br><b>Date clean up completed: </b>' + x.properties.datecleanupcompleted + '</br><b>Method used: </b>' + x.properties.methodsofcleanup + '</br><b>Date of post clean up inspection: </b>' + x.properties.dateofpostcleanupinspection + '</br><b>Date of post impact assessment: </b>' +  x.properties.dateofpostimpactassessment,
                         mediation: '</br><b>Furter mediation: </b>' + x.properties.furtherremediation + '</br><b>Date of certificate: </b>' + x.properties.datecertificate,
-                        image: '<img src=' + x.properties.image + '></img>'
+                       image: '<img src=' + x.properties.image + '></img>'
                     });
                     
                     d.appendChild(contentNosdra);

@@ -12,7 +12,7 @@ body.
 body,
 textarea,
 input {
-    font: 14px/21px 'Open Sans',Helvetica,freesans,clean,sans-serif;
+    font: 13px/21px 'Open Sans',Helvetica,freesans,clean,sans-serif;
 }
 pre,
 code { font:normal 12px/20px monospace; }
@@ -38,17 +38,17 @@ h6 a:hover {
     color: #333;
 }
 h1 {
-    font-size: 28px;
+    font-size: 30px;
     line-height: 28px;
     margin: 0;
 }
 h2 {
-    font-size: 18px;
+    font-size: 20px;
     line-height: 22px;
 }
 h3 {
     margin: 0 0 10px;
-    font-size: 14px;
+    font-size: 15px;
     line-height: 20px;
 }
 small {
@@ -145,7 +145,7 @@ ul.dropdown li a.dropdown-toggle {
     display: block;
     background: #555;
     position: relative;
-    height: 34px; line-height: 34px;
+    height: 24px; line-height: 24px;
     -moz-box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
     /*border: 1px solid #333;*/
@@ -154,8 +154,8 @@ ul.dropdown li a.dropdown-toggle {
 ul.dropdown li a.dropdown-toggle {
     background-position: 0 0;
     z-index: 10000;
-    -moz-border-radius: 0 0 4px 4px;
-    border-radius: 0 0 4px 4px;
+    /*-moz-border-radius: 0 0 4px 4px;
+    border-radius: 0 0 4px 4px;*/
 }
 ul.dropdown li.open a.dropdown-toggle {
     border-color: #96979C;
@@ -169,14 +169,14 @@ ul.dropdown li span.arrow {
     position: absolute;
     visibility: hidden;
     left: 10px;
-    top: 55px;
+    top: 47px;
 }
 ul.dropdown li.open span.arrow {
     visibility: inherit;
 }
 .dropdown-menu a {
     display: block;
-    padding: 5px 10px;
+    padding: 5px 5px;
     color:  #666;
 }
 ul.dropdown li a#all:active,
@@ -190,21 +190,21 @@ ul.dropdown li a.dropdown-toggle:active {
     color: #fff;
     visibility: hidden;
     position: absolute;
-    top: 60px;
+    top: 54px;
     left: 1px;
     min-width: 120px;
     max-width: 220px;
     _width: 160px;
     zoom: 1;
     z-index: 1000;
-    -moz-border-radius: 4px;
+    -moz-border-radius: 0px;
     border-radius: 0px;
     box-shadow: #000 0 0 6px;
 }
 .dropdown-menu .count {
     color: #fff;
     font-size: 18px;
-    border-radius: 3px;
+    border-radius: 0px;
 }
 ul ul.dropdown-menu li {
     display: block;
@@ -297,7 +297,7 @@ ul.dropdown-menu li a.switch-active:hover {
     float:left;
     display:block;
     font-weight:bold;
-    padding: 6px 10px;
+    padding: 1px 5px;
     min-height: 22px;
     /* Use this to have month buttons aligned in narrow screens:
        min-width: 28px; */
@@ -379,7 +379,7 @@ ul.dropdown-menu li a.switch-active:hover {
 .map-limiter {
     position: relative;
     margin: 0 96px 0 338px;
-    padding: 6px 0 0 6px;
+    padding: 8px 0 0 8px;
     background:rgba(255,255,255,0.9);
 }
 .map-limiter > * {
@@ -405,9 +405,21 @@ ul.dropdown-menu li a.switch-active:hover {
 }
 
 .about-text p {
-    font-size: 14px;
+    font-size: 13px;
     line-height: 24px;
+    margin-bottom:10px;
 }
+
+.about-text a {
+    text-decoration: underline;
+}
+.about-text a:hover {
+    text-decoration: none;
+}
+.about-text a:visited {
+    text-decoration: underline;
+}
+
 .small-text{
     position:absolute;
     display:block;
@@ -430,7 +442,6 @@ ul.dropdown-menu li a.switch-active:hover {
     left:0;
 }
 #masthead .title h2 {
-    letter-spacing: 2px;
     margin-top: 15px;
 }
 #nav {
@@ -438,20 +449,25 @@ ul.dropdown-menu li a.switch-active:hover {
     right: 0;
     top: 8px;
     display: table-row;
+    margin-top:8px;
 }
 #nav a {
     font-weight:700;
-    font-size: 12px;
-    display: table-cell;
+    font-size: 13px;
     min-width: 100px;
     padding:8px 8px;
+    margin-right:8px;
     text-align: center;
     background:#f6f6f6;
-    -moz-transition: background-color 0.1s linear;
-    -o-transition: background-color 0.1s linear;
-    -webkit-transition: background-color 0.1s linear;
-    transition: background-color 0.1s linear;
+    -moz-transition: background-color 0.5s linear;
+    -o-transition: background-color 0.5s linear;
+    -webkit-transition: background-color 0.5s linear;
+    transition: background-color 0.5s linear;
+   border-radius: 5px 5px 5px 5px;
+    -moz-border-radius: 5px 5px 5px 5px;
+
 }
+
 #nav a:hover, #nav a.active {
     color:#fff;
     background-color: #414141;

@@ -7,10 +7,13 @@ class: frontpage
 <div class='intro'>
   <div class=''>
     <div id='intro-text' class='about-text'>
-      <h2>Explore oil spill data since <span class='bignum'>2007</span></h2>
-      <p>Nigerian Public Oil Spill Monitoring Platform is a multi-stakeholder platform that tracks and visualizes oil spill data across the Niger Delta. An average of <span class='bignum'>two spills a day</span> happen across the Delta, explore the data now.</p>
+      <h2>View the latest information on oil spills in Nigeria</h2>
+      <p>Data from the National Oil Spill Detection and Response Agency (NOSDRA) database.</p>
+      <p>NOSDRA is working hard to improve the integrity of this data, but relies heavily on the oil companies to supply information and update this regularly.</p>
+      <p>NOSDRA hopes this new initiative will improve the monitoring and tracking of oil spills in Nigeria, acknowledges that this data may be incomplete or inaccurate, and is working to improve this situation.</p>
+      <p><a href="http://sdn4nigeria.github.com/monitoring-platform/about/">Read more about the historical difficulties in monitoring oil spills Nigeria.</a></p>
+      <p>Hover over a spill incident on the map and the details will appear here.</p>
       <br/>
-      <!--p>View <a href='{{site.baseurl}}/about'>stories</a> found in the data, and then find your own stories with our <a href='{{site.baseurl}}/maps'>map browser</a></p-->
       <div id='tooltip'></div>
     </div>
     <div id='base-select'>
@@ -67,7 +70,11 @@ class: frontpage
               Select months:
               <div id='options'> </div>
             </div>
-            <b>Showing a total of <span id='spill-number' class='count'>--</span> spills. Hover over each spill for more information.</b>
+            
+              
+            
+            
+            <b>Showing <span id='spill-number' class='count'>--</span> spills in this period. Hover over each spill for more information. Include user-submitted updates layer: <input type="checkbox" style='margin-bottom:-3px;' /></b>
           </div>
         </div>
       </div>
@@ -79,21 +86,8 @@ class: frontpage
 
 <!--div class='limiter clearfix'><div class='graphs'></div></div-->
 <div id='contribute'>
-  <div class='limiter clearfix'>
-    <!-- [Disclaimer and company acronyms here - rory to add] -->
-    <!-- div class='submit-story col col-2'>
-      <div class='padding'>
-        <a class='action button' href='http://developmentseed.org/nigeria-citizen-map/'>Citizen Report</a>
-        <p>Access map with citizen-reported spill information.
-        </p>
-      </div>
-    </div>
-    <div class='download-data col col-2'>
-      <div class='padding'>
-        <a class='action button' href='open/data'>Get the Data</a>
-        <p>Access and download all the available data. All maps are powered by <a href='http://mapbox.com'>Mapbox</a>. Read about how you can host and retrieve maps using the <a href='http://mapbox.com/hosting/api'>Mapbox API</a>.</p>
-      </div>
-    </div -->
+  <div class='limiter clearfix' style='text-align:center;font-size:13px;line-height:14px;'>
+<p>All data displayed on this page is the joint reponsibility of NOSDRA, the appropriate oil comapany, and local community representatives to maintain and update.</p> <p>If you have a query relating to a specific spill please submit an update. To report a new spill to NOSDRA please submit a spill report. You may also wish to find out more about the processes involved in reporting, monitoring, and cleaning up oil spills in Nigeria.</p>
   </div>
 </div>
 <script type="text/javascript">
