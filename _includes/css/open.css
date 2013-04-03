@@ -16,13 +16,8 @@
 #open-about img {
 margin:0px;
 padding:5px;
-float:none;
 }
 
-.about-text{
-font-size:11px; 
-margin:0px;
-}
 #subnav {
     position: absolute;
     top: 64px;
