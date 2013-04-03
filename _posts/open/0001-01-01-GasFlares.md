@@ -4,7 +4,7 @@ categories:
     - maps
     - Infrastructure
 layer: gas-flare-locations
-thumbnail: http://api.tiles.mapbox.com/v3/nigeriaoil.map-5ustxk97,nigeriaoil.gas-flare-locations/7/66/59.png
+thumbnail: http://api.tiles.mapbox.com/v3/nigeriaoil.map-5ustxk97,nigeriaoil.gas-flare-locations/7/66/70.png
 api: http://api.tiles.mapbox.com/v3/nigeriaoil.gas-flare-locations.jsonp
 embed: http://api.tiles.mapbox.com/v3/nigeriaoil.map-5ustxk97,nigeriaoil.gas-flare-locations.html
 downloads:
