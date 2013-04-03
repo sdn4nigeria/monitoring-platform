@@ -2,6 +2,7 @@
 title: Shell Nigeria Oil Spill Reports, 2011-2012
 categories: 
     - maps
+    - data
     - Impact
 layer: shell_spills
 thumbnail: http://api.tiles.mapbox.com/v3/nigeriaoil.map-5ustxk97,nigeriaoil.shell_spills/6/33/30.png128
