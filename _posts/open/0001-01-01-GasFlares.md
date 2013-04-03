@@ -14,4 +14,4 @@ downloads:
 
 ---
 
-This layer dipicts gas flares in Nigeria and is taken from the US National Geophysical Data Center. The data available only shows locations and not amounts flared
+This layer dipicts gas flares in Nigeria and is taken from the US National Geophysical Data Center. The data available only shows locations and not amounts flared.
