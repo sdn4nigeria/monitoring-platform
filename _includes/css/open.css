@@ -10,14 +10,18 @@
     margin-bottom:20px;
     z-index:1;
     font-weight:bold;
-    font-size:12px;
     border:1px solid #eeeeee;
     margin-top:20px;
 }
 #open-about img {
-margin:auto;
+margin:0px;
 padding:5px;
 float:none;
+}
+
+.about-text{
+font-size:11px; 
+margin:0px;
 }
 #subnav {
     position: absolute;
