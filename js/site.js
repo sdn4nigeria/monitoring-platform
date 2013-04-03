@@ -6,6 +6,7 @@ var mapLayers = {
     lga:         "nigeriaoil.nigeria-lga",
     wetlands:    "nigeriaoil.NGWetlands",
     settlements: "nigeriaoil.NGSettlement"
+    waterbodies: "nigeriaoil.NGWaterbodies"
 };
 
 var googleDocsIdentifier = window.location.hash.substring(1);
