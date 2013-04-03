@@ -11,6 +11,9 @@
     z-index:1;
     font-weight:bold;
 }
+#open-about img {
+    margin-top:20px;
+}
 #subnav {
     position: absolute;
     top: 64px;
