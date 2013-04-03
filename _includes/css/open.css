@@ -11,11 +11,13 @@
     z-index:1;
     font-weight:bold;
     font-size:12px;
-    border:1px solid #000;
+    border:1px solid #eeeeee;
     margin-top:20px;
 }
 #open-about img {
-
+margin:auto;
+padding:5px;
+float:none;
 }
 #subnav {
     position: absolute;
