@@ -12,9 +12,10 @@
     font-weight:bold;
     font-size:12px;
     border:1px solid #000;
+    margin-top:20px;
 }
 #open-about img {
-    margin-top:20px;
+
 }
 #subnav {
     position: absolute;
