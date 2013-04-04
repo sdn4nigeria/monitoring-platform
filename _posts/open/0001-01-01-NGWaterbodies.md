@@ -2,7 +2,7 @@
 title: "Nigeria Waterbodies"
 categories: 
     - maps
-    - Socio-economic
+    - Environment and Geography
 layer: NGWaterbodies
 thumbnail: http://api.tiles.mapbox.com/v3/nigeriaoil.map-5ustxk97,nigeriaoil.NGWaterbodies/7/66/61.png
 api: http://api.tiles.mapbox.com/v3/nigeriaoil.NGWaterbodies.jsonp
