@@ -2,7 +2,7 @@
 title: "Nigeria Wetlands"
 categories: 
     - maps
-    - Socio-economic
+    - Environment and Geography
 layer: NGWetlands
 thumbnail: http://api.tiles.mapbox.com/v3/nigeriaoil.map-5ustxk97,nigeriaoil.NGWetlands/7/66/61.png
 api: http://api.tiles.mapbox.com/v3/nigeriaoil.NGWetlands.jsonp
