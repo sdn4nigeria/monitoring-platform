@@ -7,6 +7,8 @@ var mapLayers = {
     wetlands:    "nigeriaoil.NGWetlands",
     settlements: "nigeriaoil.NGSettlement"
 };
+var mainMap;
+var citizenReportsMarkers;// the markers layer for citizen-reported incidents
 
 var googleDocsIdentifier = window.location.hash.substring(1);
 
@@ -161,6 +163,7 @@ function frontpageSetup() {
         layerIDs[2]
     ];
     mapbox.auto("map", allLayers, function(m) {
+        mainMap = m;
         m.setZoomRange(4, 21);
         m.smooth(true);
         
@@ -352,7 +355,7 @@ function frontpageSetup() {
                     
                     d.appendChild(contentNosdra);
                     $(d).hover(function () {
-                        var tooltip = $('.about-text');
+                        var tooltip = $('#intro-text');
                         tooltip.empty();
                         var contentNosdra = $(this).find('.popupNosdra').html();
                         tooltip.html(contentNosdra);
@@ -400,7 +403,7 @@ function frontpageSetup() {
                     });
                     $('#spill-number').text(commaSeparateNumber(count));
                 }
-                
+
                 function setupInterface() {
                     var clickHandle = function(type) {
                         return function(ev) {
@@ -474,6 +477,75 @@ function frontpageSetup() {
         })(googleDocsIdentifier, 2);
         else alert("The spill data display requires a dataset ID");
     });
+    
+    function showCitizenReportsLayer(event)
+    {
+        var show = event.target.checked;
+        if (!show) {
+            // MapBox's documentation does not specify it,
+            // but I've tried and asking to remove a layer
+            // that is no longer in the map seems to work fine,
+            // that is, does nothing. Same with null or
+            // undefined values.
+            mainMap.removeLayer(citizenReportsMarkers);
+            // Disable next line to cache the markers layer
+            // if you want to avoid loading the data again
+            // whenever it is re-enabled.
+            //citizenReportsMarkers = null;
+            
+            return;
+        }
+        
+	    function newMarker() {
+    	    if (window.location.hash === '#new') {
+    		    $('#new').fadeIn('slow');
+    		    window.location.hash = '';
+    		    window.setTimeout(function() {
+        		    $('#new').fadeOut('slow');
+    		    }, 4000)
+    	    }
+        }
+        
+	    // Build map
+	    function gotMapData(f){
+    	    citizenReportsMarkers = mapbox.markers.layer().features(f);
+            citizenReportsMarkers.named("citizen-reports-markers");
+		    mainMap.addLayer(citizenReportsMarkers);
+		    // Set a custom formatter for tooltips
+		    // Provide a function that returns html to be used in tooltip
+		    var interaction = mapbox.markers.interaction(citizenReportsMarkers);
+		    interaction.formatter(function(feature) {
+			    if (feature.properties.verified == 'yes') {
+				    var verifyClass = 'check-plus';
+				    var verifyText = 'Verified by NOSDRA';
+			    } else {
+				    var verifyClass = 'check-minus';
+				    var verifyText = 'Not verified by NOSDRA';
+			    }
+			    var o = '<a target="_blank" href="https://docs.google.com/spreadsheet/ccc?key=0AoiGgH1LJtE0dGdwaW1VUW5uY0FSMjF0RVZBVldLTUE">'
+				    + '<div class="marker-title">' + feature.properties.title + '</div>'
+				    + '<div class="marker-description-top">Area Name: ' + feature.properties.area + '</div>'
+				    + '<div class="marker-description-bottom"><span class="check ' + verifyClass + '"></span><span class="verify-text">' + verifyText + '</span></div></a>';
+			    return o;
+		    });
+		    newMarker();
+	    }
+        
+	    if (!citizenReportsMarkers) {
+            // Only load the data if not already in memory
+            mmg_google_docs('0AoiGgH1LJtE0dGdwaW1VUW5uY0FSMjF0RVZBVldLTUE',
+                            'od6',
+                            gotMapData);
+        }
+        else {
+            mainMap.addLayer(citizenReportsMarkers);
+        }
+    }
+    $('#show-citizen-reports-layer').change(showCitizenReportsLayer);
+    // Set the default state here, either removeAttr("checked")
+    // to have it initially disabled, or attr("checked", "checked")
+    // to have it initially enabled.
+    $('#show-citizen-report-markers').removeAttr("checked");
 }
 
 $(function () {
