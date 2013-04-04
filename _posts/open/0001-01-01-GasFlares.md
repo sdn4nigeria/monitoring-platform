@@ -3,8 +3,8 @@ title: "Nigeria Gas flare Locations"
 categories: 
     - maps
     - Infrastructure
-layer: GasFlares
-thumbnail: http://api.tiles.mapbox.com/v3/nigeriaoil.map-5ustxk97,nigeriaoil.gas-flare-locations/7/66/61.png
+layer: gas-flare-locations
+thumbnail: http://api.tiles.mapbox.com/v3/nigeriaoil.map-5ustxk97,nigeriaoil.gas-flare-locations/7/66/62.png
 api: http://api.tiles.mapbox.com/v3/nigeriaoil.gas-flare-locations.jsonp
 embed: http://api.tiles.mapbox.com/v3/nigeriaoil.map-5ustxk97,nigeriaoil.gas-flare-locations.html
 downloads:
@@ -14,4 +14,4 @@ downloads:
 
 ---
 
-This layer dipicts gas flares in Nigeria - despite the file name
+This layer dipicts gas flares in Nigeria and is taken from the US National Geophysical Data Center. The data available only shows locations and not amounts flared.

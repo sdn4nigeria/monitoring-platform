@@ -10,7 +10,14 @@
     margin-bottom:20px;
     z-index:1;
     font-weight:bold;
+    margin-top:20px;
 }
+#open-about img {
+margin:0px;
+padding:5px;
+margin-left:-10px;
+}
+
 #subnav {
     position: absolute;
     top: 64px;

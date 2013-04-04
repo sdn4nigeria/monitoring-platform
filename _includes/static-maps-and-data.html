@@ -17,12 +17,13 @@
         {% for dataset in site.categories[category] %}
         {% if dataset.categories contains "maps" or dataset.categories contains "data" %}
         
-        <div class='collection clearfix' id='{{ dataset.title | downcase | replace: ' ', '-' }}'>
-          <h4 class='title' title='{{dataset.id}}'>{{dataset.title}}</h4>
+        <div class='collection clearfix' id='{{ dataset.title | downcase | replace: ' ', '-' }}' style='width:90%;'>
+          
           {% if dataset.categories contains "maps" %}
           <!-- This links to the full-screen map: a href='{% if dataset.embed contains "http://" %}{{ dataset.embed }}{% else %}../..{{ dataset.embed }}{% endif %}' class='download download-{{download.type}}'><img class='map-preview' src="{{ dataset.thumbnail }}"></a -->
           <a href='{{site.baseurl}}/maps#{{dataset.layer}}' class='download download-{{download.type}}'><img class='map-preview' src="{{ dataset.thumbnail }}"></a>
           {% endif %}
+          <h4 class='title' title='{{dataset.id}}'>{{dataset.title}}</h4>
           {{ dataset.content | markdownify }}
           
           <div class='downloads'>
