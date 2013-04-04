@@ -355,7 +355,8 @@ function frontpageSetup() {
                     
                     d.appendChild(contentNosdra);
                     $(d).hover(function () {
-                        var tooltip = $('#intro-text');
+                        var tooltip = $('#tooltip');
+                        if (tooltip.hasClass('incident-report')) return;
                         tooltip.empty();
                         var contentNosdra = $(this).find('.popupNosdra').html();
                         tooltip.html(contentNosdra);
@@ -637,3 +638,19 @@ $(function () {
         $('body').removeClass('no-touch');
     }
 });
+
+function toggleIncidentReportForm()
+{
+    var link = $('#main-nav-report-spill');
+    //var container = $('#incident-report-form');
+    //var container = $('#intro-text');
+    var container = $('#tooltip');
+    if (container.hasClass('incident-report')) {
+        container.removeClass('incident-report');
+        container.html('');
+    }
+    else {
+        container.addClass('incident-report');
+        container.load('incident-report-form.html');
+    }
+}
