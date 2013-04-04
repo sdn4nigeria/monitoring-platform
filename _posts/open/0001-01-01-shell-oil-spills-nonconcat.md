@@ -2,7 +2,7 @@
 title: Shell Nigeria Oil Spill Reports Without Scale, 2011-2012
 categories: 
     - maps
-    - Impact
+    - Oil spill snaphots
     - data
 layer: shell_spills_all
 thumbnail: http://api.tiles.mapbox.com/v3/nigeriaoil.map-5ustxk97,nigeriaoil.shell_spills_all/8/132/124.png128
