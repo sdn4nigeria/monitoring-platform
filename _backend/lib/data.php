@@ -30,8 +30,8 @@ class table_data_source
   }
   
   function reopen() {
-    $this->fclose();
-    $this->fopen($this->uri, "r");
+    $this->close();
+    $this->open($this->uri);
   }
   
   function check_format() {

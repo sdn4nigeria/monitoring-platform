@@ -60,7 +60,8 @@ function make_backup(&$command_output) {
   return $ok;
 }
 
-function print_table($spill_data) {
+function print_table($spill_data, $filter = null) {
+  $count = 0;
   echo "<table>";
   $row_index = 0;
   while (($row = $spill_data->next_row()) !== FALSE) {
@@ -69,16 +70,21 @@ function print_table($spill_data) {
     if (0 == $row_index) {
       for ($i = 0; $i < $items; ++$i) echo "<th>".$row[$i]."</th>\n";
     }
-    else {
+    else if (!$filter || $filter($row)) {
       for ($i = 0; $i < $items; ++$i) echo "<td>".$row[$i]."</td>\n";
+      ++$count;
     }
     echo "</tr>";
     ++$row_index;
   }
   echo "</table>";
+  
+  return $count;
 }
 
+header("Content-type: text/html; charset=UTF-8");
 ?>
+<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <title>Data upload back-end</title>
@@ -93,6 +99,7 @@ function print_table($spill_data) {
     .login { max-width:20em; margin:25% auto; padding:3em; border:thin solid #888; background:#FFF; }
     .logout { float:right; }
     #rows { width:100%; min-height:20em; }
+    #count-display { text-align:center; }
     </style>
   </head>
   <body>
@@ -119,6 +126,7 @@ function print_table($spill_data) {
         $temp_file_name = $spillDataFile["tmp_name"];
       }
       else if (array_key_exists("dataset", $_REQUEST)) {
+        include "spill-data-upload-form.php";
         $dataset = preg_replace("/[^a-zA-Z0-9_\/-]/", "_",
                                 $_REQUEST["dataset"]);
         if (array_key_exists("rows", $_REQUEST)) {
@@ -135,6 +143,13 @@ function print_table($spill_data) {
           echo "</form>";
         }
         else {
+          echo "<button onclick='filter()'>All</button>";
+          echo "<button id='button-filter-no-incident-number' onclick='filter(filters.no_incident_number)'>Entries without incident number</button>";
+          echo "<button id='button-filter-no-location' onclick='filter(filters.no_location)'>Entries with neither lat/lon nor northings/eastings information</button>";
+          echo "<button id='button-filter-misplaced-location' onclick='filter(filters.misplaced_location)'>Entries with misplaced lat/lon information</button>";
+          echo "<input id='field-filter-search' type='search' onchange='search(this.value)'/>";
+          echo "<button onclick='search($(\"#field-filter-search\").value)'>Search</button>";
+          echo "<div id='count-display'><span id='shown-row-count-display'></span> rows shown out of <span id='total-row-count-display'></span> total</div>";
           $spill_data = new table_data_source($data_root.$dataset.".csv");
           print_table($spill_data);
           $spill_data->close();
@@ -192,6 +207,8 @@ function print_table($spill_data) {
         if ($ok) {
           echo "<h2>Finished</h2>";
           echo "<p>The data you submitted has been <strong>successfully processed</strong>, and is available in the map view.</p>";
+          echo "<p>Click to <a href='?dataset=nosdra'>view the current data</a\
+>.</p>";
         }
         else {
           echo "<p>Apparently there was an error. Please report the information above to the site administrator.</p>";
@@ -209,5 +226,6 @@ function print_table($spill_data) {
       echo "</pre>";
     }
     ?>
+    <script src="spill-data.js"></script>
   </body>
 </html>
