@@ -2,9 +2,9 @@
 title: "Rivers State ESI Habitat Sample"
 categories: 
     - maps
-    - Infrastructure
+    - Socio-economic
 layer: rivers-state-habitats
-thumbnail: http://api.tiles.mapbox.com/v3/nigeriaoil.map-5ustxk97,nigeriaoil.rivers-state-habitats/7/66/61.png
+thumbnail: http://api.tiles.mapbox.com/v3/nigeriaoil.map-5ustxk97,nigeriaoil.rivers-state-habitats/7/66/62.png
 api: http://api.tiles.mapbox.com/v3/nigeriaoil.map-5ustxk97,nigeriaoil.rivers-state-habitats.jsonp
 embed: http://api.tiles.mapbox.com/v3/nigeriaoil.map-5ustxk97,nigeriaoil.rivers-state-habitats.html
 downloads:
