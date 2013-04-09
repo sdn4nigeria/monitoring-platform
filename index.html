@@ -7,7 +7,10 @@ class: frontpage
 <div class='intro'>
   <div class=''>
     <div id='intro-text' class='about-text'>
-      <button id='toggle-incident-report-form' onclick='toggleIncidentReportForm()'>Report a spill</button><br/>
+      <div id='toggle-incident-report-form' style='text-align:right'>
+        <button onclick='toggleIncidentReportForm()'>Report a spill</button>
+      </div>
+      <div id='incident-report-form-container'></div>
       <div id='tooltip'>
         <h2>View the latest information on oil spills in Nigeria</h2>
         <p>Data from the National Oil Spill Detection and Response Agency (NOSDRA) database.</p>
@@ -72,10 +75,7 @@ class: frontpage
               <div id='options'> </div>
             </div>
             
-              
-            
-            
-            <b>Showing <span id='spill-number' class='count'>--</span> spills in this period. Hover over each spill for more information. Include user-submitted updates layer: <input type="checkbox" id="show-citizen-reports-layer" style='margin-bottom:-3px;'/></b>
+            <div>Showing <b><span id='spill-number' class='count'>--</span> spills</b> in this period. Hover over each spill for more information.<br/>Include <b>user-submitted</b> updates layer: <input type="checkbox" id="show-citizen-reports-layer" style='margin-bottom:-3px;'/></div>
           </div>
         </div>
       </div>

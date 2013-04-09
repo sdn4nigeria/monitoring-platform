@@ -335,6 +335,7 @@ function frontpageSetup() {
                             .to(m.locationCoordinate(point)
                                 .zoomTo(zoom))
                             .run(500);
+                        if ($('#copy-data-from-map:checked').length > 0) fillIncidentReportForm(x.properties);
                     });
                     
                     function property(name) { return x.properties[name] || ""; };
@@ -356,7 +357,6 @@ function frontpageSetup() {
                     d.appendChild(contentNosdra);
                     $(d).hover(function () {
                         var tooltip = $('#tooltip');
-                        if (tooltip.hasClass('incident-report')) return;
                         tooltip.empty();
                         var contentNosdra = $(this).find('.popupNosdra').html();
                         tooltip.html(contentNosdra);
@@ -639,18 +639,58 @@ $(function () {
     }
 });
 
-function toggleIncidentReportForm()
+function fillIncidentReportForm(properties)
+{
+    var form = $('#incident-report-form').get(0);
+    if (form) for (var p in properties) {
+        var element = form[p];
+        if (!element || !(element instanceof Node)) continue;
+        var value = properties[p];
+        if ("number" === typeof value) value = value.toPrecision(10);
+        switch (element.tagName.toLowerCase()) {
+        case "input":
+        case "select":
+            element.value = value;
+            break;
+        case "textarea":
+            element.textContent = value;
+            break;
+        default:
+            alert("Unexpected element: " + element);
+        }
+    }
+}
+
+function loadIncidentReportForm(form)
 {
     var link = $('#main-nav-report-spill');
-    //var container = $('#incident-report-form');
-    //var container = $('#intro-text');
-    var container = $('#tooltip');
+    var container = $('#incident-report-form-container');
+    $.ajax({
+        type: "POST",
+        url: "report-incident.php",
+        data: form?($(form).serialize()):null,
+        dataType: "html", // This is the *response* type we want
+        success: function (responseText, textStatus, XMLHttpRequest) {
+            container.html(responseText);
+        }
+    });
+    
+    return false;
+}
+
+function toggleIncidentReportForm()
+{
+    var container = $('#incident-report-form-container');
     if (container.hasClass('incident-report')) {
         container.removeClass('incident-report');
+        $('#toggle-incident-report-form').show();
+        $('#tooltip').show();
         container.html('');
     }
     else {
         container.addClass('incident-report');
-        container.load('incident-report-form.html');
+        $('#toggle-incident-report-form').hide();
+        $('#tooltip').hide();
+        loadIncidentReportForm();
     }
 }
