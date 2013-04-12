@@ -523,10 +523,11 @@ function frontpageSetup() {
 				    var verifyClass = 'check-minus';
 				    var verifyText = 'Not verified by NOSDRA';
 			    }
-			    var o = '<a target="_blank" href="https://docs.google.com/spreadsheet/ccc?key=0AoiGgH1LJtE0dGdwaW1VUW5uY0FSMjF0RVZBVldLTUE">'
+                window.citizenReportedFeature = feature;
+			    var o = '<div onclick="alert(\'Selected: \' + window.citizenReportedFeature.properties.title); fillIncidentReportForm(window.citizenReportedFeature.properties)">'
 				    + '<div class="marker-title">' + feature.properties.title + '</div>'
 				    + '<div class="marker-description-top">Area Name: ' + feature.properties.area + '</div>'
-				    + '<div class="marker-description-bottom"><span class="check ' + verifyClass + '"></span><span class="verify-text">' + verifyText + '</span></div></a>';
+				    + '<div class="marker-description-bottom"><span class="check ' + verifyClass + '"></span><span class="verify-text">' + verifyText + '</span></div></div>';
 			    return o;
 		    });
 		    newMarker();
@@ -661,6 +662,22 @@ function fillIncidentReportForm(properties)
     }
 }
 
+function loadLoginForm(form)
+{
+    var container = $('#login-form-container');
+    $.ajax({
+        type: "POST",
+        url: "login.php",
+        data: form?($(form).serialize()):null,
+        dataType: "html", // This is the *response* type we want
+        success: function (responseText, textStatus, XMLHttpRequest) {
+            container.html(responseText);
+        }
+    });
+    
+    return false;
+}
+
 function loadIncidentReportForm(form)
 {
     var link = $('#main-nav-report-spill');
@@ -672,6 +689,7 @@ function loadIncidentReportForm(form)
         dataType: "html", // This is the *response* type we want
         success: function (responseText, textStatus, XMLHttpRequest) {
             container.html(responseText);
+            $('#login-form-container').show();
         }
     });
     
@@ -694,3 +712,34 @@ function toggleIncidentReportForm()
         loadIncidentReportForm();
     }
 }
+
+var FormUtils = {
+    combobox: function (menu, targetName, otherValue)
+    {
+        var target = menu.form[targetName];
+        if (menu.value != otherValue) {
+            target.style.display = 'none';
+            target.value = menu.value;
+        }
+        else {
+            target.style.display = '';
+            target.value = otherValue?otherValue+":":"";
+        }
+    },
+    addAttachmentLink: function (container)
+    {
+        var input = document.createElement("input");
+        input.setAttribute("size", "");
+        input.setAttribute("type", "url");
+        input.setAttribute("name", "attachmentLink");
+        container.get(0).appendChild(input);
+    },
+    addAttachmentFile: function (container)
+    {
+        var input = document.createElement("input");
+        input.setAttribute("size", "8");
+        input.setAttribute("type", "file");
+        input.setAttribute("name", "attachmentFile");
+        container.get(0).appendChild(input);
+    },
+};
