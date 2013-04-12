@@ -160,9 +160,11 @@ with open(file_names["input"], 'rb') as f:
         dt = datetime.strptime(row['DATE OF INCIDENT'].rstrip(' 00:00:00'), "%Y-%m-%d")
         if not row['COMPANY'] in companies:
             companies[row['COMPANY']] = {"processed":0, "discarded":0};
+        spillid = row['ID']
+        if row['INCIDENT NO']: spillid += "." + row['INCIDENT NO']
         outputDict = {
             'timestamp': "",
-            'spillid': row['INCIDENT NO'],
+            'spillid': spillid,
             'companyname': row['COMPANY'],
             'incidentdate': row['DATE OF INCIDENT'].rstrip(' 00:00:00'),
             'datespillstopped': "",
