@@ -7,14 +7,20 @@ class: frontpage
 <div class='intro'>
   <div class=''>
     <div id='intro-text' class='about-text'>
-      <h2>View the latest information on oil spills in Nigeria</h2>
-      <p>Data from the National Oil Spill Detection and Response Agency (NOSDRA) database.</p>
-      <!--p>NOSDRA is working hard to improve the integrity of this data, but relies heavily on the oil companies to supply information and update this regularly.</p>
-      <p>NOSDRA hopes this new initiative will improve the monitoring and tracking of oil spills in Nigeria, acknowledges that this data may be incomplete or inaccurate, and is working to improve this situation.</p>
-      <p><a href="http://sdn4nigeria.github.com/monitoring-platform/about/">Read more about the historical difficulties in monitoring oil spills Nigeria.</a></p-->
-      <p>Hover over a spill incident on the map and the details will appear here.</p>
-      <br/>
-      <div id='tooltip'></div>
+      <div id='login-form-container' style='display:none'></div>
+      <script>loadLoginForm($('#login-form-container'))</script>
+      <div id='incident-report-form-container'></div>
+      <div id='tooltip'>
+        <h2>View the latest information on oil spills in Nigeria</h2>
+        <p>Data from the National Oil Spill Detection and Response Agency (NOSDRA) database.</p>
+        <!--p>NOSDRA is working hard to improve the integrity of this data, but relies heavily on the oil companies to supply information and update this regularly.</p>
+            <p>NOSDRA hopes this new initiative will improve the monitoring and tracking of oil spills in Nigeria, acknowledges that this data may be incomplete or inaccurate, and is working to improve this situation.</p>
+<p><a href="http://sdn4nigeria.github.com/monitoring-platform/about/">Read more about the historical difficulties in monitoring oil spills Nigeria.</a></p-->
+        <p>Hover over a spill incident on the map and the details will appear here.</p>
+      </div>
+      <div id='toggle-incident-report-form' style='text-align:right;clear:both'>
+        <button onclick='toggleIncidentReportForm()'>Report a spill</button>
+      </div>
     </div>
     <div id='base-select'>
       <ul class='bottomlayer'>
@@ -71,10 +77,7 @@ class: frontpage
               <div id='options'> </div>
             </div>
             
-              
-            
-            
-            <b>Showing <span id='spill-number' class='count'>--</span> spills in this period. Hover over each spill for more information. Include user-submitted updates layer: <input type="checkbox" style='margin-bottom:-3px;' /></b>
+            <div>Showing <b><span id='spill-number' class='count'>--</span> spills</b> in this period. Hover over each spill for more information.<br/>Include <b>user-submitted</b> updates layer: <input type="checkbox" id="show-citizen-reports-layer" style='margin-bottom:-3px;'/></div>
           </div>
         </div>
       </div>

@@ -6,5 +6,6 @@
 {% include css/open.css %}
 {% include css/maps.css %}
 {% include css/mapbox.css %}
+{% include css/form.css %}
 {% include css/ipad.css %}
 {% include css/ie7.css %}

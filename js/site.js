@@ -7,6 +7,8 @@ var mapLayers = {
     wetlands:    "nigeriaoil.NGWetlands",
     settlements: "nigeriaoil.NGSettlement"
 };
+var mainMap;
+var citizenReportsMarkers;// the markers layer for citizen-reported incidents
 
 var googleDocsIdentifier = window.location.hash.substring(1);
 
@@ -161,6 +163,7 @@ function frontpageSetup() {
         layerIDs[2]
     ];
     mapbox.auto("map", allLayers, function(m) {
+        mainMap = m;
         m.setZoomRange(4, 21);
         m.smooth(true);
         
@@ -332,6 +335,7 @@ function frontpageSetup() {
                             .to(m.locationCoordinate(point)
                                 .zoomTo(zoom))
                             .run(500);
+                        if ($('#copy-data-from-map:checked').length > 0) fillIncidentReportForm(x.properties);
                     });
                     
                     function property(name) { return x.properties[name] || ""; };
@@ -352,7 +356,7 @@ function frontpageSetup() {
                     
                     d.appendChild(contentNosdra);
                     $(d).hover(function () {
-                        var tooltip = $('.about-text');
+                        var tooltip = $('#tooltip');
                         tooltip.empty();
                         var contentNosdra = $(this).find('.popupNosdra').html();
                         tooltip.html(contentNosdra);
@@ -400,7 +404,7 @@ function frontpageSetup() {
                     });
                     $('#spill-number').text(commaSeparateNumber(count));
                 }
-                
+
                 function setupInterface() {
                     var clickHandle = function(type) {
                         return function(ev) {
@@ -474,6 +478,76 @@ function frontpageSetup() {
         })(googleDocsIdentifier, 2);
         else alert("The spill data display requires a dataset ID");
     });
+    
+    function showCitizenReportsLayer(event)
+    {
+        var show = event.target.checked;
+        if (!show) {
+            // MapBox's documentation does not specify it,
+            // but I've tried and asking to remove a layer
+            // that is no longer in the map seems to work fine,
+            // that is, does nothing. Same with null or
+            // undefined values.
+            mainMap.removeLayer(citizenReportsMarkers);
+            // Disable next line to cache the markers layer
+            // if you want to avoid loading the data again
+            // whenever it is re-enabled.
+            //citizenReportsMarkers = null;
+            
+            return;
+        }
+        
+	    function newMarker() {
+    	    if (window.location.hash === '#new') {
+    		    $('#new').fadeIn('slow');
+    		    window.location.hash = '';
+    		    window.setTimeout(function() {
+        		    $('#new').fadeOut('slow');
+    		    }, 4000)
+    	    }
+        }
+        
+	    // Build map
+	    function gotMapData(f){
+    	    citizenReportsMarkers = mapbox.markers.layer().features(f);
+            citizenReportsMarkers.named("citizen-reports-markers");
+		    mainMap.addLayer(citizenReportsMarkers);
+		    // Set a custom formatter for tooltips
+		    // Provide a function that returns html to be used in tooltip
+		    var interaction = mapbox.markers.interaction(citizenReportsMarkers);
+		    interaction.formatter(function(feature) {
+			    if (feature.properties.verified == 'yes') {
+				    var verifyClass = 'check-plus';
+				    var verifyText = 'Verified by NOSDRA';
+			    } else {
+				    var verifyClass = 'check-minus';
+				    var verifyText = 'Not verified by NOSDRA';
+			    }
+                window.citizenReportedFeature = feature;
+			    var o = '<div onclick="alert(\'Selected: \' + window.citizenReportedFeature.properties.title); fillIncidentReportForm(window.citizenReportedFeature.properties)">'
+				    + '<div class="marker-title">' + feature.properties.title + '</div>'
+				    + '<div class="marker-description-top">Area Name: ' + feature.properties.area + '</div>'
+				    + '<div class="marker-description-bottom"><span class="check ' + verifyClass + '"></span><span class="verify-text">' + verifyText + '</span></div></div>';
+			    return o;
+		    });
+		    newMarker();
+	    }
+        
+	    if (!citizenReportsMarkers) {
+            // Only load the data if not already in memory
+            mmg_google_docs('0AoiGgH1LJtE0dGdwaW1VUW5uY0FSMjF0RVZBVldLTUE',
+                            'od6',
+                            gotMapData);
+        }
+        else {
+            mainMap.addLayer(citizenReportsMarkers);
+        }
+    }
+    $('#show-citizen-reports-layer').change(showCitizenReportsLayer);
+    // Set the default state here, either removeAttr("checked")
+    // to have it initially disabled, or attr("checked", "checked")
+    // to have it initially enabled.
+    $('#show-citizen-report-markers').removeAttr("checked");
 }
 
 $(function () {
@@ -565,3 +639,107 @@ $(function () {
         $('body').removeClass('no-touch');
     }
 });
+
+function fillIncidentReportForm(properties)
+{
+    var form = $('#incident-report-form').get(0);
+    if (form) for (var p in properties) {
+        var element = form[p];
+        if (!element || !(element instanceof Node)) continue;
+        var value = properties[p];
+        if ("number" === typeof value) value = value.toPrecision(10);
+        switch (element.tagName.toLowerCase()) {
+        case "input":
+        case "select":
+            element.value = value;
+            break;
+        case "textarea":
+            element.textContent = value;
+            break;
+        default:
+            alert("Unexpected element: " + element);
+        }
+    }
+}
+
+function loadLoginForm(form)
+{
+    var container = $('#login-form-container');
+    $.ajax({
+        type: "POST",
+        url: "login.php",
+        data: form?($(form).serialize()):null,
+        dataType: "html", // This is the *response* type we want
+        success: function (responseText, textStatus, XMLHttpRequest) {
+            container.html(responseText);
+        }
+    });
+    
+    return false;
+}
+
+function loadIncidentReportForm(form)
+{
+    var link = $('#main-nav-report-spill');
+    var container = $('#incident-report-form-container');
+    $.ajax({
+        type: "POST",
+        url: "report-incident.php",
+        data: form?($(form).serialize()):null,
+        dataType: "html", // This is the *response* type we want
+        success: function (responseText, textStatus, XMLHttpRequest) {
+            container.html(responseText);
+            $('#login-form-container').show();
+        }
+    });
+    
+    return false;
+}
+
+function toggleIncidentReportForm()
+{
+    var container = $('#incident-report-form-container');
+    if (container.hasClass('incident-report')) {
+        container.removeClass('incident-report');
+        $('#toggle-incident-report-form').show();
+        $('#tooltip').show();
+        container.html('');
+    }
+    else {
+        container.addClass('incident-report');
+        $('#toggle-incident-report-form').hide();
+        $('#tooltip').hide();
+        loadIncidentReportForm();
+    }
+}
+
+var FormUtils = {
+    combobox: function (menu, targetName, otherValue)
+    {
+        var target = menu.form[targetName];
+        if (menu.value != otherValue) {
+            target.style.display = 'none';
+            target.value = menu.value;
+        }
+        else {
+            target.style.display = '';
+            target.value = otherValue?otherValue+":":"";
+        }
+    },
+    addAttachmentLink: function (container)
+    {
+        var input = document.createElement("input");
+        input.setAttribute("size", "");
+        input.setAttribute("type", "url");
+        input.setAttribute("name", "attachmentLink");
+        container.get(0).appendChild(input);
+    },
+    addAttachmentFile: function (container)
+    {
+        var input = document.createElement("input");
+        input.setAttribute("size", "8");
+        input.setAttribute("type", "file");
+        input.setAttribute("name", "attachmentFile");
+        container.get(0).appendChild(input);
+    },
+};

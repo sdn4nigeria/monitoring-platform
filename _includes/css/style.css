@@ -126,7 +126,7 @@ ul.layers li a,
 }
 .dropdown {
     position: relative
-}  
+}
 ul.dropdown,
 ul.dropdown li {
     display: inline-block;
@@ -267,7 +267,7 @@ ul.dropdown-menu li a.switch-active:hover {
     float: left;
     display: block;
     width: 20px;
-    padding: 8px;  
+    padding: 8px;
     color: #fff;
     background: #999;
     background: rgba(150, 150, 150, .8);
@@ -328,7 +328,7 @@ ul.dropdown-menu li a.switch-active:hover {
     margin:10px 0;
 }
 #contribute {
-    position: relative; 
+    position: relative;
     z-index: 1500;
     padding: 30px 0px;
     font-size: 14px;
@@ -473,11 +473,16 @@ ul.dropdown-menu li a.switch-active:hover {
     background-color: #414141;
 }
 #intro-text {
-    height: 90%;
-    padding-top: 10px;
+    height: 540px;
+    overflow: auto;
+    padding: 10px;
     top: 50px;
     border-radius-bottom-right: 5px;
     z-index: 0;
+}
+#tooltip > p {
+    margin-left:24px;
+    margin-right:24px;
 }
 
 #intro-text .bignum {
@@ -639,6 +644,82 @@ ul li a.toggle {
     -moz-box-shadow:rgba(0,0,0,0.1) 0 1px 3px;
     right: 0px;
 }
+/* Markers */
+.marker {
+    pointer-events:all;
+    background: url(img/marker-15px.png) no-repeat 0 100%;
+    width:15px;
+    height:15px;
+    position: absolute;
+    text-align: center;
+    font-size: 11px;
+    font-weight: bold;
+}
+.marker-title{
+	font-weight:bold;
+	font-size: 14px;
+	margin-bottom: 0px;
+}
+.marker-popup {
+	max-width:200px;
+    max-height: 500px;
+}
+
+.marker-description-top {
+    font-size: 14px;
+    border-bottom: 1px dashed #333;
+    margin-bottom: 2px;
+    font-weight: bold;
+}
+
+.check {
+    display: inline-block;
+    padding: 1px 4px;
+    font-size: 11.844px;
+    font-weight: bold;
+    line-height: 14px;
+    color: white;
+    text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+    white-space: nowrap;
+    vertical-align: baseline;
+    padding-right: 9px;
+    padding-left: 9px;
+    -webkit-border-radius: 9px;
+    -moz-border-radius: 9px;
+    border-radius: 9px;
+}
+
+.check-plus {
+    background-color: #468847;
+    display: inline-block;
+    height: 14px;
+    margin-top: 1px;
+    margin-right: 5px;
+    line-height: 14px;
+    vertical-align: text-top;
+    background-image: url("img/glyphicons-halflings-white.png");
+    background-repeat: no-repeat;
+    background-position: -287px 0;
+}
+
+.check-minus {
+    background-color: #B94A48;
+    display: inline-block;
+    height: 14px;
+    margin-top: 1px;
+    margin-right: 5px;
+    line-height: 14px;
+    vertical-align: text-top;
+    background-image: url("img/glyphicons-halflings-white.png");
+    background-repeat: no-repeat;
+    background-position: -310px 0;
+}
+
+.verify-text {
+    font-size: 12px;
+    font-style: italic;
+}
+
 /* ### Tooltips, legends ### */
 .wax-legends {
     position: absolute;
@@ -747,7 +828,7 @@ ul li a.toggle {
 
 .body{
     background : #eee;
-}  
+}
 
 h3.int-location {
     font-weight: 600;
@@ -765,7 +846,7 @@ h4.int-cause {
     font-weight: 100;
     font-size: 14px;
     line-height: 24px;
-    margin: 0px; 
+    margin: 0px;
     color:#000;
 }
 .wax-tooltip  {
@@ -786,7 +867,7 @@ h4.int-cause {
     background-color: rgba(255,255,255,0.90);
 }
 
-/* Dot overlay styles */    
+/* Dot overlay styles */
 .blue {
     background-image: url(img/blue-markers.png) !important;
 }
@@ -800,20 +881,20 @@ h4.int-cause {
     cursor: pointer;
 }
 .point .popupNosdra {
-    display:none;      
+    display:none;
 }
 .point .popup {
-    display:none;      
+    display:none;
 }
 
 .point .popupShell{
-    display:none;      
+    display:none;
 }
 .point .popupFormA{
-    display:none;      
+    display:none;
 }
 .point .popupFormB{
-    display:none;      
+    display:none;
 }
 
 .marker-popup img {
@@ -823,12 +904,12 @@ h4.int-cause {
 }
 #totalbox {
     display:none;
-}   
+}
 #totalbox.totalbox.totalactive{
     color:white;
     background-color:rgba(0, 0, 0, 0.6);
     top: -92px;
-    position:relative; 
+    position:relative;
     font-size:10px;
     display: block;
     line-height: 8px;
@@ -840,7 +921,7 @@ h4.int-cause {
 
 #totalbox.totalbox h4.total-box-title{
     color: #AFAFAF;
-    font-weight:300px;  
+    font-weight:300px;
 }
 #totalbox.totalbox span.total-box-amount {
     color:#fff;
@@ -872,7 +953,7 @@ h4.int-cause {
     margin: 0;
     padding: 0;
 }
-/*Wax tooltip style for about page*/  
+/*Wax tooltip style for about page*/
 .wax-tooltip h5.int-stat, h4.int-stat{
     font-weight: bold;
     text-transform: uppercase;
@@ -883,18 +964,18 @@ h4.int-cause {
     font-weight: bold;
     text-transform: uppercase;
     font-size: 10px;
-    line-height: 15px;    
+    line-height: 15px;
 }
 .wax-tooltip .int-title{
     font-weight: 600;
-    padding: 0 0 5px 0;  
+    padding: 0 0 5px 0;
 }
 
-.wax-tooltip h3.int-name { 
+.wax-tooltip h3.int-name {
     font-weight: 600;
     font-size: 15px;
     line-height:20px;
-} 
+}
 .wax-tooltip h4.int-title {
     padding: 0 0 0 0;
 }
@@ -908,7 +989,7 @@ h4.int-cause {
     text-transform:lowercase;
     font-size: 13px;
     line-height: 24px;
-}  
+}
 
 
 /* ### Legend Styling Overrides ### */
@@ -1117,7 +1198,7 @@ body .wax-legend a {
 }
 
 .second-story-chart1{
-    float: right !important; 
+    float: right !important;
     margin-right: 10px;
 }
 
