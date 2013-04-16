@@ -5,8 +5,8 @@ permalink: /open/static-maps-and-data
 layout: open
 categories:
     - Infrastructure
-    - Impact
-    - Socio-economic
+    - Oil spill snaphots
+    - Environment and Geography
 ---
 
 {% include static-maps-and-data.html %}
