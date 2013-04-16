@@ -2,7 +2,7 @@
 title: "Nigeria Settlements"
 categories: 
     - maps
-    - Socio-economic
+    - Environment and Geography
 layer: NGSettlement
 thumbnail: http://api.tiles.mapbox.com/v3/nigeriaoil.map-5ustxk97,nigeriaoil.NGSettlement/7/66/61.png
 api: http://api.tiles.mapbox.com/v3/nigeriaoil.NGSettlement.jsonp

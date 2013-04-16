@@ -12,7 +12,7 @@
       </div>
       <div class='content'>
         {% for category in page.categories %}
-        <h2 id='{{ category | downcase | replace: ' ', '-' }}'>{{ category }}</h2>
+       </br /><h2 id='{{ category | downcase | replace: ' ', '-' }}'>{{ category }}</h2>
         
         {% for dataset in site.categories[category] %}
         {% if dataset.categories contains "maps" or dataset.categories contains "data" %}
