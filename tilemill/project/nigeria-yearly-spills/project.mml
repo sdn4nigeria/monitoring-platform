@@ -1,0 +1,60 @@
+{
+  "bounds": [
+    2.8564,
+    2.4931,
+    11.4038,
+    8.6136
+  ],
+  "center": [
+    6.8115,
+    5.0472,
+    7
+  ],
+  "format": "png",
+  "interactivity": {
+    "layer": "spills",
+    "template_teaser": "Date: {{{incidentdate}}}<br>\nCompany Name: {{{companyname}}}<br> \nEstimated Quantity: {{{estimatedquantity}}}<br>\nReported Cause: {{{causeofspill}}}\n\n",
+    "fields": [
+      "incidentdate",
+      "companyname",
+      "estimatedquantity",
+      "causeofspill"
+    ]
+  },
+  "minzoom": 6,
+  "maxzoom": 12,
+  "srs": "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over",
+  "Stylesheet": [
+    "style.mss"
+  ],
+  "Layer": [
+    {
+      "geometry": "point",
+      "extent": [
+        3.23164305556,
+        2.10369444444,
+        8.67833333333,
+        7.47722222222
+      ],
+      "id": "spills",
+      "class": "",
+      "Datasource": {
+        "file": "../../../bin/nosdra_full_data.csv",
+        "id": "spills",
+        "project": "nigeria-yearly-spills",
+        "srs": ""
+      },
+      "srs-name": "autodetect",
+      "srs": "",
+      "advanced": {},
+      "name": "spills"
+    }
+  ],
+  "scale": 1,
+  "metatile": 2,
+  "_basemap": "http://a.tiles.mapbox.com/v3/nigeriaoil.map-5ustxk97.jsonp",
+  "name": "nigeria-yearly",
+  "description": "",
+  "legend": "",
+  "attribution": ""
+}
