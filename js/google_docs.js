@@ -25,6 +25,14 @@ function mmg_json(id, num, callback) {
                     type: 'Point',
                     coordinates: []
                 },
+                // This is for the citizen reports, otherwise properties: {}
+                /* Those fields are not yet in the back-end:
+	            properties: {
+					'marker-color':'#840A0A',
+					'title': 'Incident: ' + entry['gsx$obsdate'].$t,
+					'area': entry['gsx$localname'].$t,
+					'verified': entry['gsx$verified'].$t
+				}*/
                 properties: {}
             };
             for (var y in entry) {
@@ -75,7 +83,13 @@ function mmg_google_docs(id, num, callback) {
                     type: 'Point',
                     coordinates: []
                 },
-                properties: {}
+                // This is for the citizen reports, otherwise properties: {}
+	            properties: {
+					'marker-color':'#840A0A',
+					'title': 'Incident: ' + entry['gsx$obsdate'].$t,
+					'area': entry['gsx$localname'].$t,
+					'verified': entry['gsx$verified'].$t
+				}
             };
             for (var y in entry) {
                 if (y === latfield) feature.geometry.coordinates[1] = parseFloat(entry[y].$t);

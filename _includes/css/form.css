@@ -1,0 +1,8 @@
+/* Spill report form */
+input, textarea, select { background:#fff; border:thin solid #ccc; }
+input[type='file'] { max-width:200px; }
+input[size=''], textarea { width:100%; }
+
+#incident-report-form-container { padding-bottom:1em; }
+#incident-report-form > h3 { margin:0 }
+#incident-report-form-attachments { padding-left:1em; }
