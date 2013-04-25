@@ -8,6 +8,11 @@
 #   - Shapely
 #   - GDAL
 
+# Print messages always in UTF-8:
+import sys, codecs
+sys.stdout = codecs.getwriter("UTF-8")(sys.stdout)
+sys.stderr = codecs.getwriter("UTF-8")(sys.stderr)
+
 import csv, math
 from datetime import datetime, date, time
 import itertools
@@ -17,19 +22,31 @@ from shapely.geometry import Point
 from shapely.geometry import MultiPolygon
 from osgeo import gdal,osr
 
+# Parameter defaults:
 file_names = { "lga_file": "nigeria-lga-reduced.geojson",
                "input": "nosdra_out.csv",
                "output_full": "nosdra_full_data.csv",
                "output_google_docs": "nosdra_map_data.csv",
                "output_json": "nosdra_map_data.json"
                }
+coordinates = { "latitude":  "",
+                "longitude": "",
+                "eastings":  "",
+                "northings": ""
+                }
+
+# Supress all messages except errors:
+quiet = False
+# Whether to discard rows with no coordinates:
+discardWithoutCoordinates = False
+
 import sys
 def progress(message):
-    sys.stderr.write(message + '\r')
+    if not quiet: sys.stderr.write(message + '\r')
 def info(message):
-    sys.stderr.write(message + '\n')
+    if not quiet: sys.stderr.write(message + '\n')
 def warn(message):
-    sys.stderr.write("Warning: " + message + '\n')
+    if not quiet: sys.stderr.write("Warning: " + message + '\n')
 def error(message):
     sys.stderr.write("Error: " + message + '\n')
 import getopt
@@ -48,17 +65,34 @@ Options:
   --json=<file>   Output JSON for the web application
                   The default is "'''+file_names["output_json"]+'''"
   --gzip          Compress the JSON output with GZIP
+  --latitude=<n>  Latitude of the point to analyze, referring to WGS84,
+                  either decimal degrees as used in GPS or "N DD MM SS"
+                  which can include degree, minute and second symbols
+  --longitude=<n> Longitude, same format as --latitude
+  --northings=<n> Alternative to latitude, an integer number referring to
+                  Minna/Nigeria Mid Belt EPSG = 26392
+  --eastings=<n>  The eastings coordinate used with --northings, same format
 If any of the output file names is the empty string, that file
 is not produced.
+
+If --latitude/--longitude or --northings/--eastings parameters are given,
+the output is the JSON encoding of the computed point data, which includes
+latitude/longitude in decimal degrees, northings/eastings, and the
+name of the LGA where the point resides or the empty string if none,
+such as offshore locations.
 
 Originally written by DevelopmenSeed.org, extended and documented by
 Alberto González Palomo <http://sentido-labs.com>
 '''
+
 try:
     opts, args = getopt.getopt(sys.argv[1:],
                                'h',
                                ('help','progress', 'gzip',
-                                'lga=', 'output=','google=','json='))
+                                'lga=', 'output=','google=','json=',
+                                'latitude=', 'longitude=',
+                                'northings=', 'eastings=')
+                               )
 except getopt.GetoptError, problem:
     print 'Command line option problem: ', problem, '\n'
     display_help()
@@ -72,15 +106,24 @@ for o, a in opts:
     if             (o == '--output'):   file_names["output_full"]        = a
     if             (o == '--google'):   file_names["output_google_docs"] = a
     if             (o == '--json'):     file_names["output_json"]        = a
+    if             (o == '--latitude'): coordinates["latitude"]        = a
+    if             (o == '--longitude'):coordinates["longitude"]       = a
+    if             (o == '--northings'):coordinates["northings"]       = a
+    if             (o == '--eastings'): coordinates["eastings"]        = a
     if (o == '-h')|(o == '--help'):
         display_help()
         exit(0)
+compute_point = False
 if args:
     if len(args) == 1: file_names["input"] = args[0]
     else:
         sys.stderr.write("Error: only one input file can be specified")
         display_help()
         exit(1)
+elif len(args) == 0 and (coordinates["latitude"] or
+                         coordinates["northings"]):
+    compute_point = True
+    quiet = True
 
 import time as timer
 time_start = timer.time()
@@ -124,7 +167,7 @@ def pointInPoly(pointLon, pointLat):
 # Transform from Minna / Nigeria Mid Belt to WGS84
 #   http://www.spatialreference.org/ref/epsg/26392/
 #   Minna/Nigeria Mid Belt EPSG = 26392
-#   WGS83 EPSG = 4326
+#   WGS84 EPSG = 4326
 # --------------------
 
 inSRS = 26392
@@ -147,6 +190,162 @@ def transformTo(easting, northing, inSRS, outSRS):
     time_transformTo += timer.time() - t
     return transformed
 
+import re
+re_latlon_label = re.compile(r"N|E")
+re_not_number = re.compile(r"[^0-9.]+")
+def decimalDegrees(value):
+    parts = value.split()
+    # The algorithm below assumes that the N|E label is at the front:
+    if re_latlon_label.match(parts[-1]):
+        parts = [parts[-1]]+parts[:-1]
+    parts = [re_not_number.sub("", x) for x in parts]
+    if len(parts) == 2:          # if only degree values
+        clean = [parts[0],float(parts[1])]
+        return clean[1]
+    elif len(parts) == 3:        # only degrees and minutes
+        clean = [parts[0],float(parts[1]),float(parts[2])]
+        return clean[1] + (clean[2]/60)
+    elif len(parts) == 4:        # degrees, minutes, and seconds
+        clean = [parts[0],float(parts[1]),float(parts[2]),float(parts[3])]
+        return clean[1] + (clean[2]/60) + (clean[3]/3600)
+    else:  # already in decimal degrees
+        return float(value)
+
+import json
+if compute_point:
+    if coordinates["latitude"] and coordinates["longitude"]:
+        coordinates["latitude"]  = decimalDegrees(coordinates["latitude"])
+        coordinates["longitude"] = decimalDegrees(coordinates["longitude"])
+        if isinstance(coordinates["latitude"], str):
+            coordinates["latitude"] = float('NaN')
+        if isinstance(coordinates["longitude"], str):
+            coordinates["longitude"] = float('NaN')
+        point = transformTo(coordinates["longitude"],
+                            coordinates["latitude"],
+                            outSRS, inSRS)
+        coordinates["northings"] = int(point[1])
+        coordinates["eastings"]  = int(point[0])
+    elif coordinates["northings"] and coordinates["eastings"]:
+        coordinates["northings"] = int(coordinates["northings"])
+        coordinates["eastings"]  = int(coordinates["eastings"])
+        point = transformTo(coordinates["eastings"],
+                            coordinates["northings"],
+                            inSRS, outSRS)
+        coordinates["latitude"]  = point[1]
+        coordinates["longitude"] = point[0]
+    coordinates["lga"] = pointInPoly(coordinates["longitude"],
+                                     coordinates["latitude"])
+    json.dump(coordinates, sys.stdout)
+    exit(0)
+
+patterns = {
+    "SPILL AREA":
+    { r"la": re.compile(r"[\[\(\{]?\s*[Ll]([AaNn][Dd]?)?\s*[\}\)\]]?"),
+      r"ss": re.compile(r"[\[\(\{]?\s*[Ss](seasonal\s*)?[Ss]([Ww][Pp]?|wamp)?\s*[\}\)\]]?"),
+      r"sw": re.compile(r"[\[\(\{]?\s*[Ss]([Ww][Pp]?|wamp)?\s*[\}\)\]]?"),
+      r"co": re.compile(r"COASTLINE|coastland"),
+      r"iw": re.compile(r"[\[\(\{]?\s*([Ii][Ww]|fresh water)\s*[\}\)\]]?"),
+      r"ns": re.compile(r"[\[\(\{]?\s*[Nn](ear\s*)?[Ss](hore)?\s*[\}\)\]]?"),
+      r"of": re.compile(r"[\[\(\{]?\s*[Oo][Ff][Ff]?\s*[\}\)\]]?"),
+      r"other": re.compile(r"[\[\(\{]?\s*[Oo][Tt][Hh]?\s*[\}\)\]]?")
+    },
+    "CAUSE OF SPILL":
+    { r"cor": re.compile(r"\s*[Cc][Oo][Rr]\s*"),
+      r"eqf": re.compile(r"\s*[Ee][Qq][Ff]\s*"),
+      r"pme": re.compile(r"\s*[Oo][Mm][Ee]\s*"),
+      r"sab": re.compile(r"\s*[Ss][Aa][Bb]\s*"),
+      r"other:\g<1>": re.compile(r"\s*[Oo][Tt][Hh]\s*[(]?\s*([^)]*)")
+    },
+    "TYPE OF CONTAMINANT":
+    { r"cr": re.compile(r"\s*[Cc][Rr]\s*"),
+      r"ch": re.compile(r"\s*[Cc][Hh]\s*"),
+      r"pr:gas": re.compile(r"\s*[Gg][Aa][Ss]\s*"),
+      r"pr:automotive gas oil": re.compile(r"\s*others.*automotive.*gas.*"),
+      r"pr": re.compile(r"\s*[Rr][Ee]\s*"),
+      r"other:\g<1>": re.compile(r"\s*[Oo][Tt][Hh]\s*[(]?\s*([^)]*)")
+    }
+}
+
+def normalize(row):
+    normalized = False
+    value = row['SPILL AREA']
+    if value == "land swamp" or value == "LAND SWAMP":
+        row['SPILL AREA'] = "la,sw"
+        normalized = True
+    for field_name in patterns:
+        value = row[field_name]
+        for (normalized, pattern) in patterns[field_name].items():
+            if pattern.match(value):
+                row[field_name] = pattern.sub(normalized, value, 1)
+                normalized = True
+    return normalized
+
+lat_pattern = u"0*(?P<latdeg>[0-9]{1,2}([.][0-9]+)?[°˚])\s*(?P<latmin>0*[0-9]{1,2}([.][0-9]+)?['´ °˚])?\s*(?P<latsec>0*[0-9]{1,2}([.][0-9]+)?[\"˝]*)?"
+lon_pattern = u"0*(?P<londeg>[0-9]{1,2}([.][0-9]+)?[°˚])\s*(?P<lonmin>0*[0-9]{1,2}([.][0-9]+)?['´ °˚])?\s*(?P<lonsec>0*[0-9]{1,2}([.][0-9]+)?[\"˝]*)?"
+re_latlon_format = [
+    re.compile(u"(\(?[Nn]\)?\s*"+lat_pattern+")[ ,]*\(?[Ee]\)?("+lon_pattern+")"),
+    re.compile(u"(\(?[Ee]\)?\s*"+lon_pattern+")[ ,]*\(?[Nn]\)?("+lat_pattern+")"),
+    re.compile(u"("+lat_pattern+")\s*\(?[Nn]\)?[ ,]*("+lon_pattern+")\s*\(?[Ee]\)?"),
+    re.compile(u"("+lon_pattern+")\s*\(?[Ee]\)?[ ,]*("+lat_pattern+")\s*\(?[Nn]\)?")
+    ]
+
+re_habitat_in_location = re.compile(u"([\[\{\(][a-zA-z]{1,3}[\)\}\]])\s*$")
+latlon_extraction_count = 0
+habitat_extraction_count = 0
+def extract_fields_from_location(row):
+    global latlon_extraction_count
+    global habitat_extraction_count
+    value = unicode(row['LOCATION'], "utf8")
+    changed = False
+    for pattern in re_latlon_format:
+        match = pattern.search(value)
+        if match:
+            info("Found misplaced coordinates in LOCATION: " + match.group(0))
+            if row['LAT'] or row['LON']:
+                info("Coordinates already entered, so not modified: "
+                     + row['LAT'].decode("utf8")
+                     + ", " + row['LON'].decode("utf8"))
+                break
+            latitude  = match.group("latdeg")
+            found = match.group("latmin")
+            if found:
+                latitude += " " + found
+                # Inside to avoid putting seconds without minutes if corrupted
+                found = match.group("latsec")
+                if found: latitude += " " + found
+            latitude += " N"
+            longitude = match.group("londeg")
+            found = match.group("lonmin")
+            if found:
+                longitude += " " + found
+                # Inside to avoid putting seconds without minutes if corrupted
+                found = match.group("lonsec")
+                if found: longitude += " " + found
+            longitude += " E"
+            row['LAT'] = latitude .encode("utf8")
+            row['LON'] = longitude.encode("utf8")
+            # Leave the coordinates in place to keep location descriptions
+            # sensible because some of them give extra explanations about the
+            # coordinates:
+            #value = pattern.sub("", value, 1)
+            changed = True
+            latlon_extraction_count += 1
+            break
+    if row['SPILL AREA']: match = False # Don't try if we already got it
+    else:                 match = re_habitat_in_location.search(value)
+    match = re_habitat_in_location.search(value)
+    if match:
+        info("Found misplaced SPILL AREA in LOCATION: " + match.group(1))
+        if row['SPILL AREA']:
+            info("SPILL AREA already entered, so not modified: "
+                 + row['SPILL AREA'].encode("utf8"))
+        else:
+            row['SPILL AREA'] = match.group(1).encode("utf8")
+            value = re_habitat_in_location.sub("", value, 1)
+            changed = True
+            habitat_extraction_count += 1
+    if changed: row['LOCATION'] = value.strip().encode("utf8")
+
 # ----------------------
 # Process NOSDRA CSV
 # ----------------------
@@ -157,131 +356,60 @@ with open(file_names["input"], 'rb') as f:
     outputRow = []
     for row in reader:
         if show_progress: progress("Line " + str(reader.line_num) + "  ")
+        extract_fields_from_location(row)
+        normalize(row)
         dt = datetime.strptime(row['DATE OF INCIDENT'].rstrip(' 00:00:00'), "%Y-%m-%d")
         if not row['COMPANY'] in companies:
-            companies[row['COMPANY']] = {"processed":0, "discarded":0};
+            companies[row['COMPANY']] = {"processed":0, "no-location":0};
         spillid = row['ID']
         if row['INCIDENT NO']: spillid += "." + row['INCIDENT NO']
         outputDict = {
-            'timestamp': "",
             'spillid': spillid,
-            'companyname': row['COMPANY'],
+            'updatefor': "",
+            'status': "",
             'incidentdate': row['DATE OF INCIDENT'].rstrip(' 00:00:00'),
             'datespillstopped': "",
+            'company': row['COMPANY'],
             'initialcontainmentmeasures': "",
             'estimatedquantity': row['QUANTITY OF SPILL (bbl)'],
-            'causeofspill': row['CAUSE OF SPILL'],
-            'sitelocationname': row['LOCATION'].replace('     ',''),
-            'gpslatdeg': "",
-            'gpslatmin': "",
-            'gpslatsec': "",
-            'gpslongdeg': "",
-            'gpslongmin': "",
-            'gpslongsec': "",
+            'contaminant': row['TYPE OF CONTAMINANT'],
+            'cause': row['CAUSE OF SPILL'],
             'latitude': "",
             'longitude': "",
-            'estimatedspillarea': row['SPILL AREA'],
-            'typeoffacility': "",
-            'datejiv': "",
-            'spillareahabitat': "",
+            'lga': "",
+            'sitelocationname': row['LOCATION'],
+            'estimatedspillarea': "",
+            'spillareahabitat': row['SPILL AREA'],
+            'attachments': "",
             'impact': "",
             'descriptionofimpact': "",
-            'image': "",
+            'datejiv': "",
             'datecleanup': "",
             'datecleanupcompleted': "",
             'methodsofcleanup': "",
             'dateofpostcleanupinspection': "",
             'dateofpostimpactassessment': "",
             'furtherremediation': "",
-            'datecertificate': row['CERT_DATE'],
-            'thirdparty': "",
-            'month': dt.strftime("%b"),
-            'year': dt.strftime("%Y"),
-            'monthNum': dt.strftime("%m"),
-            'lga': ""
+            'datecertificate': row['CERT_DATE']
             }
-        if row['CAUSE OF SPILL'].lower() == "cor":
-            outputDict['causeofspill'] = "Corrosion"
-            outputDict['thirdparty'] = "no"
-        elif row['CAUSE OF SPILL'].lower() == "eqf":
-            outputDict['causeofspill'] = "Equipment Failure"
-            outputDict['thirdparty'] = "no"
-        elif row['CAUSE OF SPILL'].lower() == "ome":
-            outputDict['causeofspill'] = "Operational Error"
-            outputDict['thirdparty'] = "no"
-        elif row['CAUSE OF SPILL'].lower() == "oth":
-            outputDict['causeofspill'] = "Other"
-            outputDict['thirdparty'] = "no"
-        elif row['CAUSE OF SPILL'].lower() == "sab":
-            outputDict['causeofspill'] = "Sabotage"
-            outputDict['thirdparty'] = "yes"
-        else:
-            outputDict['causeofspill'] = "Other"
-            outputDict['thirdparty'] = "no"
-        if row['LON'] != "":                # check if it has a longitude value
-            lonSplit = row['LON'].split()
-            if len(lonSplit) == 2:          # if only degree values
-                lonSplit = [x.replace('\xc2\xb0', "") for x in lonSplit]
-                lonSplit = [x.replace('\'', "") for x in lonSplit]
-                lonSplit = [x.replace('\xcb\x9d', "") for x in lonSplit]
-                lonClean = []
-                outputDict['longitude'] = ""
-            elif len(lonSplit) == 3:        # only degrees and minutes
-                lonSplit = [x.replace('\xc2\xb0', "") for x in lonSplit]
-                lonSplit = [x.replace('\'', "") for x in lonSplit]
-                lonSplit = [x.replace('\xcb\x9d', "") for x in lonSplit]
-                lonClean = [lonSplit[0],float(lonSplit[1]),float(lonSplit[2])]
-                lonDD = lonClean[1] + (lonClean[2]/60)
-                #outputRow.append(lonDD)
-                outputDict['longitude'] = lonDD
-            elif len(lonSplit) == 4:        # degrees, minutes, and seconds
-                lonSplit = [x.replace('\xc2\xb0', "") for x in lonSplit]
-                lonSplit = [x.replace('\'', "") for x in lonSplit]
-                lonSplit = [x.replace('\xcb\x9d', "") for x in lonSplit]
-                lonClean = [lonSplit[0],float(lonSplit[1]),float(lonSplit[2]),float(lonSplit[3])]
-                lonDD = lonClean[1] + (lonClean[2]/60) + (lonClean[3]/3600)
-                outputDict['longitude'] = lonDD
-        else:
-            if row['EASTINGS'] != "":
-                lonNorth = float(row['EASTINGS'])
-                latNorth = float(row['NORTHINGS'])
-                lonDD = transformTo(lonNorth, latNorth, inSRS, outSRS)
-                outputDict['longitude'] = lonDD[0]
-        if row['LAT'] != "":                # check if it has a latitude value
-            latSplit = row['LAT'].split()
-            if len(latSplit) == 2:          # if only degree values
-                latSplit = [x.replace('\xc2\xb0', "") for x in latSplit]
-                latSplit = [x.replace('\'', "") for x in latSplit]
-                latSplit = [x.replace('\xcb\x9d', "") for x in latSplit]
-                latClean = []
-                outputDict['latitude'] = ""
-            elif len(latSplit) == 3:        # only degrees and minutes
-                latSplit = [x.replace('\xc2\xb0', "") for x in latSplit]
-                latSplit = [x.replace('\'', "") for x in latSplit]
-                latSplit = [x.replace('\xcb\x9d', "") for x in latSplit]
-                latClean = [latSplit[0],float(latSplit[1]),float(latSplit[2])]
-                latDD = latClean[1] + (latClean[2]/60)
-                #outputRow.append(latDD)
-                outputDict['latitude'] = latDD
-            elif len(latSplit) == 4:        # degrees, minutes, and seconds
-                latSplit = [x.replace('\xc2\xb0', "") for x in latSplit]
-                latSplit = [x.replace('\'', "") for x in latSplit]
-                latSplit = [x.replace('\xcb\x9d', "") for x in latSplit]
-                latClean = [latSplit[0],float(latSplit[1]),float(latSplit[2]),float(latSplit[3])]
-                latDD = latClean[1] + (latClean[2]/60) + (latClean[3]/3600)
-                outputDict['latitude'] = latDD
-        else:
-            if row['NORTHINGS'] != "":
-                latNorth = float(row['NORTHINGS'])
-                lonNorth = float(row['EASTINGS'])
-                latDD = transformTo(lonNorth, latNorth, inSRS, outSRS)
-                outputDict['latitude'] = latDD[1]
+        if row['LON'] != "" and row['LAT'] != "":
+            outputDict['latitude']  = decimalDegrees(row['LAT'])
+            outputDict['longitude'] = decimalDegrees(row['LON'])
+        elif row['NORTHINGS'] != "" and row['EASTINGS'] != "":
+            lon_lat = transformTo(float(row['EASTINGS']),
+                                  float(row['NORTHINGS']),
+                                  inSRS, outSRS)
+            outputDict['longitude'] = lon_lat[0]
+            outputDict['latitude']  = lon_lat[1]
+        companies[row['COMPANY']]['processed'] += 1
         if outputDict['latitude'] != "":
-            outputDict['lga'] = pointInPoly(lonDD, latDD)
-            outputRow.append(outputDict)
-            companies[row['COMPANY']]['processed'] += 1
+            outputDict['lga'] = pointInPoly(outputDict['longitude'],
+                                            outputDict['latitude'])
         else:
-            companies[row['COMPANY']]['discarded'] += 1
+            companies[row['COMPANY']]['no-location'] += 1
+        if outputDict['latitude'] != "" or not discardWithoutCoordinates:
+            outputRow.append(outputDict)
+        else:
             pass
     info("Processed " + str(reader.line_num) + " rows")
     info("Seconds for pointInPoly(): " + str(time_pointInPoly))
@@ -290,24 +418,15 @@ with open(file_names["input"], 'rb') as f:
     for c in companies.keys():
         info("Company: " + c + "\n"
              + "  processed " + str(companies[c]['processed']) + " reports\n"
-             + "  discarded " + str(companies[c]['discarded']) + " reports"
-             + " for lack of location data")
+             + "  of which  " + str(companies[c]['no-location']) + " reports"
+             + " lack location data")
 
 def cleanup(rows):
     for row in rows:
-        del row['timestamp']
-        del row['gpslatdeg']
-        del row['gpslatmin']
-        del row['gpslatsec']
-        del row['gpslongdeg']
-        del row['gpslongmin']
-        del row['gpslongsec']
-        del row['typeoffacility']
         del row['datejiv']
         del row['spillareahabitat']
         del row['impact']
         del row['descriptionofimpact']
-        del row['image']
         del row['datecleanup']
         del row['datecleanupcompleted']
         del row['methodsofcleanup']
@@ -318,7 +437,7 @@ def cleanup(rows):
 
 def write_full_data(file_name):
     # Hardcoded fieldnames to create columns according to this order
-    fieldnames = ['timestamp','spillid','companyname','incidentdate','datespillstopped','initialcontainmentmeasures','estimatedquantity','causeofspill','sitelocationname','gpslatdeg','gpslatmin','gpslatsec','gpslongdeg','gpslongmin','gpslongsec','latitude','longitude','estimatedspillarea','typeoffacility','datejiv','spillareahabitat','impact','descriptionofimpact','image','datecleanup','datecleanupcompleted','methodsofcleanup','dateofpostcleanupinspection','dateofpostimpactassessment','furtherremediation','datecertificate','thirdparty','month','year','monthNum','lga']
+    fieldnames = ['spillid','updatefor','status','incidentdate','company','initialcontainmentmeasures','estimatedquantity','contaminant','cause','latitude','longitude','lga','sitelocationname','estimatedspillarea','spillareahabitat','attachments','impact','descriptionofimpact','datejiv','datespillstopped','datecleanup','datecleanupcompleted','methodsofcleanup','dateofpostcleanupinspection','dateofpostimpactassessment','furtherremediation','datecertificate']
     out = open(file_name, 'wb')
     csvwriter = csv.DictWriter(out, delimiter=',', fieldnames=fieldnames, quoting=csv.QUOTE_NONNUMERIC)
     csvwriter.writerow(dict((fn,fn) for fn in fieldnames))
@@ -327,7 +446,6 @@ def write_full_data(file_name):
     out.close()
     info("Written full data into " + file_name)
 
-import json
 import gzip
 def write_json_data(file_name):
     if compress_gzip: out = gzip.open(file_name, 'wb')
@@ -350,7 +468,7 @@ def write_json_data(file_name):
         info("Written JSON map data into " + file_name)
 
 def write_google_data(file_name):
-    mapdataFieldnames = ['spillid','companyname','incidentdate','datespillstopped','initialcontainmentmeasures','estimatedquantity','causeofspill','sitelocationname','latitude','longitude','estimatedspillarea','thirdparty','month','year','monthNum','lga']
+    mapdataFieldnames = ['spillid','company','incidentdate','datespillstopped','initialcontainmentmeasures','estimatedquantity','cause','sitelocationname','latitude','longitude','estimatedspillarea','thirdparty','month','year','monthNum','lga']
     out = open(file_name, 'wb')
     csvwriter = csv.DictWriter(out, delimiter=',', fieldnames=mapdataFieldnames, quoting=csv.QUOTE_NONNUMERIC)
     csvwriter.writerow(dict((fn,fn) for fn in mapdataFieldnames))
@@ -367,4 +485,6 @@ if (file_names["output_json"]):
 if (file_names["output_google_docs"]):
     write_google_data(file_names["output_google_docs"])
 
-info("OK");
+info("extracted " + str(latlon_extraction_count) + " coordinates from LOCATION field")
+info("extracted " + str(habitat_extraction_count) + " habitat/area values from LOCATION field")
+info("OK")
