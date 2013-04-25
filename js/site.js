@@ -1,5 +1,8 @@
 ---
 ---
+var monthLabels = ["-",
+                   "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                   "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 var mapLayers = {
     satellite:   "nigeriaoil.map-g3s2rdj8",
     flat:        "nigeriaoil.map-5ustxk97",
@@ -268,32 +271,42 @@ function frontpageSetup() {
                 var months = {};
                 
                 _(features).each(function(f) {
+                    var match = /^([0-9]+)-([0-9]+)-/.exec(f.properties.incidentdate);
+                    f.properties.year  = match[1];
+                    f.properties.month = match[2];
+                    f.properties.monthLabel = monthLabels[Number(match[2])];
                     years[f.properties.year] = true;
-                    months[f.properties.month] = true;
-                    companies[f.properties.companyname] = true;
-                    totalspills[f.properties.month] = f.properties.estimatedquantity;
-                    totalbarrels[f.properties.month] = f.properties.sitelocationname;
+                    months[f.properties.monthLabel] = true;
+                    companies[f.properties.company] = true;
+                    totalspills[f.properties.monthLabel] = f.properties.estimatedquantity;
+                    totalbarrels[f.properties.monthLabel] = f.properties.sitelocationname;
                     return f;
                 });
                 
                 var yearsAvailable = _(years).keys().sort(function(a,b){return a - b})
                 var monthsAvailable = _(months).chain().keys().sortBy(function(v){
-                    return ["jan","feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"].indexOf(v.toLowerCase());
+                    return ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"].indexOf(v.toLowerCase());
                 });
                 var active = {
                     company: _(companies).keys(),
                     year: [yearsAvailable[yearsAvailable.length -1]],
                     month: [monthsAvailable._wrapped[0]],
                 };
+                if (!active.company) alert("No company selected");
+                if (!active.year)    alert("No year selected");
+                if (!active.month)   alert("No month selected");
+                
                 var ml = mapbox.markers.layer().factory(function(x) {
                     var popupNosdra = _.template(document.getElementById('popupNosdra').innerHTML);
                     var events = x.properties.estimatedquantity;
                     var y, z;
                     var d = document.createElement('div');
                     //added to point div
-                    if (x.properties.thirdparty == 'yes') {
+                    if (x.properties.cause == 'sab' || x.properties.thirdparty == 'yes') {
+                        // Third party spill
                         d.className = 'point';
                     } else {
+                        // Company spill
                         d.className = 'point blue';
                     }
                     d.zIndex = 999999;
@@ -327,15 +340,54 @@ function frontpageSetup() {
                     if(x.properties.estimatedquantity == 0){
                         quantity = "Less than 1 ";
                     }
+                    var cause = "";
+                    if ("cause" in x.properties) {
+                        cause = x.properties.cause;
+                        switch (cause.substr(0,3)) {
+                        case "cor": cause = "corrosion"; break;
+                        case "eqf": cause = "equipment failure"; break;
+                        case "pme": cause = "production/maintenance error"; break;
+                        case "sab": cause = "sabotage"; break;
+                        case "mys": cause = "unknown causes"; break;
+                        default:    cause = "["+x.properties.cause+"]";
+                        }
+                    }
+                    var contaminant = "";
+                    if ("contaminant" in x.properties) {
+                        contaminant = x.properties.contaminant;
+                        switch (contaminant.substr(0,2)) {
+                        case "cr": contaminant = "crude oil"; break;
+                        case "pr": contaminant = "refined oil product"; break;
+                        case "ch": contaminant = "drilling mud / chemicals"; break;
+                        case "fi": contaminant = "fire"; break;
+                        default:   contaminant = "["+contaminant+"]";
+                        }
+                    }
+                    var habitat = "";
+                    if ("spillareahabitat" in x.properties) {
+                        habitat = x.properties.spillareahabitat;
+                        switch (habitat.substr(0,3)) {
+                        case "la": habitat = "land"; break;
+                        case "ss": habitat = "seasonal swamp"; break;
+                        case "sw": habitat = "swamp"; break;
+                        case "co": habitat = "coastland"; break;
+                        case "iw": habitat = "inland waters"; break;
+                        case "ns": habitat = "near shore"; break;
+                        case "of": habitat = "offshore"; break;
+                        default:   habitat = "["+x.properties.spillareahabitat+"]";
+                        }
+                    }
                     
                     $(d).click(function() {
-                        var point = {lat: (x.geometry.coordinates[1] - .03), lon: (x.geometry.coordinates[0] - .2)};
+                        var point = {lat: (x.geometry.coordinates[1]),
+                                     lon: (x.geometry.coordinates[0])
+                                    };
                         var zoom = 10;
                         easey().map(m)
                             .to(m.locationCoordinate(point)
                                 .zoomTo(zoom))
                             .run(500);
-                        if ($('#copy-data-from-map:checked').length > 0) fillIncidentReportForm(x.properties);
+                        if ($('#copy-data-from-map:checked').length) fillIncidentReportForm(x.properties);
                     });
                     
                     function property(name) { return x.properties[name] || ""; };
@@ -343,15 +395,11 @@ function frontpageSetup() {
                     var contentNosdra = document.createElement('div');
                     contentNosdra.className = 'popupNosdra clearfix';
                     contentNosdra.innerHTML = popupNosdra({
-                        location: '<h3 class="int-location">' + property('sitelocationname') + '</h3><b>LGA:</b> ' + property('lga') +'</br>',
-                        spill: '<h3 class="int-spillamount">' +  quantity  + '</h4><h4 class="int-spillamount"> barrels spilled due to ' + property('causeofspill') + '</h4>',
-                        date: '</br><b>Company Name: </b>' + property('companyname') + '</br><b>Date: </b>' + property('incidentdate') + '</br><b>Date spill stopped: </b>' + property('datespillstopped'),
-                        contaiment: '</br><b>Initial containment measures: </b>' + property('initialcontainmentmeasures') + '</br><b>Cause of spill: </b>' + property('causeofspill') + '</br><b>Estimated spill area: </b>' + property('estimatedspillarea'),
-                        facility: '</br><b>Type of facility: </b>' + property('typeoffacility') + '</br><b>Datejiv: </b>' + property('datejiv') + '</br><b>Spill area habitat: </b>' + property('spillareahabitat'),
-                        impact: '</br><b>Impact: </b>' + property('impact') + '</br><b>Description of impact: </b>' + property('descriptionofimpact'),
-                        cleanup: '</br><b>Date clean up: </b>' + property('datecleanup') + '</br><b>Date clean up completed: </b>' + property('datecleanupcompleted') + '</br><b>Method used: </b>' + property('methodsofcleanup') + '</br><b>Date of post clean up inspection: </b>' + property('dateofpostcleanupinspection') + '</br><b>Date of post impact assessment: </b>' +  property('dateofpostimpactassessment'),
-                        mediation: '</br><b>Furter mediation: </b>' + property('furtherremediation') + '</br><b>Date of certificate: </b>' + property('datecertificate'),
-                        image: '<img src=' + property('image') + '></img>'
+                        db: property,// fields from the data base
+                        quantity: quantity,
+                        habitat: habitat,
+                        cause: cause,
+                        contaminant: contaminant
                     });
                     
                     d.appendChild(contentNosdra);
@@ -396,9 +444,9 @@ function frontpageSetup() {
                     });
                     var count = 0;
                     ml.filter(function(f) {
-                        var test = active.company.indexOf(f.properties.companyname) !== -1 &&
+                        var test = active.company.indexOf(f.properties.company) !== -1 &&
                             active.year.indexOf(f.properties.year) !== -1 &&
-                            active.month.indexOf(f.properties.month) !== -1;
+                            active.month.indexOf(f.properties.monthLabel) !== -1;
                         count += test;
                         return test;
                     });
@@ -640,106 +688,6 @@ $(function () {
     }
 });
 
-function fillIncidentReportForm(properties)
-{
-    var form = $('#incident-report-form').get(0);
-    if (form) for (var p in properties) {
-        var element = form[p];
-        if (!element || !(element instanceof Node)) continue;
-        var value = properties[p];
-        if ("number" === typeof value) value = value.toPrecision(10);
-        switch (element.tagName.toLowerCase()) {
-        case "input":
-        case "select":
-            element.value = value;
-            break;
-        case "textarea":
-            element.textContent = value;
-            break;
-        default:
-            alert("Unexpected element: " + element);
-        }
-    }
-}
+{% include js/FormUtils.js %}
 
-function loadLoginForm(form)
-{
-    var container = $('#login-form-container');
-    $.ajax({
-        type: "POST",
-        url: "login.php",
-        data: form?($(form).serialize()):null,
-        dataType: "html", // This is the *response* type we want
-        success: function (responseText, textStatus, XMLHttpRequest) {
-            container.html(responseText);
-        }
-    });
-    
-    return false;
-}
-
-function loadIncidentReportForm(form)
-{
-    var link = $('#main-nav-report-spill');
-    var container = $('#incident-report-form-container');
-    $.ajax({
-        type: "POST",
-        url: "report-incident.php",
-        data: form?($(form).serialize()):null,
-        dataType: "html", // This is the *response* type we want
-        success: function (responseText, textStatus, XMLHttpRequest) {
-            container.html(responseText);
-            $('#login-form-container').show();
-        }
-    });
-    
-    return false;
-}
-
-function toggleIncidentReportForm()
-{
-    var container = $('#incident-report-form-container');
-    if (container.hasClass('incident-report')) {
-        container.removeClass('incident-report');
-        $('#toggle-incident-report-form').show();
-        $('#tooltip').show();
-        container.html('');
-    }
-    else {
-        container.addClass('incident-report');
-        $('#toggle-incident-report-form').hide();
-        $('#tooltip').hide();
-        loadIncidentReportForm();
-    }
-}
-
-var FormUtils = {
-    combobox: function (menu, targetName, otherValue)
-    {
-        var target = menu.form[targetName];
-        if (menu.value != otherValue) {
-            target.style.display = 'none';
-            target.value = menu.value;
-        }
-        else {
-            target.style.display = '';
-            target.value = otherValue?otherValue+":":"";
-        }
-    },
-    addAttachmentLink: function (container)
-    {
-        var input = document.createElement("input");
-        input.setAttribute("size", "");
-        input.setAttribute("type", "url");
-        input.setAttribute("name", "attachmentLink");
-        container.get(0).appendChild(input);
-    },
-    addAttachmentFile: function (container)
-    {
-        var input = document.createElement("input");
-        input.setAttribute("size", "8");
-        input.setAttribute("type", "file");
-        input.setAttribute("name", "attachmentFile");
-        container.get(0).appendChild(input);
-    },
-};
+{% include js/incident-report-form.js %}

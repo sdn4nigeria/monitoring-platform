@@ -3,6 +3,20 @@ input, textarea, select { background:#fff; border:thin solid #ccc; }
 input[type='file'] { max-width:200px; }
 input[size=''], textarea { width:100%; }
 
-#incident-report-form-container { padding-bottom:1em; }
 #incident-report-form > h3 { margin:0 }
 #incident-report-form-attachments { padding-left:1em; }
+
+/* Login/logout form */
+.role:before {
+    margin-right:0.5em;
+    padding:0 0.2em;
+    font-size:75%;
+    border:thin solid #888;
+    background:#888;
+    color:#FFF;
+    border-radius:0.2em;
+}
+.administrator:before { content: "administrator"; }
+.officer:before { content: "officer"; }
+.company:before { content: "company"; }
+.citizen:before { content: "citizen"; }

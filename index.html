@@ -7,8 +7,6 @@ class: frontpage
 <div class='intro'>
   <div class=''>
     <div id='intro-text' class='about-text'>
-      <div id='login-form-container' style='display:none'></div>
-      <script>loadLoginForm($('#login-form-container'))</script>
       <div id='incident-report-form-container'></div>
       <div id='tooltip'>
         <h2>View the latest information on oil spills in Nigeria</h2>
@@ -18,9 +16,10 @@ class: frontpage
 <p><a href="http://sdn4nigeria.github.com/monitoring-platform/about/">Read more about the historical difficulties in monitoring oil spills Nigeria.</a></p-->
         <p>Hover over a spill incident on the map and the details will appear here.</p>
       </div>
-      <div id='toggle-incident-report-form' style='text-align:right;clear:both'>
-        <button onclick='toggleIncidentReportForm()'>Report a spill</button>
+      <div id='toggle-incident-report-form' style='text-align:center;clear:both;margin-top:6px'>
+        <button onclick='toggleIncidentReportForm()'>Report/update spill</button>
       </div>
+      <br/>
     </div>
     <div id='base-select'>
       <ul class='bottomlayer'>
@@ -100,14 +99,30 @@ class: frontpage
 </script>
 <script type='text/template' id='popupNosdra'>
   <div class='marker-popups'>
-    <%=location  %>
-    <%=spill %>
-    <%=date %>
-    <%=contaiment %>
-    <%=facility %>
-    <%=impact %>
-    <%=cleanup %>
-    <%=mediation %>
-    <%=image %>
+    <!-- db.* fields come directly from the database,
+         other fields are computed in site.js -->
+    <div class="int-spillid">ID: <%=db("spillid") %></div>
+    <h3 class="int-location"><%=db("sitelocationname") %></h3>
+    LGA: <b><%=db("lga") %></b></br>
+    <h3 class="int-spillamount"><%=quantity %>
+      barrels spilled due to <%=cause %>
+    </h3>
+    Date:  <b><%=db("incidentdate") %></b></br>
+    Date spill stopped:  <b><%=db("datespillstopped") %></b></br>
+    Company: <b><%=db("company") %></b></br>
+    Initial containment measures:  <b><%=db("initialcontainmentmeasures") %></b></br>
+    Type of contaminant:  <b><%=contaminant %></b></br>
+    Estimated spill area:  <b><%=db("estimatedspillarea") %></b></br>
+    Spill area habitat:  <b><%=habitat %></b></br>
+    Impact:  <b><%=db("impact") %></b></br>
+    Description of impact:  <b><%=db("descriptionofimpact") %></b></br>
+    Datejiv:  <b><%=db("datejiv") %></b></br>
+    Date clean up:  <b><%=db("datecleanup") %></b></br>
+    Date clean up completed:  <b><%=db("datecleanupcompleted") %></b></br>
+    Methods used:  <b><%=db("methodsofcleanup") %></b></br>
+    Date of post clean up inspection:  <b><%=db("dateofpostcleanupinspection") %></b></br>
+    Date of post impact assessment:  <b><%=db("dateofpostimpactassessment") %></b></br>
+    Furter remediation:  <b><%=db("furtherremediation") %></b></br>
+    Date of certificate:  <b><%=db("datecertificate") %></b>
   </div>
 </script>
