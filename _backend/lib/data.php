@@ -73,7 +73,11 @@ class table_data_source
   
   function select($pattern)
   {
-    if ($this->headers) $this->reopen();
+    if (!$pattern) {
+      $this->filter = FALSE;
+      return;
+    }
+    
     $this->filter = array();
     foreach ($pattern as $field_name => $p) {
       $regexp = preg_replace("/([.+*?()\/[\]])/", "\\\\$1", $p);
@@ -89,6 +93,29 @@ class table_data_source
   function headers()
   {
     return $this->headers;
+  }
+  
+  function get_field($header, $row)
+  {
+    $fields = count($this->headers);
+    for ($i = 0; $i < $fields; ++$i) {
+      $field_name = $this->headers[$i];
+      if ($field_name == $header) return $row[$i];
+    }
+    
+    return FALSE;
+  }
+  
+  /**
+   * Get a key-value map of the fields in the row.
+   */
+  function get_fields_as_map($row)
+  {
+    $map = array();
+    $fields = count($this->headers);
+    for ($i = 0; $i < $fields; ++$i) $map[$this->headers[$i]] = $row[$i];
+    
+    return $map;
   }
   
   function next_row($handle = FALSE)

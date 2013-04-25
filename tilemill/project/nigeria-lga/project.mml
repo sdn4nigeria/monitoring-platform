@@ -1,0 +1,55 @@
+{
+  "bounds": [
+    1.1426,
+    3.5573,
+    16.04,
+    14.8599
+  ],
+  "center": [
+    7.6685,
+    9.0153,
+    6
+  ],
+  "format": "png",
+  "interactivity": {
+    "layer": "lga",
+    "template_teaser": "<div class='int-title'>{{{Name}}}</div>\n<div class='int-value'>{{{ADM1NAME}}}</div>",
+    "fields": [
+      "Name",
+      "ADM1NAME"
+    ]
+  },
+  "minzoom": 5,
+  "maxzoom": 13,
+  "srs": "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over",
+  "Stylesheet": [
+    "style.mss"
+  ],
+  "Layer": [
+    {
+      "geometry": "polygon",
+      "extent": [
+        2.668533563613892,
+        4.273007392883301,
+        14.678816795349121,
+        13.894418716430664
+      ],
+      "id": "lga",
+      "class": "",
+      "Datasource": {
+        "file": "../../../bin/nigeria-lga-reduced.geojson"
+      },
+      "srs-name": "WGS84",
+      "srs": "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs",
+      "advanced": {},
+      "name": "lga"
+    }
+  ],
+  "scale": 1,
+  "metatile": 2,
+  "_basemap": "http://a.tiles.mapbox.com/v3/nigeriaoil.map-5ustxk97.jsonp",
+  "name": "nigeria-lga",
+  "description": "",
+  "attribution": "",
+  "legend": ""
+}

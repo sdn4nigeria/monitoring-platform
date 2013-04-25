@@ -6,117 +6,158 @@
 // to create and distribute derivative works, non-exclusive license
 // to this software. 
 
-$backend_root = "../_backend/";
-include $backend_root."spill-data.php";
+$backend_root = '../_backend/';
+include $backend_root.'spill-data.php';
 
-$bin_root     = $backend_root."bin/";
-$data_root    = "/var/www/data/";
-$backup_root  = "/var/www/data/backup/";
+$bin_root     = $backend_root.'bin/';
+$data_root    = '/var/www/data/';
+$backup_root  = '/var/www/data/backup/';
 
-if (array_key_exists("year", $_GET)) {
-  header("Content-type: application/json; charset=UTF-8");
+if (array_key_exists('dataset', $_REQUEST)) {
+  $dataset = preg_replace('/[^a-zA-Z0-9_\/-]/', '_',
+                          $_REQUEST['dataset']);
+}
+else {
+  $dataset = FALSE;
+}
+if (array_key_exists('format', $_GET)) $format = $_GET['format'];
+else                                   $format = 'html';
+
+function echo_json_table($data)
+{
+  $fieldNames = $data->headers();
+  $isFirstRow = TRUE;
+  echo '[';
+  while (($row = $data->next_row()) !== FALSE) {
+    if ($isFirstRow) $isFirstRow = FALSE;
+    else echo ',';
+    echo '{';
+    $items = count($row);
+    $isFirstColumn = TRUE;
+    for ($i = 0; $i < $items; ++$i) {
+      $value = $row[$i];
+      if (!$value) continue;
+      if ($isFirstColumn) $isFirstColumn = FALSE;
+      else echo ',';
+      echo '"'.$fieldNames[$i].'":'.json_encode($value);
+    }
+    echo '}';
+  }
+  echo ']';
+}
+
+if ('json' == $format) {
+  ob_start('ob_gzhandler');// Ensure gzip compression regardless of php.ini
   
-  $year = $_GET["year"];
-  $spill_data = new table_data_source($data_root.$dataset.".csv");
-  $spill_data->select(array("incidentdate" => $year."-%"));
+  $spill_data = new table_data_source($data_root.$dataset.'.csv');
+  if (array_key_exists('like', $_GET)) {
+    $spill_data->select(array($_GET['field'] => $_GET['like']));
+  }
+  if (array_key_exists('callback', $_GET)) {
+    // This is a JSONP request, so wrap it accordingly:
+    header('Content-type: text/plain; charset=UTF-8');
+    echo $_GET['callback'].'(';
+    echo_json_table($spill_data);
+    echo ');';
+  }
+  else {
+    // Plain JSON
+    header('Content-type: application/json; charset=UTF-8');
+    echo_json_table($spill_data);
+  }
   $spill_data->close();
 }
 else {
-  header("Content-type: text/html; charset=UTF-8");
+  header('Content-type: text/html; charset=UTF-8');
   
-  function print_table($spill_data, $filter = null) {
+  function print_table($spill_data) {
     $count = 0;
-    echo "<table>";
+    echo '<table>';
     $row = $spill_data->headers();
-    echo "<tr>\n";
+    echo '<tr>';
     $items = count($row);
-    for ($i = 0; $i < $items; ++$i) echo "<th>".$row[$i]."</th>\n";
-    echo "</tr>";
+    for ($i = 0; $i < $items; ++$i) echo '<th>'.$row[$i].'</th>';
+    echo '</tr>';
     while (($row = $spill_data->next_row()) !== FALSE) {
-      echo "<tr>\n";
+      echo '<tr>';
       $items = count($row);
-      if (!$filter || $filter($row)) {
-        for ($i = 0; $i < $items; ++$i) echo "<td>".$row[$i]."</td>\n";
-        ++$count;
-      }
-      echo "</tr>";
+      for ($i = 0; $i < $items; ++$i) echo '<td>'.$row[$i].'</td>';
+      ++$count;
+      echo '</tr>';
     }
-    echo "</table>";
+    echo '</table>';
     
     return $count;
   }
   
   function param($name) {
     if (array_key_exists($name, $_GET)) return $_GET[$name];
-    else                               return "";
+    else                               return '';
   }
   
   function process_request()
   {
-    global $bin_root, $data_root, $backup_root;
+    global $bin_root, $data_root, $backup_root, $dataset;
     
-    $temp_file_name = "";
-    $dataset        = "";
+    $temp_file_name = '';
     $command_output = array();
     $ok = true;
-    if (array_key_exists("spillData", $_FILES)) {
-      $spillDataFile = $_FILES["spillData"];
-      echo ("<pre>".
-            $spillDataFile["name"]."\n".
-            $spillDataFile["type"]."\n".
-            $spillDataFile["size"]." bytes\n".
-            "</pre>");
+    if (array_key_exists('spillData', $_FILES)) {
+      $spillDataFile = $_FILES['spillData'];
+      echo ('<pre>'.
+            $spillDataFile['name']."\n".
+            $spillDataFile['type']."\n".
+            $spillDataFile['size']." bytes\n".
+            '</pre>');
       flush();
-      if ("text/csv" == $spillDataFile["type"] ||
-          ".csv" == strtolower(substr($spillDataFile["name"], -4))) {
-        $temp_file_name = $spillDataFile["tmp_name"];
+      if ('text/csv' == $spillDataFile['type'] ||
+          '.csv' == strtolower(substr($spillDataFile['name'], -4))) {
+        $temp_file_name = $spillDataFile['tmp_name'];
       }
       else {
-        $temp_file_name = tempnam(sys_get_temp_dir(), "upload");
+        $temp_file_name = tempnam(sys_get_temp_dir(), 'upload');
         $exit_code = 0;
         $last_line = exec('echo "Importing MS Access data..."; java -jar '.$bin_root.'AccessToCSV.jar '.
-                          $spillDataFile["tmp_name"].' '.
+                          $spillDataFile['tmp_name'].' '.
                           $temp_file_name.
                           ' 2>&1 && cp '.$temp_file_name.' /tmp/imported-access-data.csv && echo "OK"',
                           $command_output,
                           $exit_code);
-        if ($exit_code != 0 || $last_line != "OK") $ok = false;
+        if ($exit_code != 0 || $last_line != 'OK') $ok = false;
         if ($ok) {
-          echo "<pre>Microsoft Access data file imported</pre>";
+          echo '<pre>Microsoft Access data file imported</pre>';
         }
         else {
-          echo "<pre class='error'>".join($command_output, "\n")."</pre>";
+          echo '<pre class="error">'.join($command_output, "\n").'</pre>';
         }
       }
       
     }
-    else if (array_key_exists("dataset", $_REQUEST)) {
-      include "forms/spill-data-upload-form.php";
-      $dataset = preg_replace("/[^a-zA-Z0-9_\/-]/", "_",
-                              $_REQUEST["dataset"]);
-      if (array_key_exists("rows", $_REQUEST)) {
-        $temp_file_name = tempnam(sys_get_temp_dir(), "upload");
-        file_put_contents($temp_file_name, $_REQUEST["rows"]);
+    else if ($dataset) {
+      include 'forms/spill-data-upload-form.php';
+      if (array_key_exists('rows', $_REQUEST)) {
+        $temp_file_name = tempnam(sys_get_temp_dir(), 'upload');
+        file_put_contents($temp_file_name, $_REQUEST['rows']);
       }
-      else if (array_key_exists("edit", $_REQUEST)) {
-        echo "<h2>Current data</h2>";
+      else if (array_key_exists('edit', $_REQUEST)) {
+        echo '<h2>Current data</h2>';
         echo '<form method="post" action="">';
-        echo "<textarea id='rows' name='rows'>";
-        echo htmlspecialchars(file_get_contents($data_root.$dataset.".csv"));
-        echo "</textarea>";
+        echo '<textarea id="rows" name="rows">';
+        echo htmlspecialchars(file_get_contents($data_root.$dataset.'.csv'));
+        echo '</textarea>';
         echo '<button type="submit">Update</button>';
-        echo "</form>";
+        echo '</form>';
       }
       else {
-        $spill_data = new table_data_source($data_root.$dataset.".csv");
-        if (array_key_exists("like", $_GET)) {
-          $spill_data->select(array($_GET["field"] => $_GET["like"]));
+        $spill_data = new table_data_source($data_root.$dataset.'.csv');
+        if (array_key_exists('like', $_GET)) {
+          $spill_data->select(array($_GET['field'] => $_GET['like']));
         }
         echo '<hr/><form action="" method="GET">';
         echo '<button type="submit">SQL query</button> ';
         echo 'SELECT * WHERE <select name="field">';
         foreach ($spill_data->headers() as $header) {
-          $selected = ($header === param("field"));
+          $selected = ($header === param('field'));
           echo '<option value="'.htmlspecialchars($header).'"';
           if ($selected) echo ' selected="selected"';
           echo '>'.htmlspecialchars($header).'</option>';
@@ -126,16 +167,17 @@ else {
         echo '<br/><input type="hidden" name="dataset" value="'
         .htmlspecialchars($dataset)
         .'"/></form>';
-        echo "<p style='font-family:serif'>The pattern \"<span style='font-family:sans-serif'>%</span>\" matches any characters, any length included zero. For instance, <span style='font-family:sans-serif'>SELECT * WHERE LOCATION LIKE \"%barge%\"</span> selects all barge incidents. To see all incidents in 2007, select the field <span style='font-family:sans-serif'>DATE OF INCIDENT</span> with the pattern \"<span style='font-family:sans-serif'>2007-%</span>\".<br/>The pattern \"<span style='font-family:sans-serif'>_</span>\" matches any character, but only exactly one. For example, <span style='font-family:sans-serif'>SELECT * WHERE LOCATION LIKE \"%oso r_%\"</span> selects all incidents that mention \"<span style='font-family:sans-serif'>Oso RK</span>\", \"<span style='font-family:sans-serif'>Oso RG</span>\", \"<span style='font-family:sans-serif'>Oso RP</span>\", etc.</p>";
-        echo "<hr/><div id='filters'>";
-        echo "<button onclick='filter()'>All</button>";
-        echo "<button id='button-filter-no-incident-number' onclick='filter(filters.no_incident_number)'>Entries without incident number</button>";
-        echo "<button id='button-filter-no-location' onclick='filter(filters.no_location)'>Entries with neither lat/lon nor northings/eastings information</button>";
-        echo "<button id='button-filter-misplaced-location' onclick='filter(filters.misplaced_location)'>Entries with misplaced lat/lon information</button>";
-        echo "<input id='field-filter-search' type='search' onchange='search(this.value)'/>";
-        echo "<button onclick='search($(\"#field-filter-search\").value)'>Search</button>";
-        echo "<div id='count-display'><span id='shown-row-count-display'></span> rows shown out of <span id='total-row-count-display'></span> total</div>";
-        echo "</div>";
+        echo '<div style="text-align:right"><a href="javascript:void(0)" onclick="this.style.display=\'none\';$(\'#sql-syntax-help\').style.display=\'\'">Show brief syntax help</a></div>';
+        echo '<p style="font-family:serif;background:#fff;padding:0.5em;border:thin solid #ccc;display:none" id="sql-syntax-help">The pattern "<span style="font-family:sans-serif">%</span>" matches any characters, any length included zero. For instance, <span style="font-family:sans-serif">SELECT * WHERE LOCATION LIKE "%barge%"</span> selects all barge incidents. To see all incidents in 2007, select the field <span style="font-family:sans-serif">DATE OF INCIDENT</span> with the pattern "<span style="font-family:sans-serif">2007-%</span>".<br/>The pattern "<span style="font-family:sans-serif">_</span>" matches any character, but only exactly one. For example, <span style="font-family:sans-serif">SELECT * WHERE LOCATION LIKE "%oso r_%"</span> selects all incidents that mention "<span style="font-family:sans-serif">Oso RK</span>", "<span style="font-family:sans-serif">Oso RG</span>", "<span style="font-family:sans-serif">Oso RP</span>", etc.</p>';
+        echo '<hr/><div id="filters">';
+        echo '<button onclick="filter()">All</button>';
+        echo '<button id="button-filter-no-incident-number" onclick="filter(filters.no_incident_number)">Entries without incident number</button>';
+        echo '<button id="button-filter-no-location" onclick="filter(filters.no_location)">Entries with neither lat/lon nor northings/eastings information</button>';
+        echo '<button id="button-filter-misplaced-location" onclick="filter(filters.misplaced_location)">Entries with misplaced lat/lon information</button>';
+        echo '<input id="field-filter-search" type="search" onchange="search(this.value)"/>';
+        echo '<button onclick="search($(\'#field-filter-search\').value)">Search</button>';
+        echo '<div id="count-display"><span id="shown-row-count-display"></span> rows shown out of <span id="total-row-count-display"></span> total</div>';
+        echo '</div>';
         print_table($spill_data);
         $spill_data->close();
       }
@@ -146,7 +188,7 @@ else {
         $spill_data = new table_data_source($temp_file_name);
         $spill_data->check_format();
         if ($spill_data->error()) {
-          echo "<div class='error'>".$spill_data->error()."</div>";
+          echo '<div class="error">'.$spill_data->error().'</div>';
           $ok = false;
         }
         $spill_data->close();
@@ -156,10 +198,10 @@ else {
         array_splice($command_output, 0);// Empty the array
         $ok = process_data($temp_file_name, $command_output);
         if ($ok) {
-          echo "<pre>".join($command_output, "\n")."</pre>";
+          echo '<pre>'.join($command_output, "\n").'</pre>';
         }
         else {
-          echo "<pre class='error'>".join($command_output, "\n")."</pre>";
+          echo '<pre class="error">'.join($command_output, "\n").'</pre>';
         }
         flush();
       }
@@ -168,21 +210,21 @@ else {
         array_splice($command_output, 0);// Empty the array
         $ok = make_backup($command_output);
         if ($ok) {
-          echo "<pre>Backups done</pre>";
+          echo '<pre>Backups done</pre>';
         }
         else {
-          echo "<pre class='error'>".join($command_output, "\n")."</pre>";
+          echo '<pre class="error">'.join($command_output, "\n").'</pre>';
         }
       }
       
       if ($ok) {
-        echo "<h2>Finished</h2>";
-        echo "<p>The data you submitted has been <strong>successfully processed</strong>, and is available in the map view.</p>";
-        echo "<p>Click to <a href='?dataset=nosdra'>view the current data</a\
->.</p>";
+        echo '<h2>Finished</h2>';
+        echo '<p>The data you submitted has been <strong>successfully processed</strong>, and is available in the map view.</p>';
+        echo '<p>Click to <a href="?dataset=nosdra">view the current data</a\
+>.</p>';
       }
       else {
-        echo "<p>Apparently there was an error. Please report the information above to the site administrator.</p>";
+        echo '<p>Apparently there was an error. Please report the information above to the site administrator.</p>';
       }
       
       // Either $temp_file_name is the one created by PHP to put the
@@ -193,15 +235,8 @@ else {
       unlink($temp_file_name);
     }
     else if (!$dataset) {
-      include "forms/spill-data-upload-form.php";
+      include 'forms/spill-data-upload-form.php';
     }
-    
-    echo "<div id='backups'><h2>Data backup copies</h2>";
-    echo "Available at <a href='/data/backup/'>/data/backup/</a>";
-    echo "<pre>";
-    system('ls -t '.$backup_root,
-           $exit_code);
-    echo "</pre></div>";
   }
 ?>
 <!DOCTYPE html>
@@ -221,7 +256,8 @@ else {
     #rows { width:100%; min-height:20em; }
     #count-display { text-align:center; }
     @media print {
-    form, #filters, #backups { display: none; }
+    body > * { display: none; }
+    body > table { display: table; }
     }
     </style>
   </head>
@@ -229,12 +265,18 @@ else {
     <?php
     if (!login($_POST)) {
       $data = login_request();
-      include "forms/spill-data-login-form.php";
+      include 'forms/spill-data-login-form.php';
     }
     else {
-      include "forms/spill-data-logout-form.php";
+      $user = $_SESSION['user'];
+      include 'forms/spill-data-logout-form.php';
       
-      process_request();
+      if ($user['role'] == 'administrator') {
+        process_request();
+      }
+      else {
+        echo '<div>This page requires an "administrator" account. You are logged in as "'.$user['role'].'"</div>';
+      }
     }
     ?>
     <script src="spill-data.js"></script>
