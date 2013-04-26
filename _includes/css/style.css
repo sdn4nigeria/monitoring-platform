@@ -95,6 +95,7 @@ sup {
     position:relative;
     left:0;
     right:0;
+    margin-left:300px;/* 280 for .about-text width, plus 2*10 for #intro-text padding */
     z-index:0;
     height:560px;
 }
@@ -395,8 +396,7 @@ ul.dropdown-menu li a.switch-active:hover {
     margin-left:auto;
     width: 280px;
     padding:0px 24px 10px;
-    background:#fff;
-    background:rgba(255,255,255,0.9);
+    background:#eee;
 }
 
 .about-text h2 {
@@ -442,7 +442,7 @@ ul.dropdown-menu li a.switch-active:hover {
     left:0;
 }
 #masthead .title h2 {
-    margin-top: 15px;
+    margin-top: 12px;
 }
 #nav {
     position: absolute;
@@ -487,6 +487,17 @@ ul.dropdown-menu li a.switch-active:hover {
 
 #intro-text .bignum {
     color: #b40000;
+}
+
+#intro-text > * > form.login {
+    display:none;
+}
+#intro-text.incident-report > * > form.login {
+    display:block;
+}
+#intro-text.incident-report > #toggle-incident-report-form,
+#intro-text.incident-report > #tooltip {
+    display:none;
 }
 
 #footer a {
@@ -830,7 +841,11 @@ ul li a.toggle {
     background : #eee;
 }
 
-h3.int-location {
+.int-spillid {
+    font-family:monospace;
+    text-align:right;
+}
+.int-location {
     font-weight: 600;
     font-size: 15px;
     line-height: 24px;
@@ -840,9 +855,8 @@ h3.int-location {
     color:#B40000;
     font-weight: 100;
     font-size: 20px;
-    display:inline;
 }
-h4.int-cause {
+.int-cause {
     font-weight: 100;
     font-size: 14px;
     line-height: 24px;

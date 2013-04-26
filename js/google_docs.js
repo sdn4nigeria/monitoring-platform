@@ -1,4 +1,7 @@
-var data_root = 'http://demo.sentido-labs.com/data/';
+//var data_root = 'http://demo.sentido-labs.com/data/';
+var data_root = 'spill-data.php';
+
+// The original function to read from Google Docs is at the end of the file.
 
 function mmg_json(id, num, callback) {
     if (typeof reqwest === 'undefined') {
@@ -13,18 +16,14 @@ function mmg_json(id, num, callback) {
         
         if ("geometry" in x[0]) return callback(x);
         
-        for (var f in x[0]) {
-            if (f.match(/^Lat/i)) latfield = f;
-            if (f.match(/^Lon/i)) lonfield = f;
-        }
-        
         for (var i = 0; i < x.length; i++) {
             var entry = x[i];
+            if (!entry["latitude"] || !entry["longitude"]) continue;
             var feature = {
                 geometry: {
                     type: 'Point',
                     coordinates: []
-                },
+                }
                 // This is for the citizen reports, otherwise properties: {}
                 /* Those fields are not yet in the back-end:
 	            properties: {
@@ -33,22 +32,18 @@ function mmg_json(id, num, callback) {
 					'area': entry['gsx$localname'].$t,
 					'verified': entry['gsx$verified'].$t
 				}*/
-                properties: {}
             };
-            for (var y in entry) {
-                if (y === latfield) feature.geometry.coordinates[1] = entry[y];
-                else if (y === lonfield) feature.geometry.coordinates[0] = entry[y];
-                else {
-                    feature.properties[y] = entry[y];
-                }
-            }
-            if (feature.geometry.coordinates.length == 2) features.push(feature);
+            feature.properties = entry;
+            feature.geometry.coordinates[0] = entry["longitude"];
+            feature.geometry.coordinates[1] = entry["latitude"];
+            features.push(feature);
         }
         
         return callback(features);
     }
     
-    var url = data_root + id + '.jsonz?alt=json-in-script&callback=callback';
+    //var url = data_root + id + '.jsonz?alt=json-in-script&callback=callback';
+    var url = data_root + '?alt=json-in-script&callback=callback&format=json&dataset=' + id + '-full&field=latitude&like=_%25';
     
     reqwest({
         url: url,

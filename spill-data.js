@@ -3,7 +3,7 @@
 // The author grants Stakeholder Democracy Network Ltd.
 // a sublicensable, assignable, royalty free, including the rights
 // to create and distribute derivative works, non-exclusive license
-// to this software. 
+// to this software.
 
 function $(path) { return document.querySelector(path); }
 
@@ -84,10 +84,11 @@ function count_matches(test)
     return count;
 }
 
-$("#shown-row-count-display").textContent = table.rows.length-1;
-$("#total-row-count-display").textContent = table.rows.length-1;
-
-if (window.location.hash.length > 1) {
-    $("#field-filter-search").value = window.location.hash.substr(1);
-    search($("#field-filter-search").value);
+if (table) {
+    $("#shown-row-count-display").textContent = table.rows.length-1;
+    $("#total-row-count-display").textContent = table.rows.length-1;
+    if (window.location.hash.length > 1) {
+        $("#field-filter-search").value = window.location.hash.substr(1);
+        search($("#field-filter-search").value);
+    }
 }
