@@ -3,7 +3,7 @@
     <input id="this-is-an-update" type="checkbox" onchange="var u=$(this).parent().next(); if (this.checked) { u.show(); this.form['spillid'].disabled = false; } else { u.hide(); this.form['spillid'].disabled = true; $('#copy-data-from-map').prop('checked', false); }"/><label for="this-is-an-update">&nbsp;this is an update for a reported spill</label>
   </div>
   <div style="display:none">
-    Update for: <div style="display:inline-block;vertical-align:top"><input name="spillid" onchange="if (!this.value) $('#this-is-an-update').click()"/><br/><input id="copy-data-from-map" name="copy-data-from-map" type="checkbox" style="vertical-align:middle"/><label for="copy-data-from-map">&nbsp;select in map</label></div><br/>
+    Update for: <div style="display:inline-block;vertical-align:top"><input name="updatefor" onchange="if (!this.value) $('#this-is-an-update').click()"/><br/><input id="copy-data-from-map" name="copy-data-from-map" type="checkbox" style="vertical-align:middle"/><label for="copy-data-from-map">&nbsp;select in map</label></div><br/>
   </div>
   Incident date: <input type="date" size="11" name="incidentdate"/><br/>
   Date spill stopped: <input type="date" size="11" name="datespillstopped"/><br/>

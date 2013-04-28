@@ -10,6 +10,7 @@ $backend_root = '../_backend/';
 require_once $backend_root.'conf.php';
 require_once $backend_root.'lib/session.php';
 require_once $backend_root.'lib/data.php';
+require_once $backend_root.'schemas.php';
 
 if (!login($_POST)) {
   $data = login_request();
@@ -20,7 +21,7 @@ else {
   $user = $_SESSION['user'];
   header('Content-type: text/html; charset=UTF-8');
   include 'forms/incident-report-logout-form.php';
-
+  
   function p($name, $array = FALSE, $default = '')
   {
     if (!$array) $array = $_POST;
@@ -76,8 +77,7 @@ else {
                  p('dateofpostimpactassessment'),
                  p('furtherremediation'),
                  p('datecertificate'));
-    $field_names = array('spillid', 'updatefor', 'status', 'incidentdate', 'company', 'initialcontainmentmeasures', 'estimatedquantity', 'contaminant', 'cause', 'latitude', 'longitude', 'lga', 'sitelocationname', 'estimatedspillarea', 'spillareahabitat', 'attachments', 'impact', 'descriptionofimpact', 'datejiv', 'datespillstopped', 'datecleanup', 'datecleanupcompleted', 'methodsofcleanup', 'dateofpostcleanupinspection', 'dateofpostimpactassessment', 'furtherremediation', 'datecertificate');
-    $spill_data = new table_data_source($data_root.$dataset.".csv", $field_names);
+    $spill_data = new table_data_source($data_root.$dataset.".csv", $schemas['report']['field_names']);
     $spill_data->add_row($row, "spillid");
     if ($spill_data->error()) {
       echo '<div class="error">'.$spill_data->error().'</div>';

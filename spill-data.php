@@ -26,22 +26,32 @@ else                                   $format = 'html';
 function echo_json_table($data)
 {
   $fieldNames = $data->headers();
-  $isFirstRow = TRUE;
-  echo '[';
+  $entries = array();
   while (($row = $data->next_row()) !== FALSE) {
-    if ($isFirstRow) $isFirstRow = FALSE;
-    else echo ',';
-    echo '{';
+    $entry = array();
     $items = count($row);
-    $isFirstColumn = TRUE;
     for ($i = 0; $i < $items; ++$i) {
       $value = $row[$i];
-      if (!$value) continue;
-      if ($isFirstColumn) $isFirstColumn = FALSE;
-      else echo ',';
-      echo '"'.$fieldNames[$i].'":'.json_encode($value);
+      if (!$value) continue;// Omit empty values
+      $entry[$fieldNames[$i]] = $value;
     }
-    echo '}';
+    if ($entry) {
+      if (array_key_exists('updatefor', $entry)) {
+        // Deliver only the latest version
+        $entries[$entry['updatefor']] = $entry;
+      }
+      else {
+        $entries[$entry['spillid']]   = $entry;
+      }
+    }
+  }
+  
+  $isFirstRow = TRUE;
+  echo '[';
+  foreach ($entries as $entry) {
+    if ($isFirstRow) $isFirstRow = FALSE;
+    else echo ',';
+    echo json_encode($entry);
   }
   echo ']';
 }

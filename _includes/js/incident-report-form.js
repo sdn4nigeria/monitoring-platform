@@ -2,9 +2,10 @@ function fillIncidentReportForm(properties)
 {
     var form = $('#incident-report-form').get(0);
     if (form) for (var p in properties) {
+        var value = properties[p];
+        if ('spillid' === p) p = 'updatefor';
         var element = form[p];
         if (!element || !(element instanceof Node)) continue;
-        var value = properties[p];
         FormUtils.setValue(element, value);
     }
 }
