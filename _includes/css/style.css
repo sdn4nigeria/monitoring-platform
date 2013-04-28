@@ -666,6 +666,14 @@ ul li a.toggle {
     font-size: 11px;
     font-weight: bold;
 }
+.marker-unverified-report {
+    pointer-events:all;
+    width:16px;
+    height:16px;
+    position:absolute;
+    margin-top:-16px;
+    margin-left:-10px;
+}
 .marker-title{
 	font-weight:bold;
 	font-size: 14px;
@@ -778,8 +786,8 @@ ul li a.toggle {
     right: 10px;
     top: 234px;
     width: 62px;
-    height: 122px;
-    padding: 0 5px;
+    /*height: 122px;*/
+    padding: 0 5px 30px 5px;
     color: #fff;
     background: #555;
     background: rgba(80, 80, 80, .85);
@@ -884,6 +892,12 @@ ul li a.toggle {
 /* Dot overlay styles */
 .blue {
     background-image: url(img/blue-markers.png) !important;
+}
+.cleanedup {
+    background-image: url(img/grey-markers.png) !important;
+}
+.unverified {
+    background-image: url(img/exclamation.png) !important;
 }
 .point {
     background-image: url(img/new-markers.png);
@@ -1187,8 +1201,6 @@ body .wax-legend a {
     width:920px;
     height:300px;
     margin-bottom:20px;
-    background:#888;
-    background:rgba(0,0,0,0.2);
     color:#111;
     padding:20px;
     border-radius: 3px;

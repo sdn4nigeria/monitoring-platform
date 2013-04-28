@@ -48,6 +48,10 @@ class: frontpage
       <!-- div id='spill-count' style='margin-top: 30px; border-top: 1px solid #ccc'>
         <h4 style='font-size: 11px; margin: 0;'>Number of Spills: <span id='spill-number' class='count'></span></h4>
       </div -->
+      <div style ='height: 20px; margin-top: 30px; border-top: 1px solid #ccc'>
+	    <h4 style='font-size: 11px; margin: 0;'>Cleaned-up spills</h4>
+	  </div>
+      <div class='point cleanedup legend'></div>
     </div>
     <div id='timelinks'>
       <div class='stage'>
@@ -76,7 +80,7 @@ class: frontpage
               <div id='options'> </div>
             </div>
             
-            <div>Showing <b><span id='spill-number' class='count'>--</span> spills</b> in this period. Hover over each spill for more information.<br/>Include <b>user-submitted</b> updates layer: <input type="checkbox" id="show-citizen-reports-layer" style='margin-bottom:-3px;'/></div>
+            <div>Showing <b><span id='spill-number' class='count'>--</span> spills</b> in this period. Hover over each spill for more information.<br/>Include <b>unverified</b> updates layer: <img src="img/exclamation.png" style="width:1em;height:1em"/><input type="checkbox" id="show-unverified-reports-layer"/>, <b>cleaned-up</b> spills: <input type="checkbox" id="show-cleaned-up-spills"/></div>
           </div>
         </div>
       </div>
@@ -89,7 +93,7 @@ class: frontpage
 <!--div class='limiter clearfix'><div class='graphs'></div></div-->
 <div id='contribute'>
   <div class='limiter clearfix' style='text-align:center;font-size:13px;line-height:14px;'>
-<p>All data displayed on this page is the joint reponsibility of NOSDRA, the appropriate oil comapany, and local community representatives to maintain and update.</p> <p>If you have a query relating to a specific spill please submit an update. To report a new spill to NOSDRA please submit a spill report. You may also wish to find out more about the processes involved in reporting, monitoring, and cleaning up oil spills in Nigeria.</p>
+<p>All data displayed on this page is the joint reponsibility of NOSDRA, the appropriate oil company, and local community representatives to maintain and update.</p> <p>If you have a query relating to a specific spill please submit an update. To report a new spill to NOSDRA please submit a spill report. You may also wish to <a href="about/">find out more</a> about the processes involved in reporting, monitoring, and cleaning up oil spills in Nigeria.</p>
   </div>
 </div>
 <script type="text/javascript">
