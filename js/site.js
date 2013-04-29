@@ -13,8 +13,6 @@ var mapLayers = {
 var mainMap, spillsLayer;
 var unverifiedReportsMarkers;// the markers layer for unverified-reported incidents
 
-var googleDocsIdentifier = window.location.hash.substring(1);
-
 var browser =   $.browser.version;
 
 // via https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Array/indexOf
@@ -152,7 +150,12 @@ function updateEmbedApi() {
     $('textarea.api-code').text(apiUrl);
 }
 
-function loadMap(key, number) {
+function loadMap() {
+    var dataset = window.location.hash.substring(1);
+    if (!dataset) {
+        alert("The spill data display requires a dataset ID");
+        return;
+    }
     function isThirdParty(properties) {
         // properties.thirdparty is from the old Google Docs schema,
         // not used any more [2013-04-28]
@@ -466,6 +469,7 @@ function loadMap(key, number) {
     }
     
     loading('start');
+    var key = dataset, number = 2;
     var mmg_f = mmg_json;
     if (44 == key.length) mmg_f = mmg_google_docs;
     mmg_f(key, number, function(features) {
@@ -545,8 +549,7 @@ function frontpageSetup() {
             displayCurrent();
         });
         
-        if (googleDocsIdentifier) loadMap(googleDocsIdentifier, 2);
-        else alert("The spill data display requires a dataset ID");
+        loadMap();
     }
     
     mapbox.auto("map", allLayers, setupMap);

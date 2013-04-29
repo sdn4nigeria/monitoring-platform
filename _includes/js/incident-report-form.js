@@ -39,6 +39,14 @@ function loadIncidentReportForm(form)
         success: function (responseText, textStatus, XMLHttpRequest) {
             container.html(responseText);
             $('#login-form-container').show();
+            if (form && /Spill report (updated|added)/.test(responseText)) {
+                loadMap();// Reload with changes
+                var button = document.createElement("button");
+                button.setAttribute("onclick",
+                                    "toggleIncidentReportForm(); return false");
+                button.textContent = "OK";
+                container.append(button);
+            }
         }
     });
     

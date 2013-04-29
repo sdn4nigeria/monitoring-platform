@@ -83,8 +83,8 @@ else {
       echo '<div class="error">'.$spill_data->error().'</div>';
     }
     $spill_data->close();
-    echo '<p>Spill report added</p>';
-    echo '<button style="float:right" onclick="toggleIncidentReportForm(); return false">OK</button>';
+    if (p('updatefor')) echo '<p>Spill report updated</p>';
+    else                echo '<p>Spill report added</p>';
   }
   else {
     header('Content-type: text/html; charset=UTF-8');
