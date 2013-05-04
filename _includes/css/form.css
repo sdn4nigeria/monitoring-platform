@@ -21,3 +21,14 @@ input, textarea, select, button { vertical-align:middle; }
 .officer:before { content: "officer"; }
 .company:before { content: "company"; }
 .citizen:before { content: "citizen"; }
+
+.spillid-unverified:before {
+    content: "unverified";
+    font-weight: bold;
+    margin-right:0.5em;
+    padding:0 0.2em;
+    border:thin solid #C94;
+    background:#FC4;
+    color:#FFF;
+    border-radius:0.2em;
+}

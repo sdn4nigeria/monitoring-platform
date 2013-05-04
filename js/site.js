@@ -11,7 +11,6 @@ var mapLayers = {
     settlements: "nigeriaoil.NGSettlement"
 };
 var mainMap, spillsLayer;
-var unverifiedReportsMarkers;// the markers layer for unverified-reported incidents
 
 var browser =   $.browser.version;
 
@@ -150,8 +149,11 @@ function updateEmbedApi() {
     $('textarea.api-code').text(apiUrl);
 }
 
-function loadMap() {
-    var dataset = window.location.hash.substring(1);
+var spillDataIncludesUnverifiedReports;
+function loadSpillData() {
+    var dataset = "nosdra";
+    // With the following line instead, take it from the url .../#nosdra
+    // var dataset = window.location.hash.substring(1);
     if (!dataset) {
         alert("The spill data display requires a dataset ID");
         return;
@@ -164,52 +166,72 @@ function loadMap() {
     function isCleanedUp(properties) {
         return properties.datecleanup || properties.datecleanupcompleted;
     }
-
+    function isVerified(properties) {
+        return properties.status == "verified";
+    }
+    
     function createSpillPoint(x) {
+        var identifier;
         var popupNosdra = _.template(document.getElementById('popupNosdra').innerHTML);
         var events = x.properties.estimatedquantity;
-        var y, z;
-        var d = document.createElement('div');
-        //added to point div
-        if (isCleanedUp(x.properties)) {
-            d.className = 'point cleanedup';
-        } else if (isThirdParty(x.properties)) {
-            // Third party spill
-            d.className = 'point';
-        } else {
-            // Company spill
-            d.className = 'point blue';
+        if (isVerified(x.properties)) {
+            identifier = x.properties.spillid;
+            var y, z;
+            var d = document.createElement('div');
+            //added to point div
+            if (isNaN(events) || "" == events || "undefined" == events) {
+                d.className = 'point blue';
+            } else if (isCleanedUp(x.properties)) {
+                d.className = 'point cleanedup';
+            } else if (isThirdParty(x.properties)) {
+                // Third party spill, typically sabotage
+                d.className = 'point';
+            } else {
+                // Company spill
+                d.className = 'point black';
+            }
+            
+            if (events >= 0 && events < 10) {
+                y = 14;
+                z = 406;
+            } else if (events > 10 && events <= 50) {
+                y = 20;
+                z = 384;
+            } else if (events > 50 && events <= 250) {
+                y = 28;
+                z = 359;
+            } else if (events > 250 && events < 500) {
+                y = 43;
+                z = 313;
+            } else if (events > 500) {
+                y = 54;
+                z = 260;
+            } else {
+                // There is no amount reported: make it medium size
+                y = 20;
+                z = 384;
+            }
+            // The point on the map
+            $(d).css("height", y + "px");
+            $(d).css("width", y + "px");
+            $(d).css("background-position",  -z + 'px ' + (y - 103) + 'px');
+            $(d).css("margin-left", -(y / 2) + 'px');
+            $(d).css("margin-top",-(y / 2) + 'px');
         }
-        d.zIndex = 999999;
-        d.pointerEvents = 'all';
-        
-        if (events >= 0 && events < 10) {
-            y = 14;
-            z = 406;
-        } else if (events > 10 && events <= 50) {
-            y = 20;
-            z = 384;
-        } else if (events > 50 && events <= 250) {
-            y = 28;
-            z = 359;
-        } else if (events > 250 && events < 500) {
-            y = 43;
-            z = 313;
-        } else if (events > 500) {
-            y = 54;
-            z = 260;
+        else {
+            identifier = "<span class='spillid-unverified'>" + x.properties.spillid + "</span>";
+            d = document.createElement("img");
+            d.className = "point marker-unverified-report";
+            d.setAttribute("src", "img/exclamation.png");
         }
-        // The point on the map
-        $(d).css("height", y + "px");
-        $(d).css("width", y + "px");
-        $(d).css("background-position",  -z + 'px ' + (y - 103) + 'px');
-        $(d).css("margin-left", -(y / 2) + 'px');
-        $(d).css("margin-top",-(y / 2) + 'px');
         
-        //Account for 0 barrels lost
         var quantity = x.properties.estimatedquantity;
         if(x.properties.estimatedquantity == 0){
             quantity = "Less than 1 ";
+        }
+        else if (!x.properties.estimatedquantity) {
+            // estimatedquantity is an empty string
+            quantity = "Unknown amount of ";
         }
         var cause = "";
         if ("cause" in x.properties) {
@@ -267,6 +289,7 @@ function loadMap() {
         contentNosdra.className = 'popupNosdra clearfix';
         contentNosdra.innerHTML = popupNosdra({
             db: property,// fields from the database
+            identifier: identifier,
             quantity: quantity,
             habitat: habitat,
             cause: cause,
@@ -332,13 +355,15 @@ function loadMap() {
                 }
                 else $('#' + k + '-count').text(v.length);
             });
-            var showCleanedUp = $('#show-cleaned-up-spills').is(':checked');
+            var showUnverified = $('#show-unverified-reports').is(':checked');
+            var showCleanedUp  = $('#show-cleaned-up-spills') .is(':checked');
             var count = 0;
             spillsLayer.filter(function(f) {
                 var test = active.company.indexOf(f.properties.company) !== -1 &&
                     active.year.indexOf(f.properties.year) !== -1 &&
                     active.month.indexOf(f.properties.monthLabel) !== -1;
-                if (isCleanedUp(f.properties) && !showCleanedUp) test = false;
+                if (!isVerified(f.properties) && !showUnverified) test = false;
+                if (isCleanedUp(f.properties) && !showCleanedUp ) test = false;
                 if (test) ++count;
                 
                 return test;
@@ -395,17 +420,24 @@ function loadMap() {
             });
             $('#options a').click(clickHandle('month'));
             
+            $('#company-menu').html('');
             $('#company-menu').append('<li><a href="#" class="time-switch clearfix switch-active" id="all-companies">All companies</a>');
             _(companies).chain().keys().each(function(v) {
                 $('#company-menu').append('<li><a href="#" class="time-switch clearfix switch-active" id="'+v+'">'+v+'</a>');
             });
             $('#company-menu a').click(clickHandleUnique('company'));
             
+            $('#year-menu').html('');
             _(yearsAvailable).each(function(v) {
                 var activeClass = (active.year.indexOf(v) == -1 ? '' : ' switch-active');
                 $('#year-menu').append('<li><a href="#" class="time-switch clearfix' + activeClass + '" id="'+v+'">'+v+'</a>');
             });
             $('#year-menu a').click(clickHandleUnique('year'));
+            
+            $('#show-unverified-reports').change(function () {
+                if (!spillDataIncludesUnverifiedReports) loadSpillData();
+                else                                     updateDisplay();
+            });
             $('#show-cleaned-up-spills').change(updateDisplay);
             
             //changing maps for baselayer
@@ -468,17 +500,31 @@ function loadMap() {
         }
     }
     
-    loading('start');
-    var key = dataset, number = 2;
-    var mmg_f = mmg_json;
-    if (44 == key.length) mmg_f = mmg_google_docs;
-    mmg_f(key, number, function(features) {
+    function featuresLoaded(features) {
         loading('stop');
         if (!features) return; // throw error?
         
         updateSpillData(features);
         
         updateDisplay();
+    }
+    loading('start');
+    var key = dataset, number = 2;
+    var mmg_f = mmg_json;
+    if (44 == key.length) mmg_f = mmg_google_docs;
+    mmg_f(key, number, function (features) {
+        if (!$("#show-unverified-reports").is(":checked")) {
+            spillDataIncludesUnverifiedReports = false;
+            featuresLoaded(features);
+        }
+        else {
+            var verifiedFeatures = features;
+            mmg_f(key + "-unverified", number, function (features) {
+                features = verifiedFeatures.concat(features);
+                spillDataIncludesUnverifiedReports = true;
+                featuresLoaded(features);
+            });
+        }
     });
 }
 
@@ -549,80 +595,10 @@ function frontpageSetup() {
             displayCurrent();
         });
         
-        loadMap();
+        loadSpillData();
     }
     
     mapbox.auto("map", allLayers, setupMap);
-    
-    function showUnverifiedReportsLayer(event)
-    {
-        var show = event.target.checked;
-        if (!show) {
-            // MapBox's documentation does not specify it,
-            // but I've tried and asking to remove a layer
-            // that is no longer in the map seems to work fine,
-            // that is, does nothing. Same with null or
-            // undefined values.
-            mainMap.removeLayer(unverifiedReportsMarkers);
-            // Disable next line to cache the markers layer
-            // if you want to avoid loading the data again
-            // whenever it is re-enabled.
-            //unverifiedReportsMarkers = null;
-            
-            return;
-        }
-        
-	    function newMarker() {
-    	    if (window.location.hash === '#new') {
-    		    $('#new').fadeIn('slow');
-    		    window.location.hash = '';
-    		    window.setTimeout(function() {
-        		    $('#new').fadeOut('slow');
-    		    }, 4000)
-    	    }
-        }
-        
-	    // Build map
-	    function gotMapData(f){
-    	    unverifiedReportsMarkers = mapbox.markers.layer().features(f).factory(function(f) { var img = document.createElement("img"); img.className = "marker-unverified-report"; img.setAttribute("src", "img/exclamation.png"); return img; });
-            unverifiedReportsMarkers.named("unverified-reports-markers");
-		    mainMap.addLayer(unverifiedReportsMarkers);
-		    // Set a custom formatter for tooltips
-		    // Provide a function that returns html to be used in tooltip
-		    var interaction = mapbox.markers.interaction(unverifiedReportsMarkers);
-		    interaction.formatter(function(feature) {
-			    if (feature.properties.verified == 'yes') {
-				    var verifyClass = 'check-plus';
-				    var verifyText = 'Verified by NOSDRA';
-			    } else {
-				    var verifyClass = 'check-minus';
-				    var verifyText = 'Not verified by NOSDRA';
-			    }
-                window.unverifiedReportedFeature = feature;
-			    var o = '<div onclick="alert(\'Selected: \' + window.unverifiedReportedFeature.properties.title); fillIncidentReportForm(window.unverifiedReportedFeature.properties)">'
-				    + '<div class="marker-title">' + feature.properties.title + '</div>'
-				    + '<div class="marker-description-top">Area Name: ' + feature.properties.area + '</div>'
-				    + '<div class="marker-description-bottom"><span class="check ' + verifyClass + '"></span><span class="verify-text">' + verifyText + '</span></div></div>';
-			    return o;
-		    });
-		    newMarker();
-	    }
-        
-	    if (!unverifiedReportsMarkers) {
-            // Only load the data if not already in memory
-            mmg_google_docs('0AoiGgH1LJtE0dGdwaW1VUW5uY0FSMjF0RVZBVldLTUE',
-                            'od6',
-                            gotMapData);
-        }
-        else {
-            mainMap.addLayer(unverifiedReportsMarkers);
-        }
-    }
-    $('#show-unverified-reports-layer').change(showUnverifiedReportsLayer);
-    // Set the default state here, either removeAttr("checked")
-    // to have it initially disabled, or attr("checked", "checked")
-    // to have it initially enabled.
-    $('#show-unverified-report-markers').removeAttr("checked");
 }
 
 $(function () {

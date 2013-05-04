@@ -40,7 +40,7 @@ class: frontpage
       <div style='height: 20px; margin-top: 0px'>
 	    <h4 style='font-size: 11px; margin: 0;'>Company Spills</h4>
 	  </div>
-      <div class='point blue legend'></div>
+      <div class='point black legend'></div>
       <div style ='height: 20px; margin-top: 30px; border-top: 1px solid #ccc'>
 	    <h4 style='font-size: 11px; margin: 0;'>Third party spills</h4>
 	  </div>
@@ -52,6 +52,10 @@ class: frontpage
 	    <h4 style='font-size: 11px; margin: 0;'>Cleaned-up spills</h4>
 	  </div>
       <div class='point cleanedup legend'></div>
+      <div style ='height: 20px; margin-top: 30px; border-top: 1px solid #ccc'>
+	    <h4 style='font-size: 11px; margin: 0;'>Unverified spills</h4>
+	  </div>
+      <div class='point unverified legend' style='background-position:0 0 !important'></div>
     </div>
     <div id='timelinks'>
       <div class='stage'>
@@ -80,7 +84,7 @@ class: frontpage
               <div id='options'> </div>
             </div>
             
-            <div>Showing <b><span id='spill-number' class='count'>--</span> spills</b> in this period. Hover over each spill for more information.<br/>Include <b>unverified</b> updates layer: <img src="img/exclamation.png" style="width:1em;height:1em"/><input type="checkbox" id="show-unverified-reports-layer"/>, <b>cleaned-up</b> spills: <input type="checkbox" id="show-cleaned-up-spills"/></div>
+            <div>Showing <b><span id='spill-number' class='count'>--</span> spills</b> in this period.<br/>Include <b>unverified</b> reports: <input type="checkbox" id="show-unverified-reports"/>, <b>cleaned-up</b> spills: <input type="checkbox" id="show-cleaned-up-spills"/></div>
           </div>
         </div>
       </div>
@@ -105,9 +109,10 @@ class: frontpage
   <div class='marker-popups'>
     <!-- db.* fields come directly from the database,
          other fields are computed in site.js -->
-    <div class="int-spillid">ID: <%=db("spillid") %></div>
+    <div class="int-spillid">ID: <%=identifier %></div>
     <h3 class="int-location"><%=db("sitelocationname") %></h3>
     LGA: <b><%=db("lga") %></b></br>
+    Status: <b><%=db("status") %></b></br>
     <h3 class="int-spillamount"><%=quantity %>
       barrels spilled due to <%=cause %>
     </h3>

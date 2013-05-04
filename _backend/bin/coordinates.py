@@ -250,6 +250,7 @@ patterns = {
       r"eqf": re.compile(r"\s*[Ee][Qq][Ff]\s*"),
       r"pme": re.compile(r"\s*[Oo][Mm][Ee]\s*"),
       r"sab": re.compile(r"\s*[Ss][Aa][Bb]\s*"),
+      r"ytd": re.compile(r"\s*[Yy][Tt][Dd]\s*"),
       r"other:\g<1>": re.compile(r"\s*[Oo][Tt][Hh]\s*[(]?\s*([^)]*)")
     },
     "TYPE OF CONTAMINANT":
@@ -362,7 +363,8 @@ with open(file_names["input"], 'rb') as f:
         outputDict = {
             'spillid': spillid,
             'updatefor': "",
-            'status': "",
+            # only administrators can upload data, so we assume it's verified
+            'status': "verified",
             'incidentdate': row['DATE OF INCIDENT'].rstrip(' 00:00:00'),
             'datespillstopped': "",
             'company': row['COMPANY'],
@@ -417,20 +419,6 @@ with open(file_names["input"], 'rb') as f:
              + "  of which  " + str(companies[c]['no-location']) + " reports"
              + " lack location data")
 
-def cleanup(rows):
-    for row in rows:
-        del row['datejiv']
-        del row['spillareahabitat']
-        del row['impact']
-        del row['descriptionofimpact']
-        del row['datecleanup']
-        del row['datecleanupcompleted']
-        del row['methodsofcleanup']
-        del row['dateofpostcleanupinspection']
-        del row['dateofpostimpactassessment']
-        del row['furtherremediation']
-        del row['datecertificate']
-
 def write_full_data(file_name):
     # Hardcoded fieldnames to create columns according to this order
     fieldnames = ['spillid','updatefor','status','incidentdate','company','initialcontainmentmeasures','estimatedquantity','contaminant','cause','latitude','longitude','lga','sitelocationname','estimatedspillarea','spillareahabitat','attachments','impact','descriptionofimpact','datejiv','datespillstopped','datecleanup','datecleanupcompleted','methodsofcleanup','dateofpostcleanupinspection','dateofpostimpactassessment','furtherremediation','datecertificate']
@@ -465,7 +453,7 @@ def write_json_data(file_name):
 
 if (file_names["output_full"]):
     write_full_data(file_names["output_full"])
-cleanup(outputRow)
+
 if (file_names["output_json"]):
     write_json_data(file_names["output_json"])
 

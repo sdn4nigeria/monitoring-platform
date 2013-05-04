@@ -28,6 +28,6 @@ $schemas = array(
                                          'furtherremediation',
                                          'datecertificate')
 ),
-'users' => array('field_names' => array('name', 'password', 'role'))
+'users' => array('field_names' => array('name', 'password', 'role', 'email'))
 );
 ?>

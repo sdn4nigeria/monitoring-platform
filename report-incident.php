@@ -33,11 +33,11 @@ else {
     header('Content-type: text/html; charset=UTF-8');
     switch ($user['role']) {
       case 'administrator':
-      $dataset = "nosdra-full";
-      $report_status  = "verified";
+      $dataset = "nosdra";
+      $report_status  = p("status", $_POST, "verified");
       break;
       default:
-      $dataset = "unverified";
+      $dataset = "nosdra-unverified";
       $report_status  = "new";
     }
     $attachments = array();
@@ -77,7 +77,8 @@ else {
                  p('dateofpostimpactassessment'),
                  p('furtherremediation'),
                  p('datecertificate'));
-    $spill_data = new table_data_source($data_root.$dataset.".csv", $schemas['report']['field_names']);
+    $spill_data = new table_data_source($data_root.$dataset.".csv",
+                                        $schemas['report']['field_names']);
     $spill_data->add_row($row, "spillid");
     if ($spill_data->error()) {
       echo '<div class="error">'.$spill_data->error().'</div>';
