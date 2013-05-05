@@ -444,8 +444,8 @@ function loadSpillData() {
             $('ul.bottomlayer li a').click(function(e) {
                 e.preventDefault();
                 if (!$(this).hasClass('active')) {
-                    m.removeLayerAt(0);
-                    m.insertLayerAt(0, mapbox.layer().id(this.id));
+                    mainMap.removeLayerAt(0);
+                    mainMap.insertLayerAt(0, mapbox.layer().id(this.id));
                     $('ul.bottomlayer li a').removeClass('active');
                     $(this).addClass('active');
                 }
@@ -453,10 +453,10 @@ function loadSpillData() {
                    based on which base map is shown, since the satellite
                    map is fuzzy when zoomed in too far  */
                 if (this.id == mapLayers.satellite) {
-                    m.setZoomRange(4, 12);
+                    mainMap.setZoomRange(4, 12);
                 }
                 else {
-                    m.setZoomRange(4, 21);
+                    mainMap.setZoomRange(4, 21);
                 }
             });
         }
