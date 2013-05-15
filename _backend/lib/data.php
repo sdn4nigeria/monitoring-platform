@@ -86,12 +86,15 @@ class table_data_source
     
     $this->filter = array();
     foreach ($pattern as $field_name => $p) {
-      $regexp = preg_replace("/([.+*?()\/[\]])/", "\\\\$1", $p);
-      $regexp = preg_replace("/^([^%])/", "^$1", $regexp);
-      $regexp = preg_replace("/([^%])$/", "$1$", $regexp);
-      $regexp = preg_replace("/%$/", "", $regexp);
-      $regexp = preg_replace("/%/", ".*", $regexp);
-      $regexp = preg_replace("/_/", ".", $regexp);
+      if (!$p) $regexp = "^$";
+      else {
+        $regexp = preg_replace("/([.+*?()\/[\]])/", "\\\\$1", $p);
+        $regexp = preg_replace("/^([^%])/", "^$1", $regexp);
+        $regexp = preg_replace("/([^%])$/", "$1$", $regexp);
+        $regexp = preg_replace("/%$/", "", $regexp);
+        $regexp = preg_replace("/%/", ".*", $regexp);
+        $regexp = preg_replace("/_/", ".", $regexp);
+      }
       $this->filter[$field_name] = "/".$regexp."/i";
     }
   }
