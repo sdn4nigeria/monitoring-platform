@@ -10,10 +10,7 @@ var mapLayers = {
     wetlands:    "nigeriaoil.NGWetlands",
     settlements: "nigeriaoil.NGSettlement"
 };
-var mainMap;
-var citizenReportsMarkers;// the markers layer for citizen-reported incidents
-
-var googleDocsIdentifier = window.location.hash.substring(1);
+var mainMap, spillsLayer;
 
 var browser =   $.browser.version;
 
@@ -152,6 +149,386 @@ function updateEmbedApi() {
     $('textarea.api-code').text(apiUrl);
 }
 
+var spillDataIncludesUnverifiedReports;
+function loadSpillData() {
+    var dataset = "nosdra";
+    // With the following line instead, take it from the url .../#nosdra
+    // var dataset = window.location.hash.substring(1);
+    if (!dataset) {
+        alert("The spill data display requires a dataset ID");
+        return;
+    }
+    function isThirdParty(properties) {
+        // properties.thirdparty is from the old Google Docs schema,
+        // not used any more [2013-04-28]
+        return properties.cause == 'sab' || properties.thirdparty == 'yes';
+    }
+    function isCleanedUp(properties) {
+        return properties.datecleanup || properties.datecleanupcompleted;
+    }
+    function isVerified(properties) {
+        return properties.status == "verified";
+    }
+    
+    function createSpillPoint(x) {
+        var identifier;
+        var popupNosdra = _.template(document.getElementById('popupNosdra').innerHTML);
+        var events = x.properties.estimatedquantity;
+        if (isVerified(x.properties)) {
+            identifier = x.properties.spillid;
+            var y, z;
+            var d = document.createElement('div');
+            //added to point div
+            if (isNaN(events) || "" == events || "undefined" == events) {
+                d.className = 'point blue';
+            } else if (isCleanedUp(x.properties)) {
+                d.className = 'point cleanedup';
+            } else if (isThirdParty(x.properties)) {
+                // Third party spill, typically sabotage
+                d.className = 'point';
+            } else {
+                // Company spill
+                d.className = 'point black';
+            }
+            
+            if (events >= 0 && events < 10) {
+                y = 14;
+                z = 406;
+            } else if (events > 10 && events <= 50) {
+                y = 20;
+                z = 384;
+            } else if (events > 50 && events <= 250) {
+                y = 28;
+                z = 359;
+            } else if (events > 250 && events < 500) {
+                y = 43;
+                z = 313;
+            } else if (events > 500) {
+                y = 54;
+                z = 260;
+            } else {
+                // There is no amount reported: make it medium size
+                y = 20;
+                z = 384;
+            }
+            // The point on the map
+            $(d).css("height", y + "px");
+            $(d).css("width", y + "px");
+            $(d).css("background-position",  -z + 'px ' + (y - 103) + 'px');
+            $(d).css("margin-left", -(y / 2) + 'px');
+            $(d).css("margin-top",-(y / 2) + 'px');
+        }
+        else {
+            identifier = "<span class='spillid-unverified'>" + x.properties.spillid + "</span>";
+            d = document.createElement("img");
+            d.className = "point marker-unverified-report";
+            d.setAttribute("src", "img/exclamation.png");
+        }
+        
+        var quantity = x.properties.estimatedquantity;
+        if(x.properties.estimatedquantity == 0){
+            quantity = "Less than 1 ";
+        }
+        else if (!x.properties.estimatedquantity) {
+            // estimatedquantity is an empty string
+            quantity = "Unknown amount of ";
+        }
+        var cause = "";
+        if ("cause" in x.properties) {
+            cause = x.properties.cause;
+            switch (cause.substr(0,3)) {
+            case "cor": cause = "corrosion"; break;
+            case "eqf": cause = "equipment failure"; break;
+            case "pme": cause = "production/maintenance error"; break;
+            case "sab": cause = "sabotage"; break;
+            case "mys": cause = "unknown causes"; break;
+            default:    cause = "["+x.properties.cause+"]";
+            }
+        }
+        var contaminant = "";
+        if ("contaminant" in x.properties) {
+            contaminant = x.properties.contaminant;
+            switch (contaminant.substr(0,2)) {
+            case "cr": contaminant = "crude oil"; break;
+            case "pr": contaminant = "refined oil product"; break;
+            case "ch": contaminant = "drilling mud / chemicals"; break;
+            case "fi": contaminant = "fire"; break;
+            default:   contaminant = "["+contaminant+"]";
+            }
+        }
+        var habitat = "";
+        if ("spillareahabitat" in x.properties) {
+            habitat = x.properties.spillareahabitat;
+            switch (habitat.substr(0,3)) {
+            case "la": habitat = "land"; break;
+            case "ss": habitat = "seasonal swamp"; break;
+            case "sw": habitat = "swamp"; break;
+            case "co": habitat = "coastland"; break;
+            case "iw": habitat = "inland waters"; break;
+            case "ns": habitat = "near shore"; break;
+            case "of": habitat = "offshore"; break;
+            default:   habitat = "["+x.properties.spillareahabitat+"]";
+            }
+        }
+        
+        $(d).click(function() {
+            var point = {lat: (x.geometry.coordinates[1]),
+                         lon: (x.geometry.coordinates[0])
+                        };
+            var zoom = 10;
+            easey().map(mainMap)
+                .to(mainMap.locationCoordinate(point)
+                    .zoomTo(zoom))
+                .run(500);
+            if ($('#copy-data-from-map').is(':checked')) fillIncidentReportForm(x.properties);
+        });
+        
+        function property(name) { return x.properties[name] || ""; };
+        // A points popup
+        var contentNosdra = document.createElement('div');
+        contentNosdra.className = 'popupNosdra clearfix';
+        contentNosdra.innerHTML = popupNosdra({
+            db: property,// fields from the database
+            identifier: identifier,
+            quantity: quantity,
+            habitat: habitat,
+            cause: cause,
+            contaminant: contaminant
+        });
+        
+        d.appendChild(contentNosdra);
+        $(d).hover(function () {
+            var tooltip = $('#tooltip');
+            tooltip.empty();
+            var contentNosdra = $(this).find('.popupNosdra').html();
+            tooltip.html(contentNosdra);
+        });
+        
+        return d;
+    }
+
+    var updateDisplay;
+    function updateSpillData(features) {
+        var companies = {};
+        var years = {};
+        var months = {};
+        
+        _(features).each(function(f) {
+            var match = /^([0-9]+)-([0-9]+)-/.exec(f.properties.incidentdate);
+            f.properties.year  = match[1];
+            f.properties.month = match[2];
+            f.properties.monthLabel = monthLabels[Number(match[2])];
+            years[f.properties.year] = true;
+            months[f.properties.monthLabel] = true;
+            companies[f.properties.company] = true;
+            
+            return f;
+        });
+        
+        var yearsAvailable = _(years).keys().sort(function(a,b){return a - b})
+        var monthsAvailable = _(months).chain().keys().sortBy(function(v){
+            return ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"].indexOf(v.toLowerCase());
+        });
+        var active = {
+            company: _(companies).keys(),
+            year: [yearsAvailable[yearsAvailable.length -1]],
+            month: [monthsAvailable._wrapped[0]],
+        };
+        if (!active.company) alert("No company selected");
+        if (!active.year)    alert("No year selected");
+        if (!active.month)   alert("No month selected");
+        
+        if (!spillsLayer) {
+            spillsLayer = mapbox.markers.layer();
+            mainMap.addLayer(spillsLayer);
+            mapbox.markers.interaction(spillsLayer);
+        }
+        spillsLayer.factory(createSpillPoint).features(features);
+        
+        updateDisplay = function () {
+            _(active).each(function (v, k) {
+                if (k == "month") return;
+                if (k == "year" || k == "company") {
+                    var label = v[0];
+                    if (v.length > 1) label = "All";
+                    $('#' + k + '-count').text(label);
+                }
+                else $('#' + k + '-count').text(v.length);
+            });
+            var showUnverified = $('#show-unverified-reports').is(':checked');
+            var showCleanedUp  = $('#show-cleaned-up-spills') .is(':checked');
+            var count = 0;
+            spillsLayer.filter(function(f) {
+                var test = active.company.indexOf(f.properties.company) !== -1 &&
+                    active.year.indexOf(f.properties.year) !== -1 &&
+                    active.month.indexOf(f.properties.monthLabel) !== -1;
+                if (!isVerified(f.properties) && !showUnverified) test = false;
+                if (isCleanedUp(f.properties) && !showCleanedUp ) test = false;
+                if (test) ++count;
+                
+                return test;
+            });
+            $('#spill-number').text(commaSeparateNumber(count));
+        }
+        
+        function setupInterface() {
+            var clickHandle = function(type) {
+                return function(ev) {
+                    var elem = $(ev.currentTarget);
+                    var v = elem.attr('id');
+                    var i = active[type].indexOf(v);
+                    elem.toggleClass('switch-active', i === -1);
+                    if (i === -1) {
+                        active[type].push(v);
+                    } else {
+                        active[type].splice(i, 1);
+                    }
+                    updateDisplay();
+                    return false;
+                };
+            };
+            // Variant that allows only one element selected
+            var clickHandleUnique = function(type) {
+                return function(ev) {
+                    var elem = $(ev.currentTarget);
+                    var v = elem.attr('id');
+                    var allElements = elem.closest("ul").find("a");
+                    if (/^all-/.test(v)) {
+                        allElements.addClass("switch-active");
+                        var all = [];
+                        allElements.each(function (i) {
+                            var id = $(this).attr('id');
+                            if (!/^all-/.test(id)) all.push(id);
+                        });
+                        active[type] = all;
+                    }
+                    else {
+                        allElements.removeClass("switch-active");
+                        elem.addClass('switch-active');
+                        active[type] = [v];
+                    }
+                    elem.closest(".dropdown").click();
+                    updateDisplay();
+                    return false;
+                };
+            };
+            
+            $('#options a').remove();
+            _(monthsAvailable._wrapped).chain().sortBy(function(v){
+                var activeClass = (active.month.indexOf(v) == -1 ? '' : ' switch-active');
+                $('#options').append('<a href="#" class="time-switch clearfix' + activeClass + '" id="'+v+'">'+v+'</a>');
+            });
+            $('#options a').click(clickHandle('month'));
+            
+            $('#company-menu').html('');
+            $('#company-menu').append('<li><a href="#" class="time-switch clearfix switch-active" id="all-companies">All companies</a>');
+            _(companies).chain().keys().each(function(v) {
+                $('#company-menu').append('<li><a href="#" class="time-switch clearfix switch-active" id="'+v+'">'+v+'</a>');
+            });
+            $('#company-menu a').click(clickHandleUnique('company'));
+            
+            $('#year-menu').html('');
+            _(yearsAvailable).each(function(v) {
+                var activeClass = (active.year.indexOf(v) == -1 ? '' : ' switch-active');
+                $('#year-menu').append('<li><a href="#" class="time-switch clearfix' + activeClass + '" id="'+v+'">'+v+'</a>');
+            });
+            $('#year-menu a').click(clickHandleUnique('year'));
+            
+            $('#show-unverified-reports').change(function () {
+                if (!spillDataIncludesUnverifiedReports) loadSpillData();
+                else                                     updateDisplay();
+            });
+            $('#show-cleaned-up-spills').change(updateDisplay);
+            
+            //changing maps for baselayer
+            $('ul.bottomlayer li a').click(function(e) {
+                e.preventDefault();
+                if (!$(this).hasClass('active')) {
+                    mainMap.removeLayerAt(0);
+                    mainMap.insertLayerAt(0, mapbox.layer().id(this.id));
+                    $('ul.bottomlayer li a').removeClass('active');
+                    $(this).addClass('active');
+                }
+                /* This if statement determines the zoom limits
+                   based on which base map is shown, since the satellite
+                   map is fuzzy when zoomed in too far  */
+                if (this.id == mapLayers.satellite) {
+                    mainMap.setZoomRange(4, 12);
+                }
+                else {
+                    mainMap.setZoomRange(4, 21);
+                }
+            });
+        }
+        setupInterface();
+    }
+
+    function loading(state) {
+        var opts = {
+            lines: 15,
+            length: 5,
+            width: 5,
+            radius: 20,
+            color: '#000',
+            speed: 2,
+            trail: 100,
+            top: 'auto',
+            left: 'auto'
+        };
+        
+        var target = $('#load');
+        if (!this.spinner) this.spinner = new Spinner();
+        if (!this.active) this.active = false;
+        
+        switch(state) {
+        case 'start':
+            if(!this.active) {
+                this.spinner = Spinner(opts).spin();
+                target
+                    .append(this.spinner.el)
+                    .addClass('active');
+                this.active = true;
+            }
+            break;
+        case 'stop':
+            if (this.spinner) {
+                target.removeClass('active');
+                this.spinner.stop();
+                this.active = false;
+            }
+            break;
+        }
+    }
+    
+    function featuresLoaded(features) {
+        loading('stop');
+        if (!features) return; // throw error?
+        
+        updateSpillData(features);
+        
+        updateDisplay();
+    }
+    loading('start');
+    var key = dataset, number = 2;
+    var mmg_f = mmg_json;
+    if (44 == key.length) mmg_f = mmg_google_docs;
+    mmg_f(key, number, function (features) {
+        if (!$("#show-unverified-reports").is(":checked")) {
+            spillDataIncludesUnverifiedReports = false;
+            featuresLoaded(features);
+        }
+        else {
+            var verifiedFeatures = features;
+            mmg_f(key + "-unverified", number, function (features) {
+                features = verifiedFeatures.concat(features);
+                spillDataIncludesUnverifiedReports = true;
+                featuresLoaded(features);
+            });
+        }
+    });
+}
+
+
 function frontpageSetup() {
     var base = mapLayers.satellite; // 0
     var layerIDs = [
@@ -165,7 +542,8 @@ function frontpageSetup() {
         layerIDs[1],
         layerIDs[2]
     ];
-    mapbox.auto("map", allLayers, function(m) {
+    
+    function setupMap(m) {
         mainMap = m;
         m.setZoomRange(4, 21);
         m.smooth(true);
@@ -173,7 +551,7 @@ function frontpageSetup() {
         m.interaction.auto();
         m.ui.hash;
         m.ui.zoomer.add();
-        m.centerzoom({lat: 4.8470, lon: 5.9222 },8);
+        m.centerzoom({lat: 5.0000, lon: 6.6000 },8);
         m.getLayerAt(0).composite(false); // descriptions go here
         m.getLayerAt(1).composite(false); // descriptions go here
         m.getLayerAt(2).composite(false); // descriptions go here
@@ -217,385 +595,10 @@ function frontpageSetup() {
             displayCurrent();
         });
         
-        function loading(state) {
-            var opts = {
-                lines: 15,
-                length: 5,
-                width: 5,
-                radius: 20,
-                color: '#000',
-                speed: 2,
-                trail: 100,
-                top: 'auto',
-                left: 'auto'
-            };
-            
-            var target = $('#load');
-            if (!this.spinner) this.spinner = new Spinner();
-            if (!this.active) this.active = false;
-            
-            switch(state) {
-            case 'start':
-                if(!this.active) {
-                    this.spinner = Spinner(opts).spin();
-                    target
-                        .append(this.spinner.el)
-                        .addClass('active');
-                    this.active = true;
-                }
-                break;
-            case 'stop':
-                if (this.spinner) {
-                    target.removeClass('active');
-                    this.spinner.stop();
-                    this.active = false;
-                }
-                break;
-            }
-        };
-        
-        var totalspills = {};
-        var totalbarrels = {};
-        var totalid;
-        var totallist = [];
-        var totalcontent = '';
-        
-        if (googleDocsIdentifier) (function loadMap(key, number) {
-            loading('start');
-            var mmg_f = mmg_json;
-            if (44 == key.length) mmg_f = mmg_google_docs;
-            mmg_f(key, number, function(features) {
-                
-                var companies = {};
-                var years = {};
-                var months = {};
-                
-                _(features).each(function(f) {
-                    var match = /^([0-9]+)-([0-9]+)-/.exec(f.properties.incidentdate);
-                    f.properties.year  = match[1];
-                    f.properties.month = match[2];
-                    f.properties.monthLabel = monthLabels[Number(match[2])];
-                    years[f.properties.year] = true;
-                    months[f.properties.monthLabel] = true;
-                    companies[f.properties.company] = true;
-                    totalspills[f.properties.monthLabel] = f.properties.estimatedquantity;
-                    totalbarrels[f.properties.monthLabel] = f.properties.sitelocationname;
-                    return f;
-                });
-                
-                var yearsAvailable = _(years).keys().sort(function(a,b){return a - b})
-                var monthsAvailable = _(months).chain().keys().sortBy(function(v){
-                    return ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"].indexOf(v.toLowerCase());
-                });
-                var active = {
-                    company: _(companies).keys(),
-                    year: [yearsAvailable[yearsAvailable.length -1]],
-                    month: [monthsAvailable._wrapped[0]],
-                };
-                if (!active.company) alert("No company selected");
-                if (!active.year)    alert("No year selected");
-                if (!active.month)   alert("No month selected");
-                
-                var ml = mapbox.markers.layer().factory(function(x) {
-                    var popupNosdra = _.template(document.getElementById('popupNosdra').innerHTML);
-                    var events = x.properties.estimatedquantity;
-                    var y, z;
-                    var d = document.createElement('div');
-                    //added to point div
-                    if (x.properties.cause == 'sab' || x.properties.thirdparty == 'yes') {
-                        // Third party spill
-                        d.className = 'point';
-                    } else {
-                        // Company spill
-                        d.className = 'point blue';
-                    }
-                    d.zIndex = 999999;
-                    d.pointerEvents = 'all';
-                    
-                    if (events >= 0 && events < 10) {
-                        y = 14;
-                        z = 406;
-                    } else if (events > 10 && events <= 50) {
-                        y = 20;
-                        z = 384;
-                    } else if (events > 50 && events <= 250) {
-                        y = 28;
-                        z = 359;
-                    } else if (events > 250 && events < 500) {
-                        y = 43;
-                        z = 313;
-                    } else if (events > 500) {
-                        y = 54;
-                        z = 260;
-                    }
-                    // The point on the map
-                    $(d).css("height", y + "px");
-                    $(d).css("width", y + "px");
-                    $(d).css("background-position",  -z + 'px ' + (y - 103) + 'px');
-                    $(d).css("margin-left", -(y / 2) + 'px');
-                    $(d).css("margin-top",-(y / 2) + 'px');
-                    
-                    //Account for 0 barrels lost
-                    var quantity = x.properties.estimatedquantity;
-                    if(x.properties.estimatedquantity == 0){
-                        quantity = "Less than 1 ";
-                    }
-                    var cause = "";
-                    if ("cause" in x.properties) {
-                        cause = x.properties.cause;
-                        switch (cause.substr(0,3)) {
-                        case "cor": cause = "corrosion"; break;
-                        case "eqf": cause = "equipment failure"; break;
-                        case "pme": cause = "production/maintenance error"; break;
-                        case "sab": cause = "sabotage"; break;
-                        case "mys": cause = "unknown causes"; break;
-                        default:    cause = "["+x.properties.cause+"]";
-                        }
-                    }
-                    var contaminant = "";
-                    if ("contaminant" in x.properties) {
-                        contaminant = x.properties.contaminant;
-                        switch (contaminant.substr(0,2)) {
-                        case "cr": contaminant = "crude oil"; break;
-                        case "pr": contaminant = "refined oil product"; break;
-                        case "ch": contaminant = "drilling mud / chemicals"; break;
-                        case "fi": contaminant = "fire"; break;
-                        default:   contaminant = "["+contaminant+"]";
-                        }
-                    }
-                    var habitat = "";
-                    if ("spillareahabitat" in x.properties) {
-                        habitat = x.properties.spillareahabitat;
-                        switch (habitat.substr(0,3)) {
-                        case "la": habitat = "land"; break;
-                        case "ss": habitat = "seasonal swamp"; break;
-                        case "sw": habitat = "swamp"; break;
-                        case "co": habitat = "coastland"; break;
-                        case "iw": habitat = "inland waters"; break;
-                        case "ns": habitat = "near shore"; break;
-                        case "of": habitat = "offshore"; break;
-                        default:   habitat = "["+x.properties.spillareahabitat+"]";
-                        }
-                    }
-                    
-                    $(d).click(function() {
-                        var point = {lat: (x.geometry.coordinates[1]),
-                                     lon: (x.geometry.coordinates[0])
-                                    };
-                        var zoom = 10;
-                        easey().map(m)
-                            .to(m.locationCoordinate(point)
-                                .zoomTo(zoom))
-                            .run(500);
-                        if ($('#copy-data-from-map:checked').length) fillIncidentReportForm(x.properties);
-                    });
-                    
-                    function property(name) { return x.properties[name] || ""; };
-                    // A points popup
-                    var contentNosdra = document.createElement('div');
-                    contentNosdra.className = 'popupNosdra clearfix';
-                    contentNosdra.innerHTML = popupNosdra({
-                        db: property,// fields from the data base
-                        quantity: quantity,
-                        habitat: habitat,
-                        cause: cause,
-                        contaminant: contaminant
-                    });
-                    
-                    d.appendChild(contentNosdra);
-                    $(d).hover(function () {
-                        var tooltip = $('#tooltip');
-                        tooltip.empty();
-                        var contentNosdra = $(this).find('.popupNosdra').html();
-                        tooltip.html(contentNosdra);
-                    });
-                    //changing maps for baselayer
-                    $('ul.bottomlayer li a').click(function(e) {
-                        e.preventDefault();
-                        if (!$(this).hasClass('active')) {
-                            m.removeLayerAt(0);
-                            m.insertLayerAt(0, mapbox.layer().id(this.id));
-                            $('ul.bottomlayer li a').removeClass('active');
-                            $(this).addClass('active');
-                        }
-                        /* This if statement determines the zoom limits
-                           based on which base map is shown, since the satellite
-                           map is fuzzy when zoomed in too far  */
-                        if (this.id == mapLayers.satellite) {
-                            m.setZoomRange(4, 12);
-                        }
-                        else {
-                            m.setZoomRange(4, 21);
-                        }
-                    });
-                    
-                    return d;
-                }).features(features);
-                
-                function updateDisplay() {
-                    _(active).each(function (v, k) {
-                        if (k == "month") return;
-                        if (k == "year" || k == "company") {
-                            var label = v[0];
-                            if (v.length > 1) label = "All";
-                            $('#' + k + '-count').text(label);
-                        }
-                        else $('#' + k + '-count').text(v.length);
-                    });
-                    var count = 0;
-                    ml.filter(function(f) {
-                        var test = active.company.indexOf(f.properties.company) !== -1 &&
-                            active.year.indexOf(f.properties.year) !== -1 &&
-                            active.month.indexOf(f.properties.monthLabel) !== -1;
-                        count += test;
-                        return test;
-                    });
-                    $('#spill-number').text(commaSeparateNumber(count));
-                }
-
-                function setupInterface() {
-                    var clickHandle = function(type) {
-                        return function(ev) {
-                            var elem = $(ev.currentTarget);
-                            var v = elem.attr('id');
-                            var i = active[type].indexOf(v);
-                            elem.toggleClass('switch-active', i === -1);
-                            if (i === -1) {
-                                active[type].push(v);
-                            } else {
-                                active[type].splice(i, 1);
-                            }
-                            updateDisplay();
-                            return false;
-                        };
-                    };
-                    // Variant that allows only one element selected
-                    var clickHandleUnique = function(type) {
-                        return function(ev) {
-                            var elem = $(ev.currentTarget);
-                            var v = elem.attr('id');
-                            var allElements = elem.closest("ul").find("a");
-                            if (/^all-/.test(v)) {
-                                allElements.addClass("switch-active");
-                                var all = [];
-                                allElements.each(function (i) {
-                                    var id = $(this).attr('id');
-                                    if (!/^all-/.test(id)) all.push(id);
-                                });
-                                active[type] = all;
-                            }
-                            else {
-                                allElements.removeClass("switch-active");
-                                elem.addClass('switch-active');
-                                active[type] = [v];
-                            }
-                            elem.closest(".dropdown").click();
-                            updateDisplay();
-                            return false;
-                        };
-                    };
-                    
-                    $('#options a').remove();
-                    _(monthsAvailable._wrapped).chain().sortBy(function(v){
-                        var activeClass = (active.month.indexOf(v) == -1 ? '' : ' switch-active');
-                        $('#options').append('<a href="#" class="time-switch clearfix' + activeClass + '" id="'+v+'">'+v+'</a>');
-                    });
-                    $('#options a').click(clickHandle('month'));
-                    
-                    $('#company-menu').append('<li><a href="#" class="time-switch clearfix switch-active" id="all-companies">All companies</a>');
-                    _(companies).chain().keys().each(function(v) {
-                        $('#company-menu').append('<li><a href="#" class="time-switch clearfix switch-active" id="'+v+'">'+v+'</a>');
-                    });
-                    $('#company-menu a').click(clickHandleUnique('company'));
-                    
-                    _(yearsAvailable).each(function(v) {
-                        var activeClass = (active.year.indexOf(v) == -1 ? '' : ' switch-active');
-                        $('#year-menu').append('<li><a href="#" class="time-switch clearfix' + activeClass + '" id="'+v+'">'+v+'</a>');
-                    });
-                    $('#year-menu a').click(clickHandleUnique('year'));
-                }
-                
-                loading('stop');
-                if (!features) return; // throw error?
-                
-                m.addLayer(ml);
-                mapbox.markers.interaction(ml);
-                setupInterface();
-                updateDisplay();
-            });
-        })(googleDocsIdentifier, 2);
-        else alert("The spill data display requires a dataset ID");
-    });
-    
-    function showCitizenReportsLayer(event)
-    {
-        var show = event.target.checked;
-        if (!show) {
-            // MapBox's documentation does not specify it,
-            // but I've tried and asking to remove a layer
-            // that is no longer in the map seems to work fine,
-            // that is, does nothing. Same with null or
-            // undefined values.
-            mainMap.removeLayer(citizenReportsMarkers);
-            // Disable next line to cache the markers layer
-            // if you want to avoid loading the data again
-            // whenever it is re-enabled.
-            //citizenReportsMarkers = null;
-            
-            return;
-        }
-        
-	    function newMarker() {
-    	    if (window.location.hash === '#new') {
-    		    $('#new').fadeIn('slow');
-    		    window.location.hash = '';
-    		    window.setTimeout(function() {
-        		    $('#new').fadeOut('slow');
-    		    }, 4000)
-    	    }
-        }
-        
-	    // Build map
-	    function gotMapData(f){
-    	    citizenReportsMarkers = mapbox.markers.layer().features(f);
-            citizenReportsMarkers.named("citizen-reports-markers");
-		    mainMap.addLayer(citizenReportsMarkers);
-		    // Set a custom formatter for tooltips
-		    // Provide a function that returns html to be used in tooltip
-		    var interaction = mapbox.markers.interaction(citizenReportsMarkers);
-		    interaction.formatter(function(feature) {
-			    if (feature.properties.verified == 'yes') {
-				    var verifyClass = 'check-plus';
-				    var verifyText = 'Verified by NOSDRA';
-			    } else {
-				    var verifyClass = 'check-minus';
-				    var verifyText = 'Not verified by NOSDRA';
-			    }
-                window.citizenReportedFeature = feature;
-			    var o = '<div onclick="alert(\'Selected: \' + window.citizenReportedFeature.properties.title); fillIncidentReportForm(window.citizenReportedFeature.properties)">'
-				    + '<div class="marker-title">' + feature.properties.title + '</div>'
-				    + '<div class="marker-description-top">Area Name: ' + feature.properties.area + '</div>'
-				    + '<div class="marker-description-bottom"><span class="check ' + verifyClass + '"></span><span class="verify-text">' + verifyText + '</span></div></div>';
-			    return o;
-		    });
-		    newMarker();
-	    }
-        
-	    if (!citizenReportsMarkers) {
-            // Only load the data if not already in memory
-            mmg_google_docs('0AoiGgH1LJtE0dGdwaW1VUW5uY0FSMjF0RVZBVldLTUE',
-                            'od6',
-                            gotMapData);
-        }
-        else {
-            mainMap.addLayer(citizenReportsMarkers);
-        }
+        loadSpillData();
     }
-    $('#show-citizen-reports-layer').change(showCitizenReportsLayer);
-    // Set the default state here, either removeAttr("checked")
-    // to have it initially disabled, or attr("checked", "checked")
-    // to have it initially enabled.
-    $('#show-citizen-report-markers').removeAttr("checked");
+    
+    mapbox.auto("map", allLayers, setupMap);
 }
 
 $(function () {

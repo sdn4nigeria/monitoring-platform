@@ -15,35 +15,23 @@ function mmg_json(id, num, callback) {
         if (!x || !x.length) return features;
         
         if ("geometry" in x[0]) return callback(x);
-        
         for (var i = 0; i < x.length; i++) {
             var entry = x[i];
             if (!entry["latitude"] || !entry["longitude"]) continue;
-            var feature = {
+            features.push({
                 geometry: {
                     type: 'Point',
-                    coordinates: []
-                }
-                // This is for the citizen reports, otherwise properties: {}
-                /* Those fields are not yet in the back-end:
-	            properties: {
-					'marker-color':'#840A0A',
-					'title': 'Incident: ' + entry['gsx$obsdate'].$t,
-					'area': entry['gsx$localname'].$t,
-					'verified': entry['gsx$verified'].$t
-				}*/
-            };
-            feature.properties = entry;
-            feature.geometry.coordinates[0] = entry["longitude"];
-            feature.geometry.coordinates[1] = entry["latitude"];
-            features.push(feature);
+                    coordinates: [entry["longitude"], entry["latitude"]]
+                },
+                properties: entry
+            });
         }
         
         return callback(features);
     }
     
     //var url = data_root + id + '.jsonz?alt=json-in-script&callback=callback';
-    var url = data_root + '?alt=json-in-script&callback=callback&format=json&dataset=' + id + '-full&field=latitude&like=_%25';
+    var url = data_root + '?alt=json-in-script&callback=callback&format=json&dataset=' + id;
     
     reqwest({
         url: url,

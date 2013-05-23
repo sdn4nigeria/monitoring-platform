@@ -7,10 +7,11 @@
 // to this software. 
 
 require_once 'data.php';
+require_once __DIR__.'/../schemas.php';
 
 $users = array();
-$users_data = new table_data_source(__DIR__."/../users.csv",
-                                    array('name', 'password', 'role'));
+$users_data = new table_data_source(__DIR__.'/../users.csv',
+                                    $schemas['users']);
 while (($row = $users_data->next_row()) !== FALSE) {
   $fields = $users_data->get_fields_as_map($row);
   if ($fields['name']) $users[$fields['name']] = $fields;

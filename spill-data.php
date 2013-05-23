@@ -26,22 +26,31 @@ else                                   $format = 'html';
 function echo_json_table($data)
 {
   $fieldNames = $data->headers();
-  $isFirstRow = TRUE;
-  echo '[';
+  $entries = array();
   while (($row = $data->next_row()) !== FALSE) {
-    if ($isFirstRow) $isFirstRow = FALSE;
-    else echo ',';
-    echo '{';
+    $entry = array();
     $items = count($row);
-    $isFirstColumn = TRUE;
     for ($i = 0; $i < $items; ++$i) {
       $value = $row[$i];
-      if (!$value) continue;
-      if ($isFirstColumn) $isFirstColumn = FALSE;
-      else echo ',';
-      echo '"'.$fieldNames[$i].'":'.json_encode($value);
+      if (!$value) continue;// Omit empty values
+      $entry[$fieldNames[$i]] = $value;
     }
-    echo '}';
+    if ($entry) {
+      if (array_key_exists('updatefor', $entry)) {
+        // Deliver only the latest version
+        $entry['spillid'] = $entry['updatefor'];
+        unset($entry['updatefor']);
+      }
+      $entries[$entry['spillid']]   = $entry;
+    }
+  }
+  
+  $isFirstRow = TRUE;
+  echo '[';
+  foreach ($entries as $entry) {
+    if ($isFirstRow) $isFirstRow = FALSE;
+    else echo ',';
+    echo json_encode($entry);
   }
   echo ']';
 }
@@ -71,17 +80,23 @@ else {
   header('Content-type: text/html; charset=UTF-8');
   
   function print_table($spill_data) {
+    global $dataset;
+    
     $count = 0;
     echo '<table>';
-    $row = $spill_data->headers();
+    $field_names = $spill_data->headers();
     echo '<tr>';
-    $items = count($row);
-    for ($i = 0; $i < $items; ++$i) echo '<th>'.$row[$i].'</th>';
+    $items = count($field_names);
+    for ($i = 0; $i < $items; ++$i) {
+      echo '<th onclick="sort('.$i.')">'.$field_names[$i].'</th>';
+    }
     echo '</tr>';
     while (($row = $spill_data->next_row()) !== FALSE) {
       echo '<tr>';
       $items = count($row);
-      for ($i = 0; $i < $items; ++$i) echo '<td>'.$row[$i].'</td>';
+      for ($i = 0; $i < $items; ++$i) {
+        echo '<td><a href="spill-data.php?field='.htmlspecialchars($field_names[$i]).'&like='.htmlspecialchars($row[$i]).'&dataset='.htmlspecialchars($dataset).'">'.$row[$i].'</a></td>';
+      }
       ++$count;
       echo '</tr>';
     }
@@ -90,9 +105,49 @@ else {
     return $count;
   }
   
-  function param($name) {
+  function param($name)
+  {
     if (array_key_exists($name, $_GET)) return $_GET[$name];
     else                               return '';
+  }
+  
+  function data_explorer()
+  {
+    global $data_root, $dataset, $filters;
+    
+    $spill_data = new table_data_source($data_root.$dataset.'.csv');
+    if (array_key_exists('like', $_GET)) {
+      $spill_data->select(array($_GET['field'] => $_GET['like']));
+    }
+    echo '<hr/><form action="" method="GET">';
+    echo '<button type="submit">SQL query</button> ';
+    echo 'SELECT * FROM '.htmlspecialchars($dataset).' WHERE <select name="field">';
+    foreach ($spill_data->headers() as $header) {
+      $selected = ($header === param('field'));
+      echo '<option value="'.htmlspecialchars($header).'"';
+      if ($selected) echo ' selected="selected"';
+      echo '>'.htmlspecialchars($header).'</option>';
+    }
+    echo '</select>';
+    echo ' LIKE "<input name="like" value="'.htmlspecialchars(param("like")).'" autofocus="autofocus"/>"';
+    echo '<br/><input type="hidden" name="dataset" value="'
+    .htmlspecialchars($dataset)
+    .'"/></form>';
+    echo '<div style="text-align:right"><a href="javascript:void(0)" onclick="this.style.display=\'none\';$(\'#sql-syntax-help\').style.display=\'\'">Show brief syntax help</a></div>';
+    echo '<p style="font-family:serif;background:#fff;padding:0.5em;border:thin solid #ccc;display:none" id="sql-syntax-help">The pattern "<span style="font-family:sans-serif">%</span>" matches any characters, any length included zero. For instance, <span style="font-family:sans-serif">SELECT * FROM '.htmlspecialchars($dataset).' WHERE LOCATION LIKE "%barge%"</span> selects all barge incidents. To see all incidents in 2007, select the field <span style="font-family:sans-serif">DATE OF INCIDENT</span> with the pattern "<span style="font-family:sans-serif">2007-%</span>".<br/>The pattern "<span style="font-family:sans-serif">_</span>" matches any character, but only exactly one. For example, <span style="font-family:sans-serif">SELECT * FROM '.htmlspecialchars($dataset).' WHERE LOCATION LIKE "%oso r_%"</span> selects all incidents that mention "<span style="font-family:sans-serif">Oso RK</span>", "<span style="font-family:sans-serif">Oso RG</span>", "<span style="font-family:sans-serif">Oso RP</span>", etc.</p>';
+    echo '<hr/><div id="filters">Filter:';
+    echo '<button onclick="filter()">All</button>';
+    if ('nosdra-legacy-db' == $dataset) {
+      echo '<button id="button-filter-no-incident-number" onclick="filter(filters.no_incident_number)">Entries without incident number</button>';
+      echo '<button id="button-filter-no-location" onclick="filter(filters.no_location)">Entries with neither lat/lon nor northings/eastings information</button>';
+      echo '<button id="button-filter-misplaced-location" onclick="filter(filters.misplaced_location)">Entries with misplaced lat/lon information</button>';
+    }
+    echo '<input id="field-filter-search" type="search" onchange="search(this.value)"/>';
+    echo '<button onclick="search($(\'#field-filter-search\').value)">Search</button>';
+    echo '<div id="count-display"><span id="shown-row-count-display"></span> rows shown out of <span id="total-row-count-display"></span> total</div>';
+    echo '</div>';
+    print_table($spill_data);
+    $spill_data->close();
   }
   
   function process_request()
@@ -131,7 +186,6 @@ else {
           echo '<pre class="error">'.join($command_output, "\n").'</pre>';
         }
       }
-      
     }
     else if ($dataset) {
       include 'forms/spill-data-upload-form.php';
@@ -149,37 +203,7 @@ else {
         echo '</form>';
       }
       else {
-        $spill_data = new table_data_source($data_root.$dataset.'.csv');
-        if (array_key_exists('like', $_GET)) {
-          $spill_data->select(array($_GET['field'] => $_GET['like']));
-        }
-        echo '<hr/><form action="" method="GET">';
-        echo '<button type="submit">SQL query</button> ';
-        echo 'SELECT * WHERE <select name="field">';
-        foreach ($spill_data->headers() as $header) {
-          $selected = ($header === param('field'));
-          echo '<option value="'.htmlspecialchars($header).'"';
-          if ($selected) echo ' selected="selected"';
-          echo '>'.htmlspecialchars($header).'</option>';
-        }
-        echo '</select>';
-        echo ' LIKE "<input name="like" value="'.htmlspecialchars(param("like")).'" autofocus="autofocus"/>"';
-        echo '<br/><input type="hidden" name="dataset" value="'
-        .htmlspecialchars($dataset)
-        .'"/></form>';
-        echo '<div style="text-align:right"><a href="javascript:void(0)" onclick="this.style.display=\'none\';$(\'#sql-syntax-help\').style.display=\'\'">Show brief syntax help</a></div>';
-        echo '<p style="font-family:serif;background:#fff;padding:0.5em;border:thin solid #ccc;display:none" id="sql-syntax-help">The pattern "<span style="font-family:sans-serif">%</span>" matches any characters, any length included zero. For instance, <span style="font-family:sans-serif">SELECT * WHERE LOCATION LIKE "%barge%"</span> selects all barge incidents. To see all incidents in 2007, select the field <span style="font-family:sans-serif">DATE OF INCIDENT</span> with the pattern "<span style="font-family:sans-serif">2007-%</span>".<br/>The pattern "<span style="font-family:sans-serif">_</span>" matches any character, but only exactly one. For example, <span style="font-family:sans-serif">SELECT * WHERE LOCATION LIKE "%oso r_%"</span> selects all incidents that mention "<span style="font-family:sans-serif">Oso RK</span>", "<span style="font-family:sans-serif">Oso RG</span>", "<span style="font-family:sans-serif">Oso RP</span>", etc.</p>';
-        echo '<hr/><div id="filters">';
-        echo '<button onclick="filter()">All</button>';
-        echo '<button id="button-filter-no-incident-number" onclick="filter(filters.no_incident_number)">Entries without incident number</button>';
-        echo '<button id="button-filter-no-location" onclick="filter(filters.no_location)">Entries with neither lat/lon nor northings/eastings information</button>';
-        echo '<button id="button-filter-misplaced-location" onclick="filter(filters.misplaced_location)">Entries with misplaced lat/lon information</button>';
-        echo '<input id="field-filter-search" type="search" onchange="search(this.value)"/>';
-        echo '<button onclick="search($(\'#field-filter-search\').value)">Search</button>';
-        echo '<div id="count-display"><span id="shown-row-count-display"></span> rows shown out of <span id="total-row-count-display"></span> total</div>';
-        echo '</div>';
-        print_table($spill_data);
-        $spill_data->close();
+        data_explorer();
       }
     }
     
@@ -242,17 +266,20 @@ else {
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <title>Data upload back-end</title>
+    <meta charset="utf-8" />
+    <title>Data Explorer - Nigeria Oil Spill Monitor</title>
+    <meta name='viewport' content='width=980'>
+    <link rel="stylesheet" href="/monitoring-platform-test/all.css" type="text/css" />
+    <link rel='stylesheet' href='/monitoring-platform-test/ipad.css' type='text/css' media='only screen and (device-width: 768px)' />
+    <link rel='shortcut icon' href='/monitoring-platform-test/img/favicon.ico' type='image/x-icon' />
     <style type="text/css">
-    html { background:#EEE; }
-    body { font-family:sans-serif; }
     table { border-collapse:collapse; }
-    th { font-family:sans-serif; background:#777; color:#FFF; }
-    td { background:#FFF; }
-    th, td { padding:0.1em 0.2em 0.1em 0.2em; border:thin solid #AAA; }
+    th, td { padding:0.1em 0.2em 0.1em 0.2em; border:thin solid #CCC; }
+    th { cursor:pointer; }
     .error { padding:1em; border:thick solid red; }
     .login { max-width:20em; margin:25% auto; padding:3em; border:thin solid #888; background:#FFF; }
-    .logout { float:right; }
+    .logout { display:block; text-align:right; }
+    input { max-width:none !important; }
     #rows { width:100%; min-height:20em; }
     #count-display { text-align:center; }
     @media print {
@@ -262,6 +289,19 @@ else {
     </style>
   </head>
   <body>
+    <div id="masthead">
+      <div class="limiter-wide">
+        <div class="title">
+          <h2><a href="/monitoring-platform-test/">Data Explorer - Nigeria Oil Spill Monitor</a></h2>
+        </div>
+        <div id="nav">
+          <a class='main-nav active' href="spill-data.php?dataset=nosdra">Spill data</a>
+          <a class='main-nav active' href="spill-data.php?dataset=nosdra-unverified">Unverified reports</a>
+          <a class='main-nav active' href="spill-data.php?dataset=nosdra-legacy-db">Legacy database</a>
+          <a class='main-nav active' href="users.php">User accounts</a>
+        </div>
+      </div>
+    </div>
     <?php
     if (!login($_POST)) {
       $data = login_request();
@@ -271,11 +311,16 @@ else {
       $user = $_SESSION['user'];
       include 'forms/spill-data-logout-form.php';
       
-      if ($user['role'] == 'administrator') {
+      switch ($user['role']) {
+        case 'administrator':
         process_request();
-      }
-      else {
-        echo '<div>This page requires an "administrator" account. You are logged in as "'.$user['role'].'"</div>';
+        break;
+        case 'officer':
+        case 'company':
+        data_explorer();
+        break;
+        default:
+        echo '<div>This page requires an "administrator", "officer", or "company" account. You are logged in as "'.$user['role'].'"</div>';
       }
     }
     ?>

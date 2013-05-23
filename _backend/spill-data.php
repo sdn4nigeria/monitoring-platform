@@ -19,17 +19,17 @@ function process_data($input_file_name, &$command_output) {
   $ok = true;
   $exit_code = 0;
   $last_line = exec('cp '.$input_file_name.
-                    ' '.$data_root.'nosdra.csv && '.
+                    ' '.$data_root.'nosdra-legacy-db.csv && '.
                     $bin_root.'coordinates.py 2>&1 --lga='.
                     $bin_root.'nigeria-lga-reduced.geojson --output='.
-                    $data_root.'nosdra-full.csv --google= --json= '.
+                    $data_root.'nosdra.csv --json= '.
                     //$data_root.'nosdra.jsonz --gzip '.
                     $input_file_name,
                     $command_output,
                     $exit_code);
   if ($exit_code != 0 || $last_line != 'OK') $ok = false;
   if ($ok) {
-    $spill_data = new table_data_source($data_root.'nosdra-full.csv');
+    $spill_data = new table_data_source($data_root.'nosdra.csv');
     $spill_data->check_format();
     if ($spill_data->error()) {
       echo '<div class="error">'.$spill_data->error().'</div>';
@@ -48,7 +48,7 @@ function make_backup(&$command_output) {
   $ok = true;
   $exit_code = 0;
   $last_line = exec('cd '.$data_root.'; t=`date --utc +"%Y%m%d-%H%M%S"`'.
-                    '; for f in nosdra-full.csv nosdra.csv; do cp $f '.
+                    '; for f in nosdra-legacy-db.csv nosdra.csv; do cp $f '.
                     $backup_root.
                     '${t}_${f}; done && cd '.
                     $backup_root.' && md5sum ${t}_${f} >${t}_${f}.md5 && echo "OK"',

@@ -33,7 +33,7 @@
 <body class="no-touch{% if page.class %} {{page.class}}{% endif %}">
 <div id="masthead">
   <div class="limiter-wide">
-    <div class="title">
+    <div class="title"><img width="356" height="69" src="http://www.stakeholderdemocracy.org/uploads/images/oilspillmapping-temp/nosdra.gif" alt="National Oil Spill Detection and Response Agency">
       <h2><a href="{{base}}/">Nigerian Oil Spill Monitor</a></h2>
     </div>
     <div id="nav">
@@ -43,7 +43,7 @@
       <a class='maps-nav {% if page.url == '/maps' %}active{% endif %}' href="{{base}}/maps">maps</a -->
 
       <!--a class='main-nav {% if page.url == '/nigeria-citizen-map' %}active{% endif %}' href='http://nigeria-oil-mapping.github.com/citizen-reporting-map/'>Report a spill</a-->
-      <a class='main-nav'>News and links</a>
+      <a class='main-nav' {% if page.url == '/news-and-links' %}active{% endif %}' href="{{base}}/news-and-links">News and links</a>
       <a class='main-nav {% if page.url == '/about' %}active{% endif %}' href="{{base}}/about">About this platform</a>
     </div>
   </div>
@@ -53,12 +53,18 @@
 
 <div id="footer">
 
-  <div class="limiter">
+  
+  <a href="http://www.stakeholderdemocracy.org"><img src="http://www.stakeholderdemocracy.org/uploads/images/oilspillmapping-temp/sdn.gif" alt="Final project management by SDN" /></a>
+  <a href="http://developmentseed.org/"><img src="http://www.stakeholderdemocracy.org/uploads/images/oilspillmapping-temp/development-seed.gif" alt="Initial prototype by Development Seed" /></a>
+  <a href="http://www.mapbox.com"><img src="http://www.stakeholderdemocracy.org/uploads/images/oilspillmapping-temp/mapbox.gif" alt="Maps generated thanks to Mapbox" /></a>
+  <a href="http://www.revenuewatch.org"><img src="http://www.stakeholderdemocracy.org/uploads/images/oilspillmapping-temp/revenue-watch.gif" alt="Initial project management by Revenue Watch" /></a>
+  <a href="http://www.sentido-labs.com"><img src="http://www.stakeholderdemocracy.org/uploads/images/oilspillmapping-temp/sentido-labs.gif" alt="Advanced Software Engineering from Sentido-labs" /></a>
+            <!--div class="limiter">
 	  <a class="frn" href="#">Federal Republic of Nigeria</a>
 	  <a class="revwatch" href="http://www.revenuewatch.org/">Revenue Watch</a>
 	  <a class="sdn" href="http://www.stakeholderdemocracy.org/">Stakeholder Democracy Network</a>
 	  <a class="devseed" href="http://developmentseed.org/">Development Seed</a>
-	</div>
+	</div-->
 </div>
 
 

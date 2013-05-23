@@ -1,11 +1,32 @@
+var spill_data_fields = ['spillid', 'updatefor', 'status', 'incidentdate', 'company', 'initialcontainmentmeasures', 'estimatedquantity', 'contaminant', 'cause', 'latitude', 'longitude', 'lga', 'sitelocationname', 'estimatedspillarea', 'spillareahabitat', 'attachments', 'impact', 'descriptionofimpact', 'datejiv', 'datespillstopped', 'datecleanup', 'datecleanupcompleted', 'methodsofcleanup', 'dateofpostcleanupinspection', 'dateofpostimpactassessment', 'furtherremediation', 'datecertificate'];
 function fillIncidentReportForm(properties)
 {
+    if ("string" == typeof properties) {
+        // properties is a spillid, so we look for the corresponding feature
+        var features = spillsLayer.features();
+        for (var i = 0; i < features.length; ++i) {
+            var feature = features[i];
+            if (properties == feature.properties.spillid) {
+                properties = feature.properties;
+                break;
+            }
+        }
+        if ("object" != typeof properties) {
+            alert("Not found any incident with spill id \"" + properties + "\"");
+            properties = {};
+        }
+    }
     var form = $('#incident-report-form').get(0);
-    if (form) for (var p in properties) {
-        var element = form[p];
-        if (!element || !(element instanceof Node)) continue;
-        var value = properties[p];
-        FormUtils.setValue(element, value);
+    if (form) {
+        for (var i = 0; i < spill_data_fields.length; ++i) {
+            var p = spill_data_fields[i];
+            var value = (p in properties)?properties[p]:"";
+            if ('updatefor' === p && !value) continue;// if empty, use spillid
+            if ('spillid' === p) p = 'updatefor';
+            var element = form[p];
+            if (!element || !(element instanceof Node)) continue;
+            FormUtils.setValue(element, value);
+        }
     }
 }
 
@@ -38,6 +59,14 @@ function loadIncidentReportForm(form)
         success: function (responseText, textStatus, XMLHttpRequest) {
             container.html(responseText);
             $('#login-form-container').show();
+            if (form && /Spill report (updated|added)/.test(responseText)) {
+                loadSpillData();// Reload with changes
+                var button = document.createElement("button");
+                button.setAttribute("onclick",
+                                    "toggleIncidentReportForm(); return false");
+                button.textContent = "OK";
+                container.append(button);
+            }
         }
     });
     

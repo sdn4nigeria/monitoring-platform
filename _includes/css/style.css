@@ -3,11 +3,6 @@
    ---------------------------------------------*/
 body {
     color: #333;
-    overflow-x: hidden;
-}
-body.
-{
-    overflow-y: hidden;
 }
 body,
 textarea,
@@ -84,11 +79,12 @@ sup {
     top: 0;
     left: 0;
     width: 100%;
-    height: 50px;
+    height: 69px;
     -moz-box-shadow: 0 0 7px #555;
     -webkit-box-shadow: 0 0 7px #555;
     box-shadow: 0 0 7px #555;
     z-index: 15;
+    background-image:url('http://www.stakeholderdemocracy.org/uploads/images/oilspillmapping-temp/nosdra_bg.gif');
 }
 #map {
     background: #999;
@@ -666,6 +662,15 @@ ul li a.toggle {
     font-size: 11px;
     font-weight: bold;
 }
+.marker-unverified-report {
+    background:none !important;
+    pointer-events:all;
+    width:16px;
+    height:16px;
+    position:absolute;
+    margin-top:-16px;
+    margin-left:-10px;
+}
 .marker-title{
 	font-weight:bold;
 	font-size: 14px;
@@ -778,8 +783,8 @@ ul li a.toggle {
     right: 10px;
     top: 234px;
     width: 62px;
-    height: 122px;
-    padding: 0 5px;
+    /*height: 122px;*/
+    padding: 0 5px 30px 5px;
     color: #fff;
     background: #555;
     background: rgba(80, 80, 80, .85);
@@ -882,8 +887,17 @@ ul li a.toggle {
 }
 
 /* Dot overlay styles */
+.black {
+    background-image: url(img/black-markers.png) !important;
+}
 .blue {
     background-image: url(img/blue-markers.png) !important;
+}
+.cleanedup {
+    background-image: url(img/grey-markers.png) !important;
+}
+.unverified {
+    background-image: url(img/exclamation.png) !important;
 }
 .point {
     background-image: url(img/new-markers.png);
@@ -1159,93 +1173,4 @@ body .wax-legend a {
     display: block;
     text-indent: -999em;
     width: 20px; height: 20px;
-}
-
-/* ---- Story page -------*/
-.about-background {
-    position:absolute;
-    width:100%;
-    top:50px;
-    left:0;
-}
-#all-stories {
-    margin:30px 0;
-}
-#story-about {
-    position:relative;
-    background:none;
-    top:10px;
-    margin-left:0px;
-    width: 600px;
-    padding:0px 24px 10px;
-}
-
-#story-about h2 {
-    width: 300px;
-}
-.story-panel {
-    width:920px;
-    height:300px;
-    margin-bottom:20px;
-    background:#888;
-    background:rgba(0,0,0,0.2);
-    color:#111;
-    padding:20px;
-    border-radius: 3px;
-    -moz-border-radius: 3px;
-    -moz-transition: background-color 0.3s linear;
-    -o-transition: background-color 0.3s linear;
-    -webkit-transition: background-color 0.3s linear;
-    transition: background-color 0.3s linear;
-}
-
-#first {
-    height: 170px;
-}
-
-#first-text {
-    width: 800px;
-}
-
-#second {
-    height: 580px;
-}
-
-.second-story-chart1{
-    float: right !important;
-    margin-right: 10px;
-}
-
-.second-story-chart2 {
-    float: right !important;
-    margin-right: 15px;
-}
-
-.story-panel > div {
-    float:left;
-}
-.story-text {
-    width:460px;
-    padding:0 30px 0 0;
-}
-
-.story {
-    margin:10px 0;
-    display:block;
-    height:280px;
-    width:420px;
-    -moz-box-shadow: 0 0 16px #a5a5a5;
-    -webkit-box-shadow: 0 0 16px #a5a5a5;
-    box-shadow: 0 0 16px #a5a5a5;
-}
-#photo-attribution {
-    right:0;
-    padding-bottom:20px;
-}
-#photo-attribution a {
-    text-decoration:underline;
-}
-
-.story-text a {
-    font-weight: bold;
 }
