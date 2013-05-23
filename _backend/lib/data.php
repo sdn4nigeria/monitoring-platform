@@ -30,6 +30,7 @@ class table_data_source
     $this->headers = $headers;
     $this->filter  = FALSE;
     if (!file_exists($this->uri)) {
+      if (!$headers) return;// Only create file if given schema
       $this->handle = fopen($this->uri, "c+");
       if ($this->handle == FALSE) {
         $this->error = "Can not create source '".$uri."'";
@@ -50,6 +51,11 @@ class table_data_source
     else {
       $this->headers = $this->next_row();
     }
+  }
+  
+  function close() {
+    if ($this->handle !== FALSE) fclose($this->handle);
+    $this->handle = FALSE;
   }
   
   function reopen() {
@@ -80,12 +86,15 @@ class table_data_source
     
     $this->filter = array();
     foreach ($pattern as $field_name => $p) {
-      $regexp = preg_replace("/([.+*?()\/[\]])/", "\\\\$1", $p);
-      $regexp = preg_replace("/^([^%])/", "^$1", $regexp);
-      $regexp = preg_replace("/([^%])$/", "$1$", $regexp);
-      $regexp = preg_replace("/%$/", "", $regexp);
-      $regexp = preg_replace("/%/", ".*", $regexp);
-      $regexp = preg_replace("/_/", ".", $regexp);
+      if (!$p) $regexp = "^$";
+      else {
+        $regexp = preg_replace("/([.+*?()\/[\]])/", "\\\\$1", $p);
+        $regexp = preg_replace("/^([^%])/", "^$1", $regexp);
+        $regexp = preg_replace("/([^%])$/", "$1$", $regexp);
+        $regexp = preg_replace("/%$/", "", $regexp);
+        $regexp = preg_replace("/%/", ".*", $regexp);
+        $regexp = preg_replace("/_/", ".", $regexp);
+      }
       $this->filter[$field_name] = "/".$regexp."/i";
     }
   }
@@ -121,8 +130,9 @@ class table_data_source
   function next_row($handle = FALSE)
   {
     do {
-      if ($handle) $row = fgetcsv(      $handle, 0, ",");
-      else         $row = fgetcsv($this->handle, 0, ",");
+      if ($handle)            $row = fgetcsv(      $handle, 0, ",");
+      else if ($this->handle) $row = fgetcsv($this->handle, 0, ",");
+      else                    $row = FALSE;
       if ($this->filter && $row) {
         $items = count($this->headers);
         for ($i = 0; $i < $items; ++$i) {
@@ -285,11 +295,6 @@ class table_data_source
       $this->error = "Can not lock the file '".$this->uri."'";
     }
     fclose($write_handle);
-  }
-  
-  function close() {
-    if ($this->handle !== FALSE) fclose($this->handle);
-    $this->handle = FALSE;
   }
 }
 

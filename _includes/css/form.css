@@ -2,6 +2,7 @@
 input, textarea, select { background:#fff; border:thin solid #ccc; }
 input[type='file'] { max-width:200px; }
 input[size=''], textarea { width:100%; }
+input, textarea, select, button { vertical-align:middle; }
 
 #incident-report-form > h3 { margin:0 }
 #incident-report-form-attachments { padding-left:1em; }
@@ -20,3 +21,14 @@ input[size=''], textarea { width:100%; }
 .officer:before { content: "officer"; }
 .company:before { content: "company"; }
 .citizen:before { content: "citizen"; }
+
+.spillid-unverified:before {
+    content: "unverified";
+    font-weight: bold;
+    margin-right:0.5em;
+    padding:0 0.2em;
+    border:thin solid #C94;
+    background:#FC4;
+    color:#FFF;
+    border-radius:0.2em;
+}
