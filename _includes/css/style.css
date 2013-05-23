@@ -79,11 +79,12 @@ sup {
     top: 0;
     left: 0;
     width: 100%;
-    height: 50px;
+    height: 69px;
     -moz-box-shadow: 0 0 7px #555;
     -webkit-box-shadow: 0 0 7px #555;
     box-shadow: 0 0 7px #555;
     z-index: 15;
+    background-image:url('http://www.stakeholderdemocracy.org/uploads/images/oilspillmapping-temp/nosdra_bg.gif');
 }
 #map {
     background: #999;
