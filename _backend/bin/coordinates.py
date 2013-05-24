@@ -26,7 +26,6 @@ from osgeo import gdal,osr
 file_names = { "lga_file": "nigeria-lga-reduced.geojson",
                "input": "nosdra_out.csv",
                "output_full": "nosdra_full_data.csv",
-               "output_google_docs": "nosdra_map_data.csv",
                "output_json": "nosdra_map_data.json"
                }
 coordinates = { "latitude":  "",
@@ -60,8 +59,6 @@ Options:
                   The default is "'''+file_names["lga_file"]+'''"
   --output=<file> Output CSV file with all data at once
                   The default is "'''+file_names["output_full"]+'''"
-  --google=<file> Output CSV for loading in Google Docs
-                  The default is "'''+file_names["output_google_docs"]+'''"
   --json=<file>   Output JSON for the web application
                   The default is "'''+file_names["output_json"]+'''"
   --gzip          Compress the JSON output with GZIP
@@ -89,7 +86,7 @@ try:
     opts, args = getopt.getopt(sys.argv[1:],
                                'h',
                                ('help','progress', 'gzip',
-                                'lga=', 'output=','google=','json=',
+                                'lga=', 'output=','json=',
                                 'latitude=', 'longitude=',
                                 'northings=', 'eastings=')
                                )
@@ -104,7 +101,6 @@ for o, a in opts:
     if             (o == '--gzip'):     compress_gzip = True
     if             (o == '--lga'):      file_names["lga_file"]           = a
     if             (o == '--output'):   file_names["output_full"]        = a
-    if             (o == '--google'):   file_names["output_google_docs"] = a
     if             (o == '--json'):     file_names["output_json"]        = a
     if             (o == '--latitude'): coordinates["latitude"]        = a
     if             (o == '--longitude'):coordinates["longitude"]       = a
@@ -254,6 +250,7 @@ patterns = {
       r"eqf": re.compile(r"\s*[Ee][Qq][Ff]\s*"),
       r"pme": re.compile(r"\s*[Oo][Mm][Ee]\s*"),
       r"sab": re.compile(r"\s*[Ss][Aa][Bb]\s*"),
+      r"ytd": re.compile(r"\s*[Yy][Tt][Dd]\s*"),
       r"other:\g<1>": re.compile(r"\s*[Oo][Tt][Hh]\s*[(]?\s*([^)]*)")
     },
     "TYPE OF CONTAMINANT":
@@ -366,7 +363,8 @@ with open(file_names["input"], 'rb') as f:
         outputDict = {
             'spillid': spillid,
             'updatefor': "",
-            'status': "",
+            # only administrators can upload data, so we assume it's verified
+            'status': "verified",
             'incidentdate': row['DATE OF INCIDENT'].rstrip(' 00:00:00'),
             'datespillstopped': "",
             'company': row['COMPANY'],
@@ -421,20 +419,6 @@ with open(file_names["input"], 'rb') as f:
              + "  of which  " + str(companies[c]['no-location']) + " reports"
              + " lack location data")
 
-def cleanup(rows):
-    for row in rows:
-        del row['datejiv']
-        del row['spillareahabitat']
-        del row['impact']
-        del row['descriptionofimpact']
-        del row['datecleanup']
-        del row['datecleanupcompleted']
-        del row['methodsofcleanup']
-        del row['dateofpostcleanupinspection']
-        del row['dateofpostimpactassessment']
-        del row['furtherremediation']
-        del row['datecertificate']
-
 def write_full_data(file_name):
     # Hardcoded fieldnames to create columns according to this order
     fieldnames = ['spillid','updatefor','status','incidentdate','company','initialcontainmentmeasures','estimatedquantity','contaminant','cause','latitude','longitude','lga','sitelocationname','estimatedspillarea','spillareahabitat','attachments','impact','descriptionofimpact','datejiv','datespillstopped','datecleanup','datecleanupcompleted','methodsofcleanup','dateofpostcleanupinspection','dateofpostimpactassessment','furtherremediation','datecertificate']
@@ -467,23 +451,11 @@ def write_json_data(file_name):
     else:
         info("Written JSON map data into " + file_name)
 
-def write_google_data(file_name):
-    mapdataFieldnames = ['spillid','company','incidentdate','datespillstopped','initialcontainmentmeasures','estimatedquantity','cause','sitelocationname','latitude','longitude','estimatedspillarea','thirdparty','month','year','monthNum','lga']
-    out = open(file_name, 'wb')
-    csvwriter = csv.DictWriter(out, delimiter=',', fieldnames=mapdataFieldnames, quoting=csv.QUOTE_NONNUMERIC)
-    csvwriter.writerow(dict((fn,fn) for fn in mapdataFieldnames))
-    for row in outputRow:
-        csvwriter.writerow(row)
-    out.close()
-    info("Written CSV map data for Google Docs at " + file_name)
-
 if (file_names["output_full"]):
     write_full_data(file_names["output_full"])
-cleanup(outputRow)
+
 if (file_names["output_json"]):
     write_json_data(file_names["output_json"])
-if (file_names["output_google_docs"]):
-    write_google_data(file_names["output_google_docs"])
 
 info("extracted " + str(latlon_extraction_count) + " coordinates from LOCATION field")
 info("extracted " + str(habitat_extraction_count) + " habitat/area values from LOCATION field")

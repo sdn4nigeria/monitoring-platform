@@ -47,6 +47,7 @@ var regexp_degree_symbol = /°|\u02DA/;// 02DA:˚
 
 function search(pattern)
 {
+    document.body.style.cursor = "wait";
     if (pattern) {
         try {
             var regexp = new RegExp(pattern, "i");
@@ -69,6 +70,7 @@ function search(pattern)
         }
     }
     else filter();
+    document.body.style.cursor = "";
 }
 
 function count_matches(test)
@@ -82,6 +84,38 @@ function count_matches(test)
     }
     
     return count;
+}
+
+var previousFieldIndex = -1;
+function sort(fieldIndex)
+{
+    document.body.style.cursor = "wait";
+    table.style.display = "none";
+    var ascendingOrder = (fieldIndex != previousFieldIndex);
+    previousFieldIndex = fieldIndex;
+    setTimeout(function () {
+        var rows = [];
+        var i;
+        while (table.rows.length > 1) {
+            rows.push(table.rows[table.rows.length - 1]);
+            table.deleteRow(-1);
+        }
+        rows.sort(function (a, b) {
+            a = a.cells[fieldIndex].textContent;
+            b = b.cells[fieldIndex].textContent;
+            if (!isNaN(Number(a)) && !isNaN(Number(b))) {
+                a = Number(a);
+                b = Number(b);
+            }
+            if (ascendingOrder) return (a > b)?1:-1;
+            else                return (a < b)?1:-1;
+        });
+        setTimeout(function () {
+            for (var i = 0; i < rows.length; ++i) table.appendChild(rows[i]);
+            document.body.style.cursor = "";
+            table.style.display = "";
+        }, 100);
+    }, 100);
 }
 
 if (table) {

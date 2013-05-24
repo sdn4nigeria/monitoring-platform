@@ -61,10 +61,12 @@ var FormUtils = {
                          );
         menu.setAttribute("type", "combobox");
         var option, value = otherValue, label = "Other";
-        option = document.createElement("option");
-        option.setAttribute("value", value);
-        option.textContent         = label;
-        menu.appendChild(option);
+        if (otherValue !== false) {
+            option = document.createElement("option");
+            option.setAttribute("value", value);
+            option.textContent         = label;
+            menu.appendChild(option);
+        }
         for (var i = 0; i < options.length; ++i) {
             var optionData = options[i];
             option = document.createElement("option");
